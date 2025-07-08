@@ -201,7 +201,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d4c867f6b72b714dbb5fd1780afe208, type: 3}
-  m_Name: RobotWeapon_A_1P_Muzzle_Secondary
+  m_Name: Robot_Weapon_A_1P_Muzzle_Secondary
   m_EditorClassIdentifier: 
   m_Parent: {fileID: 0}
   m_Children:
@@ -266,6 +266,7 @@ MonoBehaviour:
   m_UIPosition: {x: 0, y: 0}
   m_UICollapsed: 1
   m_UISuperCollapsed: 0
+  title: 
   m_Owners:
   - {fileID: 114946465509916290}
   - {fileID: 114780028408030698}
@@ -681,7 +682,7 @@ VisualEffectResource:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: RobotWeapon_A_1P_Muzzle_Secondary
+  m_Name: Robot_Weapon_A_1P_Muzzle_Secondary
   m_Graph: {fileID: 114350483966674976}
   m_ShaderSources:
   - compute: 1

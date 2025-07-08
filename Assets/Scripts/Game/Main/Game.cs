@@ -323,13 +323,6 @@ public class Game : MonoBehaviour
             DontDestroyOnLoad(m_DebugOverlay);
             m_DebugOverlay.Init();
 
-            var hdpipe = RenderPipelineManager.currentPipeline as HDRenderPipeline;
-            if (hdpipe != null)
-            {
-                hdpipe.DebugLayer2DCallback = DebugOverlay.Render;
-                hdpipe.DebugLayer3DCallback = DebugOverlay.Render3D;
-            }
-
             m_GameStatistics = new GameStatistics();
         }
 
@@ -517,9 +510,6 @@ public class Game : MonoBehaviour
             var hdpipe = RenderPipelineManager.currentPipeline as HDRenderPipeline;
             if (hdpipe != null)
             {
-                hdpipe.DebugLayer2DCallback = DebugOverlay.Render;
-                hdpipe.DebugLayer3DCallback = DebugOverlay.Render3D;
-
                 var layer = LayerMask.NameToLayer("PostProcess Volumes");
                 if (layer == -1)
                     GameDebug.LogWarning("Unable to find layer mask for camera fader");
