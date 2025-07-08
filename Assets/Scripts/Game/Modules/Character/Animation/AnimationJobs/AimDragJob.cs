@@ -41,7 +41,7 @@ public struct AimDragJob : IAnimationJob
     
     TransformStreamHandle m_Effectorhandle;
     TransformStreamHandle m_WeaponPivot;
-    TransformSceneHandle m_WeaponHandResult;
+    TransformStreamHandle m_WeaponHandResult;
     
     bool m_AimDirectionInitialized;
     NativeQueue<Quaternion> m_DragHistory;
@@ -61,7 +61,7 @@ public struct AimDragJob : IAnimationJob
         settings = editorSettings.settings;   
         m_Effectorhandle = animator.BindStreamTransform(editorSettings.weaponHandBone);
         m_WeaponPivot = animator.BindStreamTransform(editorSettings.weaponBone);
-        m_WeaponHandResult = animator.BindSceneTransform(editorSettings.applyResultOn);
+        m_WeaponHandResult = animator.BindStreamTransform(editorSettings.applyResultOn);
         m_DragHistory = dragHistory;
         return true;
     }

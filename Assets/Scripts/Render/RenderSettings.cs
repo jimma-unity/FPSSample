@@ -145,17 +145,17 @@ public static class RenderSettings
 
         // Post effect flags
         if (rBloom.ChangeCheck())
-            Bloom.globalEnable = rBloom.IntValue > 0;
+            UnityEngine.Rendering.PostProcessing.Bloom.globalEnable = rBloom.IntValue > 0;
 
         if (rMotionBlur.ChangeCheck())
         {
-            MotionBlur.globalEnable = rMotionBlur.IntValue > 0;
+            UnityEngine.Rendering.PostProcessing.MotionBlur.globalEnable = rMotionBlur.IntValue > 0;
             updateFrameSettings = true;
         }
 
         if (rSSAO.ChangeCheck())
         {
-            AmbientOcclusion.globalEnable = rSSAO.IntValue > 0;
+            UnityEngine.Rendering.PostProcessing.AmbientOcclusion.globalEnable = rSSAO.IntValue > 0;
             updateFrameSettings = true;
         }
 
@@ -180,11 +180,11 @@ public static class RenderSettings
         //if (rShadowDistMult.ChangeCheck())
             //HDShadowSettings.shadowDistanceMultiplier = Mathf.Clamp(rShadowDistMult.FloatValue, 0.5f, 4.0f);
 
-        if (rDecalDist.ChangeCheck())
+        /*if (rDecalDist.ChangeCheck())
         {
             var hdasset = GraphicsSettings.renderPipelineAsset as HDRenderPipelineAsset;
             hdasset.renderPipelineSettings.decalSettings.drawDistance = rDecalDist.IntValue;
-        }
+        }*/
 
         if (rGamma.ChangeCheck())
             ColorGrading.globalGamma = Mathf.Clamp(rGamma.FloatValue, 0.1f, 5.0f);
@@ -230,13 +230,21 @@ public static class RenderSettings
         if (hdCam == null)
             return;
 
-        hdCam.GetFrameSettings().enableSubsurfaceScattering = rSSS.IntValue > 0;
-        hdCam.GetFrameSettings().enableMotionVectors = rMotionBlur.IntValue > 0;
-        hdCam.GetFrameSettings().enableObjectMotionVectors = rMotionBlur.IntValue > 0;
-        hdCam.GetFrameSettings().enableSSAO = rSSAO.IntValue > 0;
-        hdCam.GetFrameSettings().enableSSR = rSSR.IntValue > 0;
-        hdCam.GetFrameSettings().enableRoughRefraction = rRoughRefraction.IntValue > 0;
-        hdCam.GetFrameSettings().enableDistortion = rDistortion.IntValue > 0;
+        // Enable custom frame settings override (must be enabled for your changes to apply)
+        hdCam.customRenderingSettings = true;
+
+        var settings = hdCam.renderingPathCustomFrameSettings;
+
+        /*settings.enableSubsurfaceScattering = rSSS.IntValue > 0;
+        settings.enableMotionVectors = rMotionBlur.IntValue > 0;
+        settings.enableObjectMotionVectors = rMotionBlur.IntValue > 0;
+        settings.enableSSAO = rSSAO.IntValue > 0;
+        settings.enableSSR = rSSR.IntValue > 0;
+        settings.enableRoughRefraction = rRoughRefraction.IntValue > 0;
+        settings.enableDistortion = rDistortion.IntValue > 0;*/
+
+        // Apply the modified settings back to the camera
+        hdCam.renderingPathCustomFrameSettings = settings;
     }
 
     static void UpdateAAFlags(Camera c)

@@ -8,6 +8,7 @@ using System;
 using System.Globalization;
 using UnityEngine.Rendering.PostProcessing;
 using SQP;
+using UnityEngine.Rendering;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
