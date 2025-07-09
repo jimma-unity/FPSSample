@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -106,7 +107,7 @@ namespace Unity.Entities.PerformanceTests
             resetJobHandle.Complete();
         }
 
-        [PerformanceTest]
+        [Test, Performance]
         public void NAI_SingleVsSplitIterationJob()
         {
             var count = 10 * 1024 * 1024;

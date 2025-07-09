@@ -23,3 +23,5 @@
 *.log
 *.pyc
 *.user
+Logs
+UserSettings

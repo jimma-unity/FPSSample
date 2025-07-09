@@ -42,7 +42,7 @@ namespace Unity.Entities.Properties.Tests
         /// <summary>
         /// Serializes 10,000 entities as json
         /// </summary>
-        [PerformanceTest]
+        [Test, Performance]
         public void SerializationPerformance()
         {
             const int kCount = 10000;
@@ -133,7 +133,7 @@ namespace Unity.Entities.Properties.Tests
         /// (e.g. disc I/O, managed objects, strings etc)
         /// </summary>
         [Ignore("Disabled temporarily: a race condition in Properties v0.2.9-preview makes it break")]
-        [PerformanceTest]
+        [Test, Performance]
         public void SerializationPerformanceThreaded()
         {
             const int kCount = 10000;
@@ -213,7 +213,7 @@ namespace Unity.Entities.Properties.Tests
         /// Serializes 10,000 entities as json using the C# job system
         /// </summary>
         [Ignore("Disabled temporarily: a race condition in Properties v0.2.9-preview makes it break")]
-        [PerformanceTest]
+        [Test, Performance]
         public void SerializationPerformanceJob()
         {
             const int kCount = 10000;

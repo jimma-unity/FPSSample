@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Gooball01_8x8
   m_Shader: {fileID: 4800000, guid: c4edd00ff2db5b24391a4fcb1762e459, type: 3}
-  m_ShaderKeywords: _BLENDMODE_ADD _EMISSIVE_COLOR_MAP _SURFACE_TYPE_TRANSPARENT
+  m_ShaderKeywords: _EMISSIVE_COLOR_MAP _SURFACE_TYPE_TRANSPARENT
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -55,7 +55,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 562edb99b92dab647b704ca5282a92cd, type: 3}
+        m_Texture: {fileID: 2800000, guid: 0b98a5323aa37e146a4aa9ab48b1e440, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -85,6 +85,8 @@ Material:
     - _AlphaCutoffEnable: 0
     - _AlphaDstBlend: 1
     - _AlphaSrcBlend: 1
+    - _AlphaToMask: 0
+    - _AlphaToMaskInspectorValue: 0
     - _BlendMode: 1
     - _BumpScale: 1
     - _CullMode: 2
@@ -120,6 +122,7 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
+    - _OpaqueCullMode: 2
     - _Parallax: 0.02
     - _PreRefractionPass: 0
     - _SmoothnessTextureChannel: 0
@@ -145,12 +148,14 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 0
     m_Colors:
-    - _Color: {r: 8.972549, g: 16, b: 15.87451, a: 1}
+    - _Color: {r: 0.09905658, g: 1, b: 0.9230456, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissiveColor: {r: 8.972549, g: 16, b: 15.87451, a: 1}
     - _EmissiveColorLDR: {r: 0, g: 0, b: 0, a: 1}
     - _TintColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
     - _UnlitColor: {r: 0.0990566, g: 1, b: 0.9230456, a: 1}
+    - _UnlitColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
 --- !u!114 &3682247365237408906
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -163,4 +168,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da692e001514ec24dbc4cca1949ff7e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 2
+  version: 11

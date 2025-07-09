@@ -13,7 +13,7 @@ public class GeometryImporter : AssetPostprocessor
 		if (importer != null)
 		{
 			importer.addCollider = false;      
-			importer.importMaterials = false;
+			importer.materialImportMode = ModelImporterMaterialImportMode.None;
 			//importer.materialName = ModelImporterMaterialName.BasedOnMaterialName;
 			//importer.materialSearch = ModelImporterMaterialSearch.Everywhere;
 		}
