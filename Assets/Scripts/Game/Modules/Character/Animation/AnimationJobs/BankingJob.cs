@@ -2,9 +2,10 @@
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Experimental.Animations;
+using UnityEngine.Animations;
 
-public struct BankingJob : IAnimationJob
+
+public struct BankingJob : UnityEngine.Animations.IAnimationJob
 {
     [Serializable]
     public struct Settings
@@ -39,16 +40,16 @@ public struct BankingJob : IAnimationJob
         }
     }
 
-    TransformStreamHandle m_SkeletonHandle;    
-    NativeArray<MuscleHandle> m_HeadLeftRightMuscles;
-    NativeArray<MuscleHandle> m_SpineLeftRightMuscles;
+    UnityEngine.Animations.TransformStreamHandle m_SkeletonHandle;    
+    NativeArray<UnityEngine.Animations.MuscleHandle> m_HeadLeftRightMuscles;
+    NativeArray<UnityEngine.Animations.MuscleHandle> m_SpineLeftRightMuscles;
 
     public Settings settings;
     public float bankAmount;
     public CharacterInterpolatedData animState;
 
     public bool Setup(Animator animator, EditorSettings editorSettings, float deltaTime, 
-        NativeArray<MuscleHandle> headMuscles, NativeArray<MuscleHandle> spineMuscles)
+        NativeArray<UnityEngine.Animations.MuscleHandle> headMuscles, NativeArray<UnityEngine.Animations.MuscleHandle> spineMuscles)
     {
         if (!editorSettings.HasValidData())
         {
@@ -60,12 +61,12 @@ public struct BankingJob : IAnimationJob
         m_HeadLeftRightMuscles = headMuscles;
         m_SpineLeftRightMuscles = spineMuscles;
         
-        m_HeadLeftRightMuscles[0] = new MuscleHandle(HeadDof.NeckLeftRight);
-        m_HeadLeftRightMuscles[1] = new MuscleHandle(HeadDof.HeadLeftRight);
+        m_HeadLeftRightMuscles[0] = new UnityEngine.Animations.MuscleHandle(HeadDof.NeckLeftRight);
+        m_HeadLeftRightMuscles[1] = new UnityEngine.Animations.MuscleHandle(HeadDof.HeadLeftRight);
         
-        m_SpineLeftRightMuscles[0] = new MuscleHandle(BodyDof.SpineLeftRight);
-        m_SpineLeftRightMuscles[1] = new MuscleHandle(BodyDof.ChestLeftRight);
-        m_SpineLeftRightMuscles[2] = new MuscleHandle(BodyDof.UpperChestLeftRight);
+        m_SpineLeftRightMuscles[0] = new UnityEngine.Animations.MuscleHandle(BodyDof.SpineLeftRight);
+        m_SpineLeftRightMuscles[1] = new UnityEngine.Animations.MuscleHandle(BodyDof.ChestLeftRight);
+        m_SpineLeftRightMuscles[2] = new UnityEngine.Animations.MuscleHandle(BodyDof.UpperChestLeftRight);
 
 
         return true;
@@ -75,7 +76,7 @@ public struct BankingJob : IAnimationJob
     {
     }
 
-    public void Update(CharacterInterpolatedData animState, Settings settings, AnimationScriptPlayable playable)
+    public void Update(CharacterInterpolatedData animState, Settings settings, UnityEngine.Animations.AnimationScriptPlayable playable)
     {
         var job = playable.GetJobData<BankingJob>();
         job.animState = animState;
@@ -84,9 +85,9 @@ public struct BankingJob : IAnimationJob
         playable.SetJobData(job);
     }
 
-    public void ProcessRootMotion(AnimationStream stream) { }
+    public void ProcessRootMotion(UnityEngine.Animations.AnimationStream stream) { }
 
-    public void ProcessAnimation(AnimationStream stream)
+    public void ProcessAnimation(UnityEngine.Animations.AnimationStream stream)
     {
         if (math.abs(bankAmount) < 0.001f)
         {

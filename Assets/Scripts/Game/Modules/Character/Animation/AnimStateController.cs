@@ -30,7 +30,7 @@ public class AnimStateController : MonoBehaviour
         Profiler.EndSample();
     
 #if UNITY_EDITOR        
-        GraphVisualizerClient.Show(m_PlayableGraph);
+        //GraphVisualizerClient.Show(m_PlayableGraph);
 #endif
         
         Profiler.BeginSample("Instantiate playables");

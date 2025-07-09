@@ -1,9 +1,10 @@
 ﻿using System;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.Experimental.Animations;
+using UnityEngine.Animations;
 
-public struct AimDragJob : IAnimationJob
+
+public struct AimDragJob : UnityEngine.Animations.IAnimationJob
 {
     [Serializable]
     public struct Settings
@@ -39,9 +40,9 @@ public struct AimDragJob : IAnimationJob
         }
     }
     
-    TransformStreamHandle m_Effectorhandle;
-    TransformStreamHandle m_WeaponPivot;
-    TransformStreamHandle m_WeaponHandResult;
+    UnityEngine.Animations.TransformStreamHandle m_Effectorhandle;
+    UnityEngine.Animations.TransformStreamHandle m_WeaponPivot;
+    UnityEngine.Animations.TransformStreamHandle m_WeaponHandResult;
     
     bool m_AimDirectionInitialized;
     NativeQueue<Quaternion> m_DragHistory;
@@ -66,7 +67,7 @@ public struct AimDragJob : IAnimationJob
         return true;
     }
     
-    public void Update(Vector3 target, Settings settings, CharacterInterpolatedData animationState, AnimationScriptPlayable playable)
+    public void Update(Vector3 target, Settings settings, CharacterInterpolatedData animationState, UnityEngine.Animations.AnimationScriptPlayable playable)
     {
         var job = playable.GetJobData<AimDragJob>();
         job.settings = settings;
@@ -75,9 +76,9 @@ public struct AimDragJob : IAnimationJob
     }
     
 
-    public void ProcessRootMotion(AnimationStream stream) { }
+    public void ProcessRootMotion(UnityEngine.Animations.AnimationStream stream) { }
 
-    public void ProcessAnimation(AnimationStream stream)
+    public void ProcessAnimation(UnityEngine.Animations.AnimationStream stream)
     {        
         if (!m_AimDirectionInitialized)
         {

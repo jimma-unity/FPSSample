@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using UnityEngine.Experimental.VFX;
 using UnityEditorInternal;
 using System.Collections.Generic;
+using UnityEngine.VFX;
 
 namespace UnityEditor.VFX.Utils
 {

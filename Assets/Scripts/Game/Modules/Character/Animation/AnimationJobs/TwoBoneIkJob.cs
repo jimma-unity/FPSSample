@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.Animations;
+using UnityEngine.Animations;
 
-public struct TwoBoneIKJob : IAnimationJob
+
+public struct TwoBoneIKJob : UnityEngine.Animations.IAnimationJob
 {   
-    TransformStreamHandle m_EndHandle;
-    TransformStreamHandle m_StartHandle;
-    TransformStreamHandle m_MidHandle;
-    TransformSceneHandle m_EffectorSceneHandle;
-    TransformStreamHandle m_EffectorStreamHandle;
-    PropertySceneHandle m_WeightHandle;
-    PropertyStreamHandle m_AnimatorWeight;
-    PropertySceneHandle m_AnimatorWeightOffset;
+    UnityEngine.Animations.TransformStreamHandle m_EndHandle;
+    UnityEngine.Animations.TransformStreamHandle m_StartHandle;
+    UnityEngine.Animations.TransformStreamHandle m_MidHandle;
+    UnityEngine.Animations.TransformSceneHandle m_EffectorSceneHandle;
+    UnityEngine.Animations.TransformStreamHandle m_EffectorStreamHandle;
+    UnityEngine.Animations.PropertySceneHandle m_WeightHandle;
+    UnityEngine.Animations.PropertyStreamHandle m_AnimatorWeight;
+    UnityEngine.Animations.PropertySceneHandle m_AnimatorWeightOffset;
     
     IkType m_IkType;
     AvatarIKGoal m_HumanLimb;
@@ -139,9 +140,9 @@ public struct TwoBoneIKJob : IAnimationJob
         return true;
     }
 
-    public void ProcessRootMotion(AnimationStream stream) { }
+    public void ProcessRootMotion(UnityEngine.Animations.AnimationStream stream) { }
 
-    public void ProcessAnimation(AnimationStream stream)
+    public void ProcessAnimation(UnityEngine.Animations.AnimationStream stream)
     {
         float weight;
         if (m_UseAnimatorProperty)

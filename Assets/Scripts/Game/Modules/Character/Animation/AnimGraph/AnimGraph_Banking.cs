@@ -1,7 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
-using UnityEngine.Experimental.Animations;
+
 using UnityEngine.Playables;
 using UnityEngine.Profiling;
 
@@ -39,11 +39,11 @@ public class AnimGraph_Banking : AnimGraphAsset
             bankingSettings.settings = settings.bankingSettings;
     
             var bankingJob = new BankingJob();
-            m_HeadLeftRightMuscles = new NativeArray<MuscleHandle>(2, Allocator.Persistent);
-            m_SpineLeftRightMuscles = new NativeArray<MuscleHandle>(3, Allocator.Persistent);
+            m_HeadLeftRightMuscles = new NativeArray<UnityEngine.Animations.MuscleHandle>(2, Allocator.Persistent);
+            m_SpineLeftRightMuscles = new NativeArray<UnityEngine.Animations.MuscleHandle>(3, Allocator.Persistent);
             var initialized = bankingJob.Setup(animator, bankingSettings, 2312, m_HeadLeftRightMuscles, m_SpineLeftRightMuscles);
             GameDebug.Assert(initialized, "Failed to initialize BankingJob");
-            m_Playable = AnimationScriptPlayable.Create(graph, bankingJob);
+            m_Playable = UnityEngine.Animations.AnimationScriptPlayable.Create(graph, bankingJob);
         }
     
         public void Shutdown()
@@ -122,12 +122,12 @@ public class AnimGraph_Banking : AnimGraphAsset
         Entity m_Owner;
         Entity m_AnimStateOwner;
 
-        AnimationScriptPlayable m_Playable;
+        UnityEngine.Animations.AnimationScriptPlayable m_Playable;
         Vector3 m_PreviousPosition;
         Vector3 m_PreviousMovement;
         
-        NativeArray<MuscleHandle> m_HeadLeftRightMuscles;
-        NativeArray<MuscleHandle> m_SpineLeftRightMuscles;
+        NativeArray<UnityEngine.Animations.MuscleHandle> m_HeadLeftRightMuscles;
+        NativeArray<UnityEngine.Animations.MuscleHandle> m_SpineLeftRightMuscles;
     }
 
 }

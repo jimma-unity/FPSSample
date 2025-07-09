@@ -2,7 +2,7 @@
 using UnityEngine.Playables;
 using UnityEngine;
 using Unity.Entities;
-using UnityEngine.Experimental.VFX;
+using UnityEngine.VFX;
 
 [DisallowMultipleComponent]
 [ClientOnlyComponent]

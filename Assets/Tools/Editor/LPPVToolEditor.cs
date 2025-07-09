@@ -74,7 +74,7 @@ public class LPPVToolEditor : Editor
 
         foreach (var r in tool.transform.GetComponentsInChildren<Renderer>())
         {
-            if ((GameObjectUtility.GetStaticEditorFlags(r.gameObject) & StaticEditorFlags.LightmapStatic) == StaticEditorFlags.LightmapStatic)
+            if ((GameObjectUtility.GetStaticEditorFlags(r.gameObject) & StaticEditorFlags.ContributeGI) == StaticEditorFlags.ContributeGI)
                 continue;
             result.Add(r.gameObject);
         }

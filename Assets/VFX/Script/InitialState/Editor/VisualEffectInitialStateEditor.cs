@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.VFX.Utils;
+using UnityEngine.VFX.Utility;
 using UnityEditor;
+using UnityEngine.VFX.Utils;
 
 [CustomEditor(typeof(VisualEffectInitialState)), CanEditMultipleObjects]
 public class VisualEffectInitialStateEditor : Editor

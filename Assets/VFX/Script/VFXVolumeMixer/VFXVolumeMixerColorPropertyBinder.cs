@@ -1,16 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.VFX;
-using UnityEngine.VFX.Utils;
+using UnityEngine.VFX;
+using UnityEngine.VFX.Utility;
 
 [VFXBinder("VFX Volume Mixer/Color Property Binder")]
 public class VFXVolumeMixerColorPropertyBinder : VFXVolumeMixerPropertyBinderBase
 {
     [VFXVolumeMixerProperty(VFXVolumeMixerPropertyAttribute.PropertyType.Color)]
     public int ColorMixerProperty = 0;
-    [VFXParameterBinding("UnityEngine.Color")]
-    public ExposedParameter ColorParameter = "Parameter";
+    [VFXPropertyBinding("UnityEngine.Color")]
+    public ExposedProperty ColorParameter = "Parameter";
 
     public override bool IsValid(VisualEffect component)
     {

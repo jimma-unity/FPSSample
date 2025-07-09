@@ -1,7 +1,8 @@
 using UnityEngine;
 using System;
-using UnityEngine.Experimental.Rendering.HDPipeline;
+using UnityEngine.Experimental.Rendering.HighDefinition;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.HighDefinition;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
