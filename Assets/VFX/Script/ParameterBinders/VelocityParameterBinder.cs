@@ -1,15 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Experimental.VFX;
+﻿using UnityEngine.VFX.Utility;
 
 namespace UnityEngine.VFX.Utils
 {
     [VFXBinder("Utility/Velocity")]
     public class VelocityParameterBinder : VFXBinderBase
     {
-        [VFXParameterBinding("UnityEngine.Vector3")]
-        public ExposedParameter VelocityParameter = "OwnerVelocity";
+        [VFXPropertyBinding("UnityEngine.Vector3")]
+        public ExposedProperty VelocityParameter = "OwnerVelocity";
 
         Vector3 velocity;
         Vector3 oldPosition;

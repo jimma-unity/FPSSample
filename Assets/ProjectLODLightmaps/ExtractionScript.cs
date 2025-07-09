@@ -30,7 +30,7 @@ public class ExtractionScript : MonoBehaviour
                 {
                     if (renderer != null)
                     {
-                        if ((GameObjectUtility.GetStaticEditorFlags(renderer.gameObject) & StaticEditorFlags.LightmapStatic) != 0)
+                        if ((GameObjectUtility.GetStaticEditorFlags(renderer.gameObject) & StaticEditorFlags.ContributeGI) != 0)
                         {
                             anyStatic = true;
                         }
@@ -55,7 +55,7 @@ public class ExtractionScript : MonoBehaviour
                 int rendererCount = 0;
                 foreach (Renderer renderer in lods[lodIndex].renderers)
                 {
-                    if (renderer != null && (GameObjectUtility.GetStaticEditorFlags(renderer.gameObject) & StaticEditorFlags.LightmapStatic) != 0)
+                    if (renderer != null && (GameObjectUtility.GetStaticEditorFlags(renderer.gameObject) & StaticEditorFlags.ContributeGI) != 0)
                         rendererCount++;
                 }
 
@@ -101,7 +101,7 @@ public class ExtractionScript : MonoBehaviour
 
     private static bool IsLightmapStatic(Renderer renderer)
     {
-        return (GameObjectUtility.GetStaticEditorFlags(renderer.gameObject) & StaticEditorFlags.LightmapStatic) != 0;
+        return (GameObjectUtility.GetStaticEditorFlags(renderer.gameObject) & StaticEditorFlags.ContributeGI) != 0;
     }
 
     private static void SetUpProjectionInternal(bool dryRun)
@@ -153,7 +153,7 @@ public class ExtractionScript : MonoBehaviour
                             if (!dryRun)
                             {
                                 StaticEditorFlags flags = GameObjectUtility.GetStaticEditorFlags(renderer.gameObject);
-                                GameObjectUtility.SetStaticEditorFlags(renderer.gameObject, flags & ~StaticEditorFlags.LightmapStatic);
+                                GameObjectUtility.SetStaticEditorFlags(renderer.gameObject, flags & ~StaticEditorFlags.ContributeGI);
 
                                 if (isMatchingLOD0RendererLightmapStatic)
                                 {

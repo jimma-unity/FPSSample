@@ -1,15 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.Experimental.VFX;
-using UnityEngine.VFX.Utils;
+using UnityEngine.VFX;
+using UnityEngine.VFX.Utility;
 
 [VFXBinder("VFX Volume Mixer/Vector Property Binder")]
 public class VFXVolumeMixerVectorPropertyBinder : VFXVolumeMixerPropertyBinderBase
 {
     [VFXVolumeMixerProperty( VFXVolumeMixerPropertyAttribute.PropertyType.Vector)]
     public int VectorMixerProperty = 0;
-    [VFXParameterBinding("UnityEngine.Vector3")]
-    public ExposedParameter VectorParameter = "Parameter";
+    [VFXPropertyBinding("UnityEngine.Vector3")]
+    public ExposedProperty VectorParameter = "Parameter";
 
     public override bool IsValid(VisualEffect component)
     {

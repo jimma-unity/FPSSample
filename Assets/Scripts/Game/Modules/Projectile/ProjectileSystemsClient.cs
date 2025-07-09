@@ -6,7 +6,7 @@ using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEditor.Experimental.Rendering;
+using UnityEditor.Rendering;
 using UnityEngine.Profiling;
 
 

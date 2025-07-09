@@ -52,7 +52,7 @@
 				#define VFX_VARYING_ALPHA builtInInterpolants.y
 				#define VFX_VARYING_FRAMEBLEND builtInInterpolants.z
 				#define VFX_VARYING_UV uv
-				
+				#define VFX_PRIMITIVE_QUAD 1
 
 				${VFXBegin:VFXVertexAdditionalProcess}
 					${VFXLoadParameter:{Intensity}}
@@ -61,7 +61,7 @@
 					o.distortionInterpolants.z = Roughness;
 				${VFXEnd}
 
-				${VFXInclude("Shaders/ParticleQuads/Pass.template")}	
+				${VFXInclude("Shaders/ParticlePlanarPrimitives/Pass.template")}	
 					
 				#pragma fragment frag
 				ps_output frag(ps_input i)

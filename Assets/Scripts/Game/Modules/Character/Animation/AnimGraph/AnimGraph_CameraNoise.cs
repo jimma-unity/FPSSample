@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 using UnityEngine;
-using UnityEngine.Experimental.Animations;
+
 using UnityEngine.Playables;
 using UnityEngine.Profiling;
 
@@ -43,7 +43,7 @@ public class AnimGraph_CameraNoise : AnimGraphAsset
             var noiseJob = new CameraNoiseJob();
             var initialized = noiseJob.Setup(animator, cameraNoiseSettings);
             GameDebug.Assert(initialized, "Failed to initialize AimDragJob");
-            m_NoisePlayable = AnimationScriptPlayable.Create(graph, noiseJob, 1);
+            m_NoisePlayable = UnityEngine.Animations.AnimationScriptPlayable.Create(graph, noiseJob, 1);
             m_NoisePlayable.SetInputWeight(0, 1);
         }
     
@@ -81,7 +81,7 @@ public class AnimGraph_CameraNoise : AnimGraphAsset
         EntityManager m_EntityManager;
         Entity m_Owner;
         Entity m_AnimStateOwner;
-        AnimationScriptPlayable m_NoisePlayable;
+        UnityEngine.Animations.AnimationScriptPlayable m_NoisePlayable;
         
         PlayableGraph m_graph;
     }

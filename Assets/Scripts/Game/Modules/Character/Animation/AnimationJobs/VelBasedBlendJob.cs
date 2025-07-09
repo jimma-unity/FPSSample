@@ -3,14 +3,15 @@ using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Experimental.Animations;
+using UnityEngine.Animations;
+
 
 // TODO: Blending foot ik on and off?
 //[BurstCompile(CompileSynchronously = true)]
-public struct VelBasedBlendJob : IAnimationJob
+public struct VelBasedBlendJob : UnityEngine.Animations.IAnimationJob
 {
-    NativeArray<TransformStreamHandle> m_Bones;
-    NativeArray<TransformStreamHandle> m_IkHandles;
+    NativeArray<UnityEngine.Animations.TransformStreamHandle> m_Bones;
+    NativeArray<UnityEngine.Animations.TransformStreamHandle> m_IkHandles;
 
     // Output history
     NativeArray<float3> m_OutputPositions;
@@ -77,7 +78,7 @@ public struct VelBasedBlendJob : IAnimationJob
         
         m_CurrentBufferIndex = -1;
         
-        m_Bones = new NativeArray<TransformStreamHandle>(numBones, Allocator.Persistent);
+        m_Bones = new NativeArray<UnityEngine.Animations.TransformStreamHandle>(numBones, Allocator.Persistent);
 
         m_OutputPositions = new NativeArray<float3>(numBones * k_OutputBufferCount, Allocator.Persistent);
         m_OutputRotations = new NativeArray<quaternion>(numBones * k_OutputBufferCount, Allocator.Persistent);
@@ -137,7 +138,7 @@ public struct VelBasedBlendJob : IAnimationJob
         m_FromIkRotations.Dispose();        
     }
 
-    public static void Transition(AnimationScriptPlayable jobPlayable, float duration)
+    public static void Transition(UnityEngine.Animations.AnimationScriptPlayable jobPlayable, float duration)
     {
         var job = jobPlayable.GetJobData<VelBasedBlendJob>();
 
@@ -152,12 +153,12 @@ public struct VelBasedBlendJob : IAnimationJob
         jobPlayable.SetJobData(job);
     }
 
-    public void ProcessRootMotion(AnimationStream stream) { }
+    public void ProcessRootMotion(UnityEngine.Animations.AnimationStream stream) { }
 
     
     const int k_debugBone = 15;
     
-    public void ProcessAnimation(AnimationStream stream)
+    public void ProcessAnimation(UnityEngine.Animations.AnimationStream stream)
     {
         var invDeltaTime = 1.0f / stream.deltaTime;
             
@@ -367,7 +368,7 @@ public struct VelBasedBlendJob : IAnimationJob
     }
     
 
-    void StoreOutput(AnimationStream stream)
+    void StoreOutput(UnityEngine.Animations.AnimationStream stream)
     {       
         m_CurrentBufferIndex = (m_CurrentBufferIndex + 1) % k_OutputBufferCount;
 

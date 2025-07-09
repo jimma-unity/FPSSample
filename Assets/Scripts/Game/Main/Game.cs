@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine.Experimental.Rendering;
-using UnityEngine.Experimental.Rendering.HDPipeline;
+using UnityEngine.Rendering.HighDefinition;
 using System;
 using System.Globalization;
 using UnityEngine.Rendering.PostProcessing;

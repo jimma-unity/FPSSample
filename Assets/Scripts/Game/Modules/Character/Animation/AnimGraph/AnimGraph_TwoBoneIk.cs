@@ -1,7 +1,7 @@
 ﻿
 using Unity.Entities;
 using UnityEngine;
-using UnityEngine.Experimental.Animations;
+
 using UnityEngine.Playables;
 
 [CreateAssetMenu(fileName = "TwoBoneIk", menuName = "FPS Sample/Animation/AnimGraph/TwoBoneIk")]
@@ -41,7 +41,7 @@ public class AnimGraph_TwoBoneIk : AnimGraphAsset
             var initialized = leftArmIkJob.Setup(animator, ikSettings, typeof(AnimStateController),
                 "leftArmIK.weight.value", "leftArmIK.weight.propertyOffset", "leftArmIK.target.offset");
             GameDebug.Assert(initialized,"Failed to initialize TwoBoneIKJob");
-            m_ikPlayable = AnimationScriptPlayable.Create(graph, leftArmIkJob, 1);
+            m_ikPlayable = UnityEngine.Animations.AnimationScriptPlayable.Create(graph, leftArmIkJob, 1);
             m_ikPlayable.SetInputWeight(0,1);
         }
     
@@ -65,7 +65,7 @@ public class AnimGraph_TwoBoneIk : AnimGraphAsset
         }
     
         PlayableGraph m_graph;
-        AnimationScriptPlayable m_ikPlayable;
+        UnityEngine.Animations.AnimationScriptPlayable m_ikPlayable;
     }
 
 }

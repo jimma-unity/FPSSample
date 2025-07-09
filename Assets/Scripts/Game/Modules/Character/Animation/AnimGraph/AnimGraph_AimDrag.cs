@@ -1,7 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
-using UnityEngine.Experimental.Animations;
+
 using UnityEngine.Playables;
 using UnityEngine.Profiling;
 
@@ -57,7 +57,7 @@ public class AnimGraph_AimDrag : AnimGraphAsset
             m_DragHistory = new NativeQueue<Quaternion>(Allocator.Persistent);
             var initialized = dragJob.Setup(animator, aimDragJobSettings, 2312, m_DragHistory);
             GameDebug.Assert(initialized, "Failed to initialize AimDragJob");
-            m_AimDragPlayable = AnimationScriptPlayable.Create(graph, dragJob, 1); 
+            m_AimDragPlayable = UnityEngine.Animations.AnimationScriptPlayable.Create(graph, dragJob, 1); 
             m_AimDragPlayable.SetInputWeight(0,1);
     
             // Hand IK
@@ -73,7 +73,7 @@ public class AnimGraph_AimDrag : AnimGraphAsset
                 "rightArmIK.weight.propertyOffset", "rightArmIK.target.offset");
             GameDebug.Assert(initialized, "Failed to initialize TwoBoneIKJob");
             
-            m_IKPlayable = AnimationScriptPlayable.Create(graph, rightArmIkJob);
+            m_IKPlayable = UnityEngine.Animations.AnimationScriptPlayable.Create(graph, rightArmIkJob);
             m_IKPlayable.AddInput(m_AimDragPlayable, 0, 1f);
         }
     
@@ -110,7 +110,7 @@ public class AnimGraph_AimDrag : AnimGraphAsset
         Entity m_Owner;
         Entity m_AnimStateOwner;
         PlayableGraph m_graph;
-        AnimationScriptPlayable m_AimDragPlayable;
-        AnimationScriptPlayable m_IKPlayable;
+        UnityEngine.Animations.AnimationScriptPlayable m_AimDragPlayable;
+        UnityEngine.Animations.AnimationScriptPlayable m_IKPlayable;
     }
 }

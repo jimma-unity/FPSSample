@@ -2,7 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Experimental.VFX;
+using UnityEngine.VFX;
 
 [ClientOnlyComponent]
 public class ClientProjectile : MonoBehaviour

@@ -2,7 +2,7 @@
 using System.Net;
 using UnityEngine;
 using Unity.Entities;
-using UnityEngine.Experimental.VFX;
+using UnityEngine.VFX;
 
 public struct GunBarrelState
 {

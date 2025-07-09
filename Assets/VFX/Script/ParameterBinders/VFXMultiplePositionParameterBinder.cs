@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.VFX;
-using UnityEngine.VFX.Utils;
+using UnityEngine.VFX;
+using UnityEngine.VFX.Utility;
 
 [VFXBinder("Utility/Multiple Position Binder")]
 public class VFXMultiplePositionParameterBinder : VFXBinderBase
 {
-    [VFXParameterBinding("UnityEngine.Texture2D")]
-    public ExposedParameter PositionMapParameter = "PositionMap";
-    [VFXParameterBinding("System.Int32")]
-    public ExposedParameter PositionCountParameter = "PositionCount";
+    [VFXPropertyBinding("UnityEngine.Texture2D")]
+    public ExposedProperty PositionMapParameter = "PositionMap";
+    [VFXPropertyBinding("System.Int32")]
+    public ExposedProperty PositionCountParameter = "PositionCount";
 
     public GameObject[] Targets;
     public bool EveryFrame = false;

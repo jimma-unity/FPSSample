@@ -1,9 +1,9 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.Experimental.Animations;
+
 using UnityEngine.Serialization;
 
-public struct FootIkJob : IAnimationJob
+public struct FootIkJob : UnityEngine.Animations.IAnimationJob
 {    
     [Serializable]
     public struct JobSettings
@@ -52,8 +52,8 @@ public struct FootIkJob : IAnimationJob
     public Vector3 normalLeftFoot;
     public Vector3 normalRightFoot;
 
-    public TransformStreamHandle leftToe;
-    public TransformStreamHandle rightToe;
+    public UnityEngine.Animations.TransformStreamHandle leftToe;
+    public UnityEngine.Animations.TransformStreamHandle rightToe;
 
     public float ikWeight;
     
@@ -64,9 +64,9 @@ public struct FootIkJob : IAnimationJob
 
     public void Dispose() { }
 
-    public void ProcessRootMotion(AnimationStream stream) { }
+    public void ProcessRootMotion(UnityEngine.Animations.AnimationStream stream) { }
 
-    public void ProcessAnimation(AnimationStream stream)
+    public void ProcessAnimation(UnityEngine.Animations.AnimationStream stream)
     {
         if (!settings.enabled || AnimGraph_Stand.useFootIk.IntValue < 1)
             return;

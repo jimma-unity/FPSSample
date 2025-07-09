@@ -1,15 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.Experimental.VFX;
-using UnityEngine.VFX.Utils;
+using UnityEngine.VFX;
+using UnityEngine.VFX.Utility;
 
 [VFXBinder("VFX Volume Mixer/Float Property Binder")]
 public class VFXVolumeMixerFloatPropertyBinder : VFXVolumeMixerPropertyBinderBase
 {
     [VFXVolumeMixerProperty(VFXVolumeMixerPropertyAttribute.PropertyType.Float)]
     public int FloatMixerProperty = 0;
-    [VFXParameterBinding("System.Single")]
-    public ExposedParameter FloatParameter = "Parameter";
+    [VFXPropertyBinding("System.Single")]
+    public ExposedProperty FloatParameter = "Parameter";
 
     public override bool IsValid(VisualEffect component)
     {
