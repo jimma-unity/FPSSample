@@ -40,7 +40,7 @@ namespace Unity.Entities.PerformanceTests
             }
         }
 
-        [PerformanceTest]
+        [Test, Performance]
         public void EntityCommandBuffer_512SimpleEntities()
         {
             const int kCreateLoopCount = 512;
@@ -92,7 +92,7 @@ namespace Unity.Entities.PerformanceTests
             }
         }
 
-        [PerformanceTest]
+        [Test, Performance]
         public void EntityCommandBuffer_512EntitiesWithEmbeddedEntity()
         {
             const int kCreateLoopCount = 512;
@@ -124,7 +124,7 @@ namespace Unity.Entities.PerformanceTests
             cmds.Dispose();
         }
 
-        [PerformanceTest]
+        [Test, Performance]
         public void EntityCommandBuffer_OneEntityWithEmbeddedEntityAnd512SimpleEntities()
         {
             // This test should not be any slower than EntityCommandBuffer_SimpleEntities_512x1000

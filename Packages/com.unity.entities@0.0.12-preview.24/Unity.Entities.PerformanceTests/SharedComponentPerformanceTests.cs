@@ -56,7 +56,7 @@ namespace Unity.Entities.PerformanceTests
         }
 
 
-        [PerformanceTest]
+        [Test, Performance]
         public void SetSharedComponentDataPerformanceTest()
         {
             var archetype = m_Manager.CreateArchetype(typeof(TestData1), typeof(TestShared1), typeof(TestShared2));
@@ -84,7 +84,7 @@ namespace Unity.Entities.PerformanceTests
             entities.Dispose();
         }
 
-        [PerformanceTest]
+        [Test, Performance]
         public void AddComponentPerformanceTest()
         {
             var archetype = m_Manager.CreateArchetype(typeof(TestData1), typeof(TestShared1), typeof(TestShared2));

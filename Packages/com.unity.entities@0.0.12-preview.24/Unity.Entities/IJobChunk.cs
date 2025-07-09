@@ -36,7 +36,7 @@ namespace Unity.Entities
         public static unsafe JobHandle Schedule<T>(this T jobData, ComponentGroup group, JobHandle dependsOn = default(JobHandle))
             where T : struct, IJobChunk
         {
-            return ScheduleInternal(ref jobData, group, dependsOn, ScheduleMode.Batched);
+            return ScheduleInternal(ref jobData, group, dependsOn, ScheduleMode.Parallel);
         }
 
         public static void Run<T>(this T jobData, ComponentGroup group)
@@ -79,8 +79,8 @@ namespace Unity.Entities
             public static IntPtr Initialize()
             {
                 if (jobReflectionData == IntPtr.Zero)
-                    jobReflectionData = JobsUtility.CreateJobReflectionData(typeof(JobDataLiveFilter<T>),
-                        typeof(T), JobType.ParallelFor, (ExecuteJobFunction)Execute);
+                    { jobReflectionData = JobsUtility.CreateJobReflectionData(typeof(JobDataLiveFilter<T>),
+                        typeof(T), (ExecuteJobFunction)Execute); }
 
                 return jobReflectionData;
             }

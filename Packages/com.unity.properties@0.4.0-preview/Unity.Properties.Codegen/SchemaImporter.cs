@@ -1,15 +1,15 @@
 ﻿#if (NET_4_6 || NET_STANDARD_2_0)
 
 using System.IO;
-using UnityEditor.Experimental.AssetImporters;
+
 using UnityEngine;
 
 namespace Unity.Properties.Codegen
 {
-    [ScriptedImporter(3, new[] {".properties"})]
-    public class SchemaImporter : ScriptedImporter
+    [UnityEditor.AssetImporters.ScriptedImporter(3, new[] {".properties"})]
+    public class SchemaImporter : UnityEditor.AssetImporters.ScriptedImporter
     {
-        public override void OnImportAsset(AssetImportContext ctx)
+        public override void OnImportAsset(UnityEditor.AssetImporters.AssetImportContext ctx)
         {
             // Generate a dummy object to satisfy the asset pipeline
             var asset = ScriptableObject.CreateInstance<SchemaObject>();

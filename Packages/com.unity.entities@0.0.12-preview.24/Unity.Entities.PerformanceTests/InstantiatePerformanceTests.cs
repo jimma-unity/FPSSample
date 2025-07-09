@@ -56,8 +56,7 @@ namespace Unity.Entities.PerformanceTests
 
         
 
-        [PerformanceTest]
-        [Test]
+        [Test, Performance]
         public void InstantiateBatch_100k([Values(1, 10, 100, 1000)]int batchSize, [Values]EntityType entityType)
         {
             Entity srcEntity = default(Entity);
@@ -91,8 +90,7 @@ namespace Unity.Entities.PerformanceTests
         }
         
         //@TODO: Couldn't figure out how to make this test be a single one with above...
-        [PerformanceTest]
-        [Test]
+        [Test, Performance]
         public void DestroyBatch_100k([Values(1, 10, 100, 1000)]int batchSize, [Values]EntityType entityType)
         {
             Entity srcEntity = default(Entity);

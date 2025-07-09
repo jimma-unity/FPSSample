@@ -144,29 +144,29 @@ namespace Unity.Entities
             {
                 var typeT = typeof(T);             
                 if (typeof(IBaseJobProcessComponentData_D).IsAssignableFrom(typeT))
-                    return ScheduleInternal_D(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_D(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_ED).IsAssignableFrom(typeT))
-                    return ScheduleInternal_ED(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_ED(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDDDD(ref jobData, system, null, 1, dependsOn, ScheduleMode.Parallel);             
                 throw new System.ArgumentException("Not supported");
             }
             
@@ -175,29 +175,29 @@ namespace Unity.Entities
             {
                 var typeT = typeof(T);             
                 if (typeof(IBaseJobProcessComponentData_D).IsAssignableFrom(typeT))
-                    return ScheduleInternal_D(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_D(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_ED).IsAssignableFrom(typeT))
-                    return ScheduleInternal_ED(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_ED(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDDDD(ref jobData, system, null, -1, dependsOn, ScheduleMode.Parallel);             
                 throw new System.ArgumentException("Not supported");
             }
             
@@ -237,29 +237,29 @@ namespace Unity.Entities
             {
                 var typeT = typeof(T);             
                 if (typeof(IBaseJobProcessComponentData_D).IsAssignableFrom(typeT))
-                    return ScheduleInternal_D(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_D(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_ED).IsAssignableFrom(typeT))
-                    return ScheduleInternal_ED(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_ED(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDDDD(ref jobData, null, componentGroup, 1, dependsOn, ScheduleMode.Parallel);             
                 throw new System.ArgumentException("Not supported");
             }
             
@@ -268,29 +268,29 @@ namespace Unity.Entities
             {
                 var typeT = typeof(T);             
                 if (typeof(IBaseJobProcessComponentData_D).IsAssignableFrom(typeT))
-                    return ScheduleInternal_D(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_D(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_ED).IsAssignableFrom(typeT))
-                    return ScheduleInternal_ED(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_ED(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_DDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_DDDDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_DDDDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 if (typeof(IBaseJobProcessComponentData_EDDDDDD).IsAssignableFrom(typeT))
-                    return ScheduleInternal_EDDDDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Batched);             
+                    return ScheduleInternal_EDDDDDD(ref jobData, null, componentGroup, -1, dependsOn, ScheduleMode.Parallel);             
                 throw new System.ArgumentException("Not supported");
             }
             
@@ -360,7 +360,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_D<T, U0>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_D<T, U0>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_D<T, U0> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -446,7 +446,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_ED<T, U0>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_ED<T, U0>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_ED<T, U0> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -534,7 +534,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_DD<T, U0, U1>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_DD<T, U0, U1>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_DD<T, U0, U1> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -622,7 +622,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_EDD<T, U0, U1>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_EDD<T, U0, U1>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_EDD<T, U0, U1> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -712,7 +712,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_DDD<T, U0, U1, U2>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_DDD<T, U0, U1, U2>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_DDD<T, U0, U1, U2> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -802,7 +802,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_EDDD<T, U0, U1, U2>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_EDDD<T, U0, U1, U2>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_EDDD<T, U0, U1, U2> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -894,7 +894,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_DDDD<T, U0, U1, U2, U3>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_DDDD<T, U0, U1, U2, U3>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_DDDD<T, U0, U1, U2, U3> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -986,7 +986,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_EDDDD<T, U0, U1, U2, U3>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_EDDDD<T, U0, U1, U2, U3>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_EDDDD<T, U0, U1, U2, U3> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -1080,7 +1080,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_DDDDD<T, U0, U1, U2, U3, U4>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_DDDDD<T, U0, U1, U2, U3, U4>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_DDDDD<T, U0, U1, U2, U3, U4> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -1174,7 +1174,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_EDDDDD<T, U0, U1, U2, U3, U4>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_EDDDDD<T, U0, U1, U2, U3, U4>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_EDDDDD<T, U0, U1, U2, U3, U4> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -1270,7 +1270,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_DDDDDD<T, U0, U1, U2, U3, U4, U5>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_DDDDDD<T, U0, U1, U2, U3, U4, U5>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_DDDDDD<T, U0, U1, U2, U3, U4, U5> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);
@@ -1366,7 +1366,7 @@ namespace Unity.Entities
                 [Preserve]
                 public static IntPtr Initialize(JobType jobType)
                 {
-                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_EDDDDDD<T, U0, U1, U2, U3, U4, U5>), typeof(T), jobType, (ExecuteJobFunction) Execute);
+                    return JobsUtility.CreateJobReflectionData(typeof(JobStruct_Process_EDDDDDD<T, U0, U1, U2, U3, U4, U5>), typeof(T), (ExecuteJobFunction) Execute);
                 }
     
                 delegate void ExecuteJobFunction(ref JobStruct_Process_EDDDDDD<T, U0, U1, U2, U3, U4, U5> data, IntPtr additionalPtr, IntPtr bufferRangePatchData, ref JobRanges ranges, int jobIndex);

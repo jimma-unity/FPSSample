@@ -9,21 +9,17 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Decal_Rust_A
   m_Shader: {fileID: 4800000, guid: 1d64af84bdc970c4fae0c1e06dd95b73, type: 3}
-  m_ShaderKeywords: _ALBEDOCONTRIBUTION _COLORMAP _MASKMAP _NORMALMAP
+  m_ShaderKeywords: _COLORMAP _MASKMAP _MATERIAL_AFFECTS_ALBEDO _MATERIAL_AFFECTS_MASKMAP
+    _MATERIAL_AFFECTS_NORMAL _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2000
   stringTagMap: {}
   disabledShaderPasses:
   - DistortionVectors
-  - DBufferMesh_M
-  - DBufferMesh_AO
-  - DBufferMesh_MAO
-  - DBufferMesh_MAOS
-  - DBufferMesh_MS
-  - DBufferMesh_AOS
-  - Mesh_Emissive
+  - DecalProjectorForwardEmissive
+  - DecalMeshForwardEmissive
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -144,11 +140,17 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AO: 1
     - _AORemapMax: 1
     - _AORemapMin: 0
     - _ATDistance: 1
+    - _AffectAO: 0
+    - _AffectAlbedo: 1
+    - _AffectEmission: 0
+    - _AffectMetal: 0
+    - _AffectNormal: 1
+    - _AffectSmoothness: 1
     - _AlbedoAffectEmissive: 0
-    - _AlbedoMode: 1
     - _AlphaCutoff: 0.5
     - _AlphaCutoffEnable: 0
     - _AlphaCutoffPostpass: 0.5
@@ -191,8 +193,14 @@ Material:
     - _DebugEnable: 0
     - _DebugShow: 0
     - _DecalBlend: 1
+    - _DecalColorMask0: 15
+    - _DecalColorMask1: 15
+    - _DecalColorMask2: 3
+    - _DecalColorMask3: 0
     - _DecalMaskMapBlueScale: 1
+    - _DecalMeshBiasType: 0
     - _DecalMeshDepthBias: 0
+    - _DecalMeshViewBias: 0
     - _DecalStencilRef: 16
     - _DecalStencilWriteMask: 16
     - _DepthOffsetEnable: 0
@@ -238,7 +246,6 @@ Material:
     - _DrawOrder: 0
     - _DstBlend: 0
     - _DualSpecularLobeShow: 0
-    - _Emissive: 0
     - _EmissiveColorMapShow: 0
     - _EmissiveColorMapUV: 0
     - _EmissiveColorMapUVLocal: 0
@@ -293,11 +300,7 @@ Material:
     - _IridescenceThicknessUseMap: 0
     - _LinkDetailsWithBase: 1
     - _LobeMix: 0
-    - _MaskBlendMode: 4
     - _MaskBlendSrc: 0
-    - _MaskmapAO: 0
-    - _MaskmapMetal: 0
-    - _MaskmapSmoothness: 1
     - _MaterialFeaturesShow: 1
     - _MaterialID: 1
     - _Metallic: 0
@@ -305,7 +308,8 @@ Material:
     - _MetallicMapShow: 0
     - _MetallicMapUV: 0
     - _MetallicMapUVLocal: 0
-    - _MetallicScale: 1
+    - _MetallicRemapMax: 1
+    - _MetallicRemapMin: 0
     - _MetallicUseMap: 0
     - _NormalBlendSrc: 0
     - _NormalMapObjSpace: 0
@@ -374,6 +378,7 @@ Material:
     - _TransparentSortPriority: 0
     - _UVBase: 0
     - _UVDetail: 0
+    - _Unity_Identify_HDRP_Decal: 1
     - _UseEmissiveIntensity: 0
     - _VlayerRecomputePerLight: 0
     - _VlayerUseRefractedAnglesForBase: 0
@@ -433,6 +438,7 @@ Material:
     - _TransmittanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
 --- !u!114 &5428155038110260713
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -445,4 +451,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da692e001514ec24dbc4cca1949ff7e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 2
+  version: 11
