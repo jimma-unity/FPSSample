@@ -10,22 +10,22 @@ using Unity.Mathematics;
 [DisableAutoCreation]
 public class HandleTranslateScaleSpawns : InitializeComponentGroupSystem<TranslateScale, HandleTranslateScaleSpawns.Initialized>
 {
-    ComponentGroup Group;
+    EntityQuery Group;
 
     public struct Initialized : IComponentData {}
     
     public HandleTranslateScaleSpawns(GameWorld world) : base(world) { }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(TranslateScale), ComponentType.Subtractive<DespawningEntity>());
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(TranslateScale), ComponentType.Exclude<DespawningEntity>());
     }
     
-    protected override void Initialize(ref ComponentGroup group)
+    protected override void Initialize(ref EntityQuery group)
     {
         // Get all components of type, not just spawned/de-spawned ones
-        var array = Group.GetComponentArray<TranslateScale>();
+        var array = Group.ToComponentArray<TranslateScale>();
         TranslateScaleSystem.SetupTranslateScaleComponents(ref array);
     }
 }
@@ -33,21 +33,21 @@ public class HandleTranslateScaleSpawns : InitializeComponentGroupSystem<Transla
 [DisableAutoCreation]
 public class HandleTranslateScaleDespawns : DeinitializeComponentGroupSystem<TranslateScale>
 {
-    ComponentGroup Group;
+    EntityQuery Group;
 
     public HandleTranslateScaleDespawns(GameWorld world) : base(world) { }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(TranslateScale), ComponentType.Subtractive<DespawningEntity>());
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(TranslateScale), ComponentType.Exclude<DespawningEntity>());
     }
     
     
-    protected override void Deinitialize(ref ComponentGroup group)
+    protected override void Deinitialize(ref EntityQuery group)
     {
         // Get all components of type, not just spawned/de-spawned ones
-        var array = Group.GetComponentArray<TranslateScale>();
+        var array = Group.ToComponentArray<TranslateScale>();
         TranslateScaleSystem.SetupTranslateScaleComponents(ref array);
     }
 }
@@ -57,8 +57,8 @@ public class TranslateScaleSystem
 {
     public TranslateScaleSystem(GameWorld world)
     {
-        m_HandleTranslateScaleSpawns = world.GetECSWorld().CreateManager<HandleTranslateScaleSpawns>(world);
-        m_HandleTranslateScaleDespawns = world.GetECSWorld().CreateManager<HandleTranslateScaleDespawns>(world);
+        m_HandleTranslateScaleSpawns = world.GetECSWorld().CreateSystem<HandleTranslateScaleSpawns>(world);
+        m_HandleTranslateScaleDespawns = world.GetECSWorld().CreateSystem<HandleTranslateScaleDespawns>(world);
         m_World = world;
 
         s_SourceJoints = new TransformAccessArray(k_MaxDrivers, 1);
@@ -74,8 +74,8 @@ public class TranslateScaleSystem
         s_SourceJoints.Dispose();
         s_DrivenJoints.Dispose();
         s_TargetData.Dispose();
-        m_World.GetECSWorld().DestroyManager(m_HandleTranslateScaleSpawns);
-        m_World.GetECSWorld().DestroyManager(m_HandleTranslateScaleDespawns);
+        m_World.GetECSWorld().DestroySystem(m_HandleTranslateScaleSpawns);
+        m_World.GetECSWorld().DestroySystem(m_HandleTranslateScaleDespawns);
     }
 
     public void HandleSpawning()
@@ -88,7 +88,7 @@ public class TranslateScaleSystem
         m_HandleTranslateScaleDespawns.Update();
     }
 
-    public static void SetupTranslateScaleComponents(ref ComponentArray<TranslateScale> translateScaleComponents)
+    public static void SetupTranslateScaleComponents(ref TranslateScale[] translateScaleComponents)
     {
         s_DriverIndex = 0;
         s_DrivenIndex = 0;

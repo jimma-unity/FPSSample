@@ -35,17 +35,17 @@ public class LocalPlayerCharacterControl : MonoBehaviour
 [DisableAutoCreation]
 public class UpdateCharacter1PSpawn : BaseComponentSystem  
 {   
-    ComponentGroup Group;
+    EntityQuery Group;
     
     public UpdateCharacter1PSpawn(GameWorld world, BundledResourceManager resourceManager) : base(world)
     {
         m_ResourceManager = resourceManager;
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(LocalPlayer), typeof(LocalPlayerCharacterControl));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(LocalPlayer), typeof(LocalPlayerCharacterControl));
     }
 
 
@@ -55,8 +55,8 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
     {
         charControlBuffer.Clear();
         entityBuffer.Clear();
-        var charControlArray = Group.GetComponentArray<LocalPlayerCharacterControl>();
-        var localPlayerArray = Group.GetComponentArray<LocalPlayer>();
+        var charControlArray = Group.ToComponentArray<LocalPlayerCharacterControl>();
+        var localPlayerArray = Group.ToComponentArray<LocalPlayer>();
         for (var i = 0; i < charControlArray.Length; i++)
         {
             var localPlayer = localPlayerArray[i];

@@ -1,25 +1,26 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 
 [DisableAutoCreation]
 public class TeleporterSystemClient : ComponentSystem
 {
-	ComponentGroup Group;
+	EntityQuery Group;
 
 	public TeleporterSystemClient(GameWorld gameWorld)
 	{
 		m_GameWorld = gameWorld;
 	}
 
-	protected override void OnCreateManager()
+	protected override void OnCreate()
 	{
-		base.OnCreateManager();
-		Group = GetComponentGroup(typeof(TeleporterPresentationData), typeof(TeleporterClient));
+		base.OnCreate();
+		Group = GetEntityQuery(typeof(TeleporterPresentationData), typeof(TeleporterClient));
 	}
 
 	protected override void OnUpdate()
 	{
-		var teleporterClientArray = Group.GetComponentArray<TeleporterClient>();
-		var teleporterPresentationArray = Group.GetComponentDataArray<TeleporterPresentationData>();
+		var teleporterClientArray = Group.ToComponentArray<TeleporterClient>();
+		var teleporterPresentationArray = Group.ToComponentDataArray<TeleporterPresentationData>(Allocator.TempJob);
 		
 		for(int i = 0, c = teleporterClientArray.Length; i < c; i++)
 		{
@@ -30,11 +31,13 @@ public class TeleporterSystemClient : ComponentSystem
 			{
 				if (teleporterClient.effect != null)
 				{
-					World.GetExistingManager<HandleSpatialEffectRequests>().Request(teleporterClient.effect, 
+					World.GetExistingSystem<HandleSpatialEffectRequests>().Request(teleporterClient.effect, 
 						teleporterClient.effectTransform.position, teleporterClient.effectTransform.rotation);
 				}
 			}
 		}
+
+		teleporterPresentationArray.Dispose();
 	}
 
 	GameWorld m_GameWorld;

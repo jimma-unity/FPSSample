@@ -51,9 +51,9 @@ public class VFXSystem : ComponentSystem
 //    private static List<EffectInstance> s_effectInstances = new List<EffectInstance>(128);
     
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
+        base.OnCreate();
         
         m_rootGameObject= new GameObject("VFXSystem");
         m_rootGameObject.transform.position = Vector3.zero;
@@ -61,9 +61,9 @@ public class VFXSystem : ComponentSystem
         GameObject.DontDestroyOnLoad(m_rootGameObject);
     }
 
-    protected override void OnDestroyManager()
+    protected override void OnDestroy()
     {
-        base.OnDestroyManager();
+        base.OnDestroy();
 
         foreach (var effectType in m_EffectTypeData.Values)
         {

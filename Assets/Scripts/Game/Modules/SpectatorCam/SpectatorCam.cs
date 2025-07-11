@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -49,30 +50,30 @@ public struct SpectatorCamSpawnRequest : IComponentData
             position = position,
             rotation = rotation,
         };
-        commandBuffer.CreateEntity();
-        commandBuffer.AddComponent(data);
+        var e = commandBuffer.CreateEntity();
+        commandBuffer.AddComponent(e, data);
     }
 }
 
 [DisableAutoCreation]
 public class UpdateSpectatorCam : BaseComponentSystem
 {
-    ComponentGroup Group;
+    EntityQuery Group;
     
     public UpdateSpectatorCam(GameWorld world) : base(world)
     {}
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(UserCommandComponentData), typeof(SpectatorCamData));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(UserCommandComponentData), typeof(SpectatorCamData));
     }
 
     protected override void OnUpdate()
     {
-        var spectatorCamEntityArray = Group.GetEntityArray();
-        var spectatorCamArray = Group.GetComponentDataArray<SpectatorCamData>();
-        var userCommandArray = Group.GetComponentDataArray<UserCommandComponentData>();
+        var spectatorCamEntityArray = Group.ToEntityArray(Allocator.TempJob);
+        var spectatorCamArray = Group.ToComponentDataArray<SpectatorCamData>(Allocator.TempJob);
+        var userCommandArray = Group.ToComponentDataArray<UserCommandComponentData>(Allocator.TempJob);
         for (var i = 0; i < spectatorCamArray.Length; i++)
         {
             var command = userCommandArray[i].command;
@@ -87,7 +88,11 @@ public class UpdateSpectatorCam : BaseComponentSystem
             spectatorCam.position += moveDir * maxVel * command.moveMagnitude;
 
             EntityManager.SetComponentData(spectatorCamEntityArray[i], spectatorCam);
-        }            
+        }
+
+        spectatorCamEntityArray.Dispose();
+        spectatorCamArray.Dispose();
+        userCommandArray.Dispose(); 
     }
 }
 
@@ -95,7 +100,7 @@ public class UpdateSpectatorCam : BaseComponentSystem
 [DisableAutoCreation]
 public class HandleSpectatorCamRequests : BaseComponentSystem
 {
-    ComponentGroup Group;   
+    EntityQuery Group;   
 
     public HandleSpectatorCamRequests(GameWorld world, BundledResourceManager resourceManager) : base(world)
     {
@@ -103,19 +108,22 @@ public class HandleSpectatorCamRequests : BaseComponentSystem
         m_Settings = Resources.Load<SpectatorCamSettings>("SpectatorCamSettings");
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(SpectatorCamSpawnRequest));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(SpectatorCamSpawnRequest));
     }
 
     protected override void OnUpdate()
     {
-        var requestArray = Group.GetComponentDataArray<SpectatorCamSpawnRequest>();
+        var requestArray = Group.ToComponentDataArray<SpectatorCamSpawnRequest>(Allocator.TempJob);
         if (requestArray.Length == 0)
+        {
+            requestArray.Dispose();
             return;
+        }
 
-        var entityArray = Group.GetEntityArray();
+        var entityArray = Group.ToEntityArray(Allocator.TempJob);
 
         
         // Copy requests as spawning will invalidate Group
@@ -153,6 +161,9 @@ public class HandleSpectatorCamRequests : BaseComponentSystem
             
             playerState.controlledEntity = entity; 
         }
+        
+        entityArray.Dispose();
+        requestArray.Dispose();
     }
 
     readonly SpectatorCamSettings m_Settings;

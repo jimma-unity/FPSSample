@@ -182,9 +182,9 @@ public struct SphereCastSingleJob : IJob
         var collData = entityManager.GetComponentData<HitCollisionData>(entity);
         var histIndex = collData.GetHistoryIndex(tick);
 
-        transformBuffer = new NativeSlice<HitCollisionData.TransformHistory>(
-            entityManager.GetBuffer<HitCollisionData.TransformHistory>(entity).ToNativeArray(),
-            histIndex * HitCollisionData.k_maxColliderCount);
+        var buffer = entityManager.GetBuffer<HitCollisionData.TransformHistory>(entity).AsNativeArray();
+
+        transformBuffer = new NativeSlice<HitCollisionData.TransformHistory>(buffer, histIndex * HitCollisionData.k_maxColliderCount);
 
         sphereArray = entityManager.GetBuffer<HitCollisionData.Sphere>(entity);
         capsuleArray = entityManager.GetBuffer<HitCollisionData.Capsule>(entity);

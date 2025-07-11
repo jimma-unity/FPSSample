@@ -83,19 +83,19 @@ public class CharacterEvents : MonoBehaviour
 [DisableAutoCreation]
 public class HandleCharacterEvents : ComponentSystem
 {
-	ComponentGroup Group;
+	EntityQuery Group;
 
-	protected override void OnCreateManager()
+	protected override void OnCreate()
 	{
-		base.OnCreateManager();
-		Group = GetComponentGroup(typeof(CharacterEvents), typeof(CharacterPresentationSetup));
+		base.OnCreate();
+		Group = GetEntityQuery(typeof(CharacterEvents), typeof(CharacterPresentationSetup));
 	}
 
 	protected override void OnUpdate()
 	{
-//		var entityArray = Group.GetEntityArray();
-		var eventArray = Group.GetComponentArray<CharacterEvents>();
-		var charPresentArray = Group.GetComponentArray<CharacterPresentationSetup>();
+//		var entityArray = Group.ToEntityArray(Allocator.TempJob);
+		var eventArray = Group.ToComponentArray<CharacterEvents>();
+		var charPresentArray = Group.ToComponentArray<CharacterPresentationSetup>();
 		for (var i = 0; i < eventArray.Length; i++)
 		{
 			var charEvents = eventArray[i];
@@ -114,12 +114,12 @@ public class HandleCharacterEvents : ComponentSystem
 
 			if (charEvents.onFootDown)
 			{
-				if (Time.time > charEvents.lastFootstepTime + charEvents.minFootstepInterval)
+				if (Time.ElapsedTime > charEvents.lastFootstepTime + charEvents.minFootstepInterval)
 				{
 					var sound = charEvents.nextFootLeft ? charEvents.footstepLeft : charEvents.footstepRight;
 					Game.SoundSystem.Play(sound, charEvents.transform);
 					charEvents.nextFootLeft = !charEvents.nextFootLeft;
-					charEvents.lastFootstepTime = Time.time;
+					charEvents.lastFootstepTime = (float)Time.ElapsedTime;
 				}
 
 				charEvents.onFootDown = false;

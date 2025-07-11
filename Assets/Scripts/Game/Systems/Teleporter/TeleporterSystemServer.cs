@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 
 [DisableAutoCreation]
 public class TeleporterSystemServer : ComponentSystem
@@ -9,17 +10,17 @@ public class TeleporterSystemServer : ComponentSystem
         m_GameWorld = gameWorld;
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        m_TeleporterServerGroup = GetComponentGroup(typeof(TeleporterServer), typeof(TeleporterPresentationData));
+        base.OnCreate();
+        m_TeleporterServerGroup = GetEntityQuery(typeof(TeleporterServer), typeof(TeleporterPresentationData));
     }
 
     protected override void OnUpdate()
     {
-        var teleporters = m_TeleporterServerGroup.GetComponentArray<TeleporterServer>();
-        var presentationArray = m_TeleporterServerGroup.GetComponentDataArray<TeleporterPresentationData>();
-        var entities = m_TeleporterServerGroup.GetEntityArray();
+        var teleporters = m_TeleporterServerGroup.ToComponentArray<TeleporterServer>();
+        var presentationArray = m_TeleporterServerGroup.ToComponentDataArray<TeleporterPresentationData>(Allocator.TempJob);
+        var entities = m_TeleporterServerGroup.ToEntityArray(Allocator.TempJob);
         for (int i = 0, c = teleporters.Length; i < c; i++)
         {
             var t = teleporters[i];
@@ -45,8 +46,11 @@ public class TeleporterSystemServer : ComponentSystem
 
             }
         }
+        
+        entities.Dispose();
+        presentationArray.Dispose();
     }
 
     GameWorld m_GameWorld;
-    private ComponentGroup m_TeleporterServerGroup;
+    private EntityQuery m_TeleporterServerGroup;
 }

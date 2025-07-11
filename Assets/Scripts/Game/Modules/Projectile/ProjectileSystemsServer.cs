@@ -7,7 +7,7 @@ using UnityEngine.Profiling;
 [DisableAutoCreation]
 public class HandleServerProjectileRequests : BaseComponentSystem
 {
-	ComponentGroup Group;
+	EntityQuery Group;
 
 	public HandleServerProjectileRequests(GameWorld world, BundledResourceManager resourceSystem) : base(world)
 	{
@@ -16,22 +16,22 @@ public class HandleServerProjectileRequests : BaseComponentSystem
 		m_settings = Resources.Load<ProjectileModuleSettings>("ProjectileModuleSettings");
 	}
 
-	protected override void OnCreateManager()
+	protected override void OnCreate()
 	{
-		base.OnCreateManager();
-		Group = GetComponentGroup(typeof(ProjectileRequest));
+		base.OnCreate();
+		Group = GetEntityQuery(typeof(ProjectileRequest));
 	}
 
-	protected override void OnDestroyManager()
+	protected override void OnDestroy()
 	{
-		base.OnDestroyManager();
+		base.OnDestroy();
 		Resources.UnloadAsset(m_settings);
 	}
 
 	protected override void OnUpdate()
 	{
-		var entityArray = Group.GetEntityArray();
-		var requestArray = Group.GetComponentDataArray<ProjectileRequest>();
+		var entityArray = Group.ToEntityArray(Allocator.TempJob);
+		var requestArray = Group.ToComponentDataArray<ProjectileRequest>(Allocator.TempJob);
 		
 		// Copy requests as spawning will invalidate Group 
 		var requests = new ProjectileRequest[requestArray.Length];
@@ -61,6 +61,9 @@ public class HandleServerProjectileRequests : BaseComponentSystem
 			PostUpdateCommands.SetComponent(projectileEntity, projectileData);
 			PostUpdateCommands.AddComponent(projectileEntity, new UpdateProjectileFlag());
 		}
+
+		entityArray.Dispose();
+		requestArray.Dispose();
 	}
 
 	BundledResourceManager m_resourceSystem;

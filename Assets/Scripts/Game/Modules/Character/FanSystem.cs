@@ -10,22 +10,22 @@ using UnityEngine.Profiling;
 [DisableAutoCreation]
 public class HandleFanSpawns : InitializeComponentGroupSystem<Fan, HandleFanSpawns.Initialized>
 {
-    ComponentGroup Group;
+    EntityQuery Group;
     
     public struct Initialized : IComponentData {}
     
     public HandleFanSpawns(GameWorld world) : base(world) { }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(Fan), ComponentType.Subtractive<DespawningEntity>());
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(Fan), ComponentType.Exclude<DespawningEntity>());
     }
     
-    protected override void Initialize(ref ComponentGroup group)
+    protected override void Initialize(ref EntityQuery group)
     {
         // Get all components of type, not just spawned/de-spawned ones
-        var componentArray = Group.GetComponentArray<Fan>();
+        var componentArray = Group.ToComponentArray<Fan>();
         FanSystem.SetupFanComponents(ref componentArray);
     }
 }
@@ -33,20 +33,20 @@ public class HandleFanSpawns : InitializeComponentGroupSystem<Fan, HandleFanSpaw
 [DisableAutoCreation]
 public class HandleFanDespawns : DeinitializeComponentGroupSystem<Fan>
 {
-    ComponentGroup Group;
+    EntityQuery Group;
 
     public HandleFanDespawns(GameWorld world) : base(world) { }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(Fan), ComponentType.Subtractive<DespawningEntity>());
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(Fan), ComponentType.Exclude<DespawningEntity>());
     }
     
-    protected override void Deinitialize(ref ComponentGroup group)
+    protected override void Deinitialize(ref EntityQuery group)
     {
         // Get all components of type, not just spawned/de-spawned ones
-        var componentArray = Group.GetComponentArray<Fan>();
+        var componentArray = Group.ToComponentArray<Fan>();
         FanSystem.SetupFanComponents(ref componentArray);
     }
 }
@@ -57,8 +57,8 @@ public class FanSystem
 {
     public FanSystem(GameWorld world)
     {
-        m_HandleFanSpawns = world.GetECSWorld().CreateManager<HandleFanSpawns>(world);
-        m_HandleFanDespawns = world.GetECSWorld().CreateManager<HandleFanDespawns>(world);
+        m_HandleFanSpawns = world.GetECSWorld().CreateSystem<HandleFanSpawns>(world);
+        m_HandleFanDespawns = world.GetECSWorld().CreateSystem<HandleFanDespawns>(world);
         m_World = world;
 
         s_SourceJoints = new TransformAccessArray(k_MaxFanJoints / 2, 1);
@@ -73,8 +73,8 @@ public class FanSystem
         s_SourceRotations.Dispose();
         s_FanJoints.Dispose();
 
-        m_World.GetECSWorld().DestroyManager(m_HandleFanSpawns);
-        m_World.GetECSWorld().DestroyManager(m_HandleFanDespawns);
+        m_World.GetECSWorld().DestroySystem(m_HandleFanSpawns);
+        m_World.GetECSWorld().DestroySystem(m_HandleFanDespawns);
     }
 
     public void HandleSpawning()
@@ -88,7 +88,7 @@ public class FanSystem
     }
     
     
-    public static void SetupFanComponents(ref ComponentArray<Fan> fanComponents)
+    public static void SetupFanComponents(ref Fan[] fanComponents)
     {
         s_SourceJoints.SetTransforms(null);
         s_FanJoints.SetTransforms(null);

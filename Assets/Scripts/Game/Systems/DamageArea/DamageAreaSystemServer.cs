@@ -7,22 +7,22 @@ using Unity.Entities;
 [DisableAutoCreation]
 public class DamageAreaSystemServer : ComponentSystem
 {
-    ComponentGroup Group;
+    EntityQuery Group;
 
     public DamageAreaSystemServer(GameWorld gameWorld)
     {
         m_GameWorld = gameWorld;
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(DamageArea));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(DamageArea));
     }
     
     protected override void OnUpdate()
     {
-        var damageAreaArray = Group.GetComponentArray<DamageArea>();
+        var damageAreaArray = Group.ToComponentArray<DamageArea>();
         for (int idx = 0; idx < damageAreaArray.Length; ++idx)
         {
             var area = damageAreaArray[idx];

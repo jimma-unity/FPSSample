@@ -13,19 +13,19 @@ public class Spin : MonoBehaviour
 [DisableAutoCreation]
 public class SpinSystem : BaseComponentSystem
 {
-    ComponentGroup Group; 
+    EntityQuery Group; 
     
     public SpinSystem(GameWorld gameWorld) : base(gameWorld) {}
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(Spin));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(Spin));
     }
 
     protected override void OnUpdate()
     {
-        var spinnerArray = Group.GetComponentArray<Spin>();
+        var spinnerArray = Group.ToComponentArray<Spin>();
         float dt = m_world.frameDuration;
         for(int i = 0, c = spinnerArray.Length; i<c; i++)
         {

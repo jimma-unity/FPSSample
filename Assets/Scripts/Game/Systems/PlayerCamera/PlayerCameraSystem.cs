@@ -23,20 +23,20 @@ public class HandlePlayerCameraControlSpawn : InitializeComponentSystem<PlayerCa
 [DisableAutoCreation]
 public class UpdatePlayerCameras : BaseComponentSystem
 {
-    public ComponentGroup Group;
+    public EntityQuery Group;
 
     public UpdatePlayerCameras(GameWorld world) : base(world) { }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(PlayerCamera), typeof(Camera));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(PlayerCamera), typeof(Camera));
     }
 
     protected override void OnUpdate()
     {
-        var cameraArray = Group.GetComponentArray<Camera>();
-        var playerCameraArray = Group.GetComponentArray<PlayerCamera>();
+        var cameraArray = Group.ToComponentArray<Camera>();
+        var playerCameraArray = Group.ToComponentArray<PlayerCamera>();
         for (var i = 0; i < cameraArray.Length; i++)
         {
             var camera = cameraArray[i];
@@ -85,18 +85,18 @@ public class UpdatePlayerCameras : BaseComponentSystem
                 eu.x = Mathf.Clamp(eu.x, -70.0f, 70.0f);
                 eu += new Vector3(-Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"), 0);
                 float invertY = Game.configInvertY.IntValue > 0 ? 1.0f : -1.0f;
-                eu += Time.deltaTime * (new Vector3(- invertY * Input.GetAxisRaw("RightStickY")*InputSystem.s_JoystickLookSensitivity.y, Input.GetAxisRaw("RightStickX") * InputSystem.s_JoystickLookSensitivity.x, 0));
+                eu += Time.DeltaTime * (new Vector3(- invertY * Input.GetAxisRaw("RightStickY")*InputSystem.s_JoystickLookSensitivity.y, Input.GetAxisRaw("RightStickX") * InputSystem.s_JoystickLookSensitivity.x, 0));
                 camera.transform.localEulerAngles = eu;
                 m_DetachedMoveSpeed += Input.GetAxisRaw("Mouse ScrollWheel");
                 float verticalMove = (Input.GetKey(KeyCode.R) ? 1.0f : 0.0f) + (Input.GetKey(KeyCode.F) ? -1.0f : 0.0f);
                 verticalMove += Input.GetAxisRaw("Trigger");
-                camera.transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal"), verticalMove, Input.GetAxisRaw("Vertical")) * Time.deltaTime * m_DetachedMoveSpeed);
+                camera.transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal"), verticalMove, Input.GetAxisRaw("Vertical")) * Time.DeltaTime * m_DetachedMoveSpeed);
             }
 
             if (debugCameraMove.IntValue > 0)
             {
                 // Only show for one player
-                if (lastUsedFrame < Time.frameCount)
+                /*if (lastUsedFrame < Time.frameCount)
                 {
                     lastUsedFrame = Time.frameCount;
 
@@ -109,7 +109,7 @@ public class UpdatePlayerCameras : BaseComponentSystem
                     DebugOverlay.DrawGraph(4, 4, 10, 5, movehist_x, o, Color.red, 10.0f);
                     DebugOverlay.DrawGraph(4, 12, 10, 5, movehist_y, o, Color.green, 10.0f);
                     DebugOverlay.DrawGraph(4, 20, 10, 5, movehist_z, o, Color.blue, 10.0f);
-                }
+                }*/
             }
         }
     }

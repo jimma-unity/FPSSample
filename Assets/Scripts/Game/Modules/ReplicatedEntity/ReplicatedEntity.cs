@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -150,7 +151,7 @@ public class ReplicatedEntity : ComponentDataProxy<ReplicatedEntityData>
 [DisableAutoCreation]
 public class UpdateReplicatedOwnerFlag : BaseComponentSystem
 {
-    ComponentGroup RepEntityDataGroup;
+    EntityQuery RepEntityDataGroup;
 
     int m_localPlayerId;
     bool m_initialized;
@@ -158,10 +159,10 @@ public class UpdateReplicatedOwnerFlag : BaseComponentSystem
     public UpdateReplicatedOwnerFlag(GameWorld world) : base(world)
     {}
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        RepEntityDataGroup = GetComponentGroup(typeof(ReplicatedEntityData));
+        base.OnCreate();
+        RepEntityDataGroup = GetEntityQuery(typeof(ReplicatedEntityData));
     }
     
     public void SetLocalPlayerId(int playerId)
@@ -172,15 +173,17 @@ public class UpdateReplicatedOwnerFlag : BaseComponentSystem
     
     protected override void OnUpdate()
     {
-        var entityArray = RepEntityDataGroup.GetEntityArray();
-        var repEntityDataArray = RepEntityDataGroup.GetComponentDataArray<ReplicatedEntityData>();
+        var entityArray = RepEntityDataGroup.ToEntityArray(Allocator.TempJob);
+        var repEntityDataArray = RepEntityDataGroup.ToComponentDataArray<ReplicatedEntityData>(Allocator.TempJob);
         for (int i = 0; i < entityArray.Length; i++)
         {
             var repDataEntity = repEntityDataArray[i];
             var locallyControlled = m_localPlayerId == -1 || repDataEntity.predictingPlayerId == m_localPlayerId;
 
             SetFlagAndChildFlags(entityArray[i], locallyControlled);
-        }  
+        }
+        entityArray.Dispose();
+        repEntityDataArray.Dispose();
     }
 
     void SetFlagAndChildFlags(Entity entity, bool set)

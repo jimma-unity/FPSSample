@@ -11,21 +11,21 @@ public class PlayerCharacterControl : MonoBehaviour
 [DisableAutoCreation]
 public class PlayerCharacterControlSystem : ComponentSystem
 {
-    ComponentGroup Group;
+    EntityQuery Group;
 
     public PlayerCharacterControlSystem(GameWorld gameWorld)
     {}
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(PlayerCharacterControl), typeof(PlayerState));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(PlayerCharacterControl), typeof(PlayerState));
     }
 
     protected override void OnUpdate()
     {
-        var playerCharControlArray = Group.GetComponentArray<PlayerCharacterControl>();
-        var playerStateArray = Group.GetComponentArray<PlayerState>();
+        var playerCharControlArray = Group.ToComponentArray<PlayerCharacterControl>();
+        var playerStateArray = Group.ToComponentArray<PlayerState>();
         
         for(var i=0;i< playerCharControlArray.Length;i++)
         {

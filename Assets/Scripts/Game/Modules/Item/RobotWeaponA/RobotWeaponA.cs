@@ -47,7 +47,7 @@ public class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA,CharacterPre
 {
     public System_RobotWeaponA(GameWorld world) : base(world)
     {
-        ExtraComponentRequirements = new[] {ComponentType.Subtractive<DespawningEntity>()};
+        //ExtraComponentRequirements = new[] {ComponentType.Exclude<DespawningEntity>()};
     }
     
     protected override void Update(Entity entity, RobotWeaponA weapon, CharacterPresentationSetup charPresentation)
@@ -149,22 +149,22 @@ public class RobotWeaponClientProjectileSpawnHandler : InitializeComponentGroupS
 {
     public struct Initialzied : IComponentData {}
 
-    private ComponentGroup WeaponGroup;
+    private EntityQuery WeaponGroup;
     
     public RobotWeaponClientProjectileSpawnHandler(GameWorld world) : base(world)
     {}
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        WeaponGroup = GetComponentGroup(typeof(RobotWeaponA), typeof(CharacterPresentationSetup));
+        base.OnCreate();
+        WeaponGroup = GetEntityQuery(typeof(RobotWeaponA), typeof(CharacterPresentationSetup));
     }
 
-    protected override void Initialize(ref ComponentGroup group)
+    protected override void Initialize(ref EntityQuery group)
     {
-        var clientProjectileArray = group.GetComponentArray<ClientProjectile>();
-        var weaponArray = WeaponGroup.GetComponentArray<RobotWeaponA>();
-        var charPresentationArray =  WeaponGroup.GetComponentArray<CharacterPresentationSetup>();
+        var clientProjectileArray = group.ToComponentArray<ClientProjectile>();
+        var weaponArray = WeaponGroup.ToComponentArray<RobotWeaponA>();
+        var charPresentationArray =  WeaponGroup.ToComponentArray<CharacterPresentationSetup>();
 
         for (var i = 0; i < clientProjectileArray.Length; i++)
         {

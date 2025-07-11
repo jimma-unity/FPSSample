@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Burst;
+using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -47,20 +48,20 @@ public class DestructiblePropPresentation : MonoBehaviour
 [DisableAutoCreation]
 public class DestructiblePropSystemClient : BaseComponentSystem
 {
-    ComponentGroup Group;    
+    EntityQuery Group;    
     
     public DestructiblePropSystemClient(GameWorld world) : base(world) {}
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(DestructablePropReplicatedData), typeof(DestructiblePropPresentation));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(DestructablePropReplicatedData), typeof(DestructiblePropPresentation));
     }
 
     protected override void OnUpdate()
     {
-        var presentationArray = Group.GetComponentArray<DestructiblePropPresentation>();
-        var replicatedDataArray = Group.GetComponentDataArray<DestructablePropReplicatedData>();
+        var presentationArray = Group.ToComponentArray<DestructiblePropPresentation>();
+        var replicatedDataArray = Group.ToComponentDataArray<DestructablePropReplicatedData>(Allocator.TempJob);
 
         for (int i = 0; i < presentationArray.Length; i++)
         {
@@ -102,11 +103,13 @@ public class DestructiblePropSystemClient : BaseComponentSystem
     
                 if (presentation.destructionEffect != null)
                 {
-                    World.GetExistingManager<HandleSpatialEffectRequests>().Request(presentation.destructionEffect, 
+                    World.GetExistingSystem<HandleSpatialEffectRequests>().Request(presentation.destructionEffect, 
                         presentation.destructionEffectTransform.position, presentation.destructionEffectTransform.rotation);
                 }
             }
         }
+
+        replicatedDataArray.Dispose();
     }
   
 } 

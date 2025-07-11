@@ -20,19 +20,21 @@ public class HandleCharacterSpawn : InitializeComponentGroupSystem<Character, Ha
 
     private List<Entity> entityBuffer = new List<Entity>(8);
     private List<Character> characterBuffer = new List<Character>(8);
-    protected override void Initialize(ref ComponentGroup group)
+    protected override void Initialize(ref EntityQuery group)
     {
-        // We are not allowed to spawn prefabs while iterating ComponentGroup so we copy list of entities and characters.
+        // We are not allowed to spawn prefabs while iterating EntityQuery so we copy list of entities and characters.
         entityBuffer.Clear();
         characterBuffer.Clear();
         {
-            var entityArray = group.GetEntityArray();
-            var characterArray = group.GetComponentArray<Character>();
+            var entityArray = group.ToEntityArray(Allocator.TempJob);
+            var characterArray = group.ToComponentArray<Character>();
             for (var i = 0; i < entityArray.Length; i++)
             {
                 entityBuffer.Add(entityArray[i]);
                 characterBuffer.Add(characterArray[i]);
             }
+
+            entityArray.Dispose();
         }
 
         for (var i = 0; i < entityBuffer.Count; i++)
@@ -181,16 +183,16 @@ public class UpdateTeleportation : BaseComponentSystem<Character>
 [DisableAutoCreation]
 public class UpdateCharPresentationState : BaseComponentSystem
 {
-    ComponentGroup Group;
+    EntityQuery Group;
     const float k_StopMovePenalty = 0.075f;
         
     public UpdateCharPresentationState(GameWorld gameWorld) : base(gameWorld)
     {}
     
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(ServerEntity), typeof(Character), typeof(CharacterPredictedData), typeof(CharacterInterpolatedData),
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(ServerEntity), typeof(Character), typeof(CharacterPredictedData), typeof(CharacterInterpolatedData),
             typeof(UserCommandComponentData));
     }
 
@@ -199,11 +201,11 @@ public class UpdateCharPresentationState : BaseComponentSystem
     {
         Profiler.BeginSample("CharacterSystemShared.UpdatePresentationState");
 
-        var entityArray = Group.GetEntityArray();
-        var characterArray = Group.GetComponentArray<Character>();
-        var charPredictedStateArray = Group.GetComponentDataArray<CharacterPredictedData>();
-        var charAnimStateArray = Group.GetComponentDataArray<CharacterInterpolatedData>();
-        var userCommandArray = Group.GetComponentDataArray<UserCommandComponentData>();
+        var entityArray = Group.ToEntityArray(Allocator.TempJob);
+        var characterArray = Group.ToComponentArray<Character>();
+        var charPredictedStateArray = Group.ToComponentDataArray<CharacterPredictedData>(Allocator.TempJob);
+        var charAnimStateArray = Group.ToComponentDataArray<CharacterInterpolatedData>(Allocator.TempJob);
+        var userCommandArray = Group.ToComponentDataArray<UserCommandComponentData>(Allocator.TempJob);
 
         var deltaTime = m_world.frameDuration;
         for (var i = 0; i < charPredictedStateArray.Length; i++)
@@ -263,7 +265,11 @@ public class UpdateCharPresentationState : BaseComponentSystem
                 EntityManager.SetComponentData(entity, animState);
             }
         }
-        
+
+        charPredictedStateArray.Dispose();
+        charAnimStateArray.Dispose();
+        userCommandArray.Dispose();
+        entityArray.Dispose();
         Profiler.EndSample();
     }
 }
@@ -272,7 +278,7 @@ public class UpdateCharPresentationState : BaseComponentSystem
 [DisableAutoCreation]
 public class GroundTest : BaseComponentSystem
 {
-    ComponentGroup Group;
+    EntityQuery Group;
 
     public GroundTest(GameWorld gameWorld) : base(gameWorld)
     {
@@ -283,16 +289,16 @@ public class GroundTest : BaseComponentSystem
         m_mask = 1 << m_defaultLayer | 1 << m_playerLayer | 1 << m_platformLayer;
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(ServerEntity), typeof(Character), typeof(CharacterPredictedData));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(ServerEntity), typeof(Character), typeof(CharacterPredictedData));
     }
 
     protected override void OnUpdate()
     {        
-        var charPredictedStateArray = Group.GetComponentDataArray<CharacterPredictedData>();
-        var characterArray = Group.GetComponentArray<Character>();
+        var charPredictedStateArray = Group.ToComponentDataArray<CharacterPredictedData>(Allocator.TempJob);
+        var characterArray = Group.ToComponentArray<Character>();
         
         var startOffset = 1f;
         var distance = 3f;
@@ -322,6 +328,8 @@ public class GroundTest : BaseComponentSystem
         
         rayCommands.Dispose();
         rayResults.Dispose();
+
+        charPredictedStateArray.Dispose();
     }
     
     readonly int m_defaultLayer;
@@ -336,21 +344,21 @@ public class GroundTest : BaseComponentSystem
 [DisableAutoCreation]
 public class ApplyPresentationState : BaseComponentSystem    
 {
-    ComponentGroup CharGroup;
+    EntityQuery CharGroup;
 
     public ApplyPresentationState(GameWorld world) : base(world)
     {}
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        CharGroup = GetComponentGroup(typeof(AnimStateController), typeof(CharacterPresentationSetup), ComponentType.Subtractive<DespawningEntity>() );   
+        base.OnCreate();
+        CharGroup = GetEntityQuery(typeof(AnimStateController), typeof(CharacterPresentationSetup), ComponentType.Exclude<DespawningEntity>() );   
     }
 
     protected override void OnUpdate()
     {
         var deltaTime = m_world.frameDuration;
-        var animStateCtrlArray = CharGroup.GetComponentArray<AnimStateController>();
+        var animStateCtrlArray = CharGroup.ToComponentArray<AnimStateController>();
 
         Profiler.BeginSample("CharacterSystemShared.ApplyPresentationState");
 
