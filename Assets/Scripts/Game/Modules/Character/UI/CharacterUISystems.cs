@@ -4,23 +4,23 @@ using UnityEngine;
 [DisableAutoCreation]
 public class UpdateCharacterUI : BaseComponentSystem
 {
-    ComponentGroup Group;   
+    EntityQuery Group;   
 
     public UpdateCharacterUI(GameWorld world) : base(world)
     {
         m_prefab = Resources.Load<IngameHUD>("Prefabs/CharacterHUD");       
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(LocalPlayer), typeof(PlayerCameraSettings),
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(LocalPlayer), typeof(PlayerCameraSettings),
             typeof(LocalPlayerCharacterControl));
     }
 
-    protected override void OnDestroyManager()
+    protected override void OnDestroy()
     {
-        var charControlArray = Group.GetComponentArray<LocalPlayerCharacterControl>();
+        var charControlArray = Group.ToComponentArray<LocalPlayerCharacterControl>();
         for (int i = 0; i < charControlArray.Length; i++)
         {
             if (charControlArray[i].hud == null)
@@ -33,9 +33,9 @@ public class UpdateCharacterUI : BaseComponentSystem
     {
         var time = m_world.worldTime;
 
-        var localPlayerArray = Group.GetComponentArray<LocalPlayer>();
-        var playerCamSettingsArray = Group.GetComponentArray<PlayerCameraSettings>();
-        var charControlArray = Group.GetComponentArray<LocalPlayerCharacterControl>();
+        var localPlayerArray = Group.ToComponentArray<LocalPlayer>();
+        var playerCamSettingsArray = Group.ToComponentArray<PlayerCameraSettings>();
+        var charControlArray = Group.ToComponentArray<LocalPlayerCharacterControl>();
         
         GameDebug.Assert(localPlayerArray.Length <= 1, "There should never be more than 1 local player!");
 

@@ -84,7 +84,7 @@ public class RaySphereQueryReciever : BaseComponentSystem
 	readonly int m_environmentMask;
 	readonly int m_hitCollisionLayer;
 
-	ComponentGroup m_colliderGroup;
+	EntityQuery m_colliderGroup;
 
 	QueryBatch m_batch = new QueryBatch();
 	
@@ -99,10 +99,10 @@ public class RaySphereQueryReciever : BaseComponentSystem
 		                    | 1 << m_hitCollisionLayer;
 	}
 	
-	protected override void OnCreateManager()
+	protected override void OnCreate()
 	{
-		m_colliderGroup = GetComponentGroup(typeof(HitCollisionHistory), typeof(HitCollisionData));
-		base.OnCreateManager();
+		m_colliderGroup = GetEntityQuery(typeof(HitCollisionHistory), typeof(HitCollisionData));
+		base.OnCreate();
 	}
 
 	public int RegisterQuery(Query query)
@@ -162,8 +162,8 @@ public class RaySphereQueryReciever : BaseComponentSystem
 		var queryCount = queryBatch.queryIds.Count;
 	
 		Profiler.BeginSample("Get hitcollision entities");
-		var hitCollEntityArray = m_colliderGroup.GetEntityArray();
-		var hitCollDataArray = m_colliderGroup.GetComponentDataArray<HitCollisionData>();
+		var hitCollEntityArray = m_colliderGroup.ToEntityArray(Allocator.TempJob);
+		var hitCollDataArray = m_colliderGroup.ToComponentDataArray<HitCollisionData>(Allocator.TempJob);
 		var hitColliders = new NativeList<Entity>(hitCollEntityArray.Length,Allocator.TempJob);
 		var hitColliderData = new NativeList<HitCollisionData>(hitCollEntityArray.Length,Allocator.TempJob);
 		var hitColliderFlags = new NativeList<uint>(hitCollEntityArray.Length,Allocator.TempJob);
@@ -367,6 +367,8 @@ public class RaySphereQueryReciever : BaseComponentSystem
 		hitColliders.Dispose();
 		hitColliderData.Dispose();
 		hitColliderFlags.Dispose();
+		hitCollEntityArray.Dispose();
+		hitCollDataArray.Dispose();
 		
 		Profiler.EndSample();
 	}

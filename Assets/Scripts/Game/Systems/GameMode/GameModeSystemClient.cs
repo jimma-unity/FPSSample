@@ -6,8 +6,8 @@ using UnityEngine.UI;
 [DisableAutoCreation]
 public class GameModeSystemClient : ComponentSystem
 {
-    ComponentGroup PlayersGroup;
-    ComponentGroup GameModesGroup;
+    EntityQuery PlayersGroup;
+    EntityQuery GameModesGroup;
 
     public GameModeSystemClient(GameWorld world)
     {
@@ -18,11 +18,11 @@ public class GameModeSystemClient : ComponentSystem
         }
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        PlayersGroup = GetComponentGroup(typeof(PlayerState));
-        GameModesGroup = GetComponentGroup(typeof(GameMode));
+        base.OnCreate();
+        PlayersGroup = GetEntityQuery(typeof(PlayerState));
+        GameModesGroup = GetEntityQuery(typeof(GameMode));
     }
 
     public void Shutdown()
@@ -48,8 +48,8 @@ public class GameModeSystemClient : ComponentSystem
         var scoreboardUI = Game.game.clientFrontend.scoreboardPanel.uiBinding;
         var overlayUI = Game.game.clientFrontend.gameScorePanel;
 
-        var playerStateArray = PlayersGroup.GetComponentArray<PlayerState>();
-        var gameModeArray = GameModesGroup.GetComponentArray<GameMode>();
+        var playerStateArray = PlayersGroup.ToComponentArray<PlayerState>();
+        var gameModeArray = GameModesGroup.ToComponentArray<GameMode>();
         
         // Update individual player stats
 

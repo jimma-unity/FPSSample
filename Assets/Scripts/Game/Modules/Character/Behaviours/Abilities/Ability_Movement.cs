@@ -151,7 +151,7 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
         if (debugCharacterMove.IntValue > 0)
         {
             // Only show for one player
-            if (lastUsedFrame < Time.frameCount)
+            /*if (lastUsedFrame < Time.frameCount)
             {
                 lastUsedFrame = Time.frameCount;
 
@@ -163,7 +163,7 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
                 DebugOverlay.DrawGraph(4, 4, 10, 5, movehist_x, o, Color.red, 10.0f);
                 DebugOverlay.DrawGraph(4, 12, 10, 5, movehist_y, o, Color.green, 10.0f);
                 DebugOverlay.DrawGraph(4, 20, 10, 5, movehist_z, o, Color.blue, 10.0f);
-            }
+            }*/
         }
 
         if (time.tick != predictedState.tick + 1)

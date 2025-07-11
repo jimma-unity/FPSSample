@@ -38,16 +38,16 @@ public struct SplashDamageRequest: IComponentData
 			collisionMask = collisionMask,
 			settings = settings
 		};
-		commandBuffer.CreateEntity();
-		commandBuffer.AddComponent(request);
+		var e = commandBuffer.CreateEntity();
+		commandBuffer.AddComponent(e, request);
 	}
 }
 
 [DisableAutoCreation]
 public class HandleSplashDamageRequests : BaseComponentSystem
 {
-	ComponentGroup RequestGroup;   
-	ComponentGroup ColliderGroup;
+	EntityQuery RequestGroup;   
+	EntityQuery ColliderGroup;
 
 	List<HitCollisionData.CollisionResult> m_resultsBuffer = new List<HitCollisionData.CollisionResult>(32);
 	List<Entity> m_resultsOwnerBuffer = new List<Entity>(32);
@@ -58,26 +58,26 @@ public class HandleSplashDamageRequests : BaseComponentSystem
 		m_hitCollisionLayer = LayerMask.NameToLayer("hitcollision_enabled");
 	}
 
-	protected override void OnCreateManager()
+	protected override void OnCreate()
 	{
-		base.OnCreateManager();
-		RequestGroup = GetComponentGroup(typeof(SplashDamageRequest));
-		ColliderGroup = GetComponentGroup(typeof(HitCollisionHistory));
+		base.OnCreate();
+		RequestGroup = GetEntityQuery(typeof(SplashDamageRequest));
+		ColliderGroup = GetEntityQuery(typeof(HitCollisionHistory));
 	}
 
 
 	
 	protected override void OnUpdate()
 	{
-		var requestEntityArray = RequestGroup.GetEntityArray();
-		var requestArray = RequestGroup.GetComponentDataArray<SplashDamageRequest>();
+		var requestEntityArray = RequestGroup.ToEntityArray(Allocator.TempJob);
+		var requestArray = RequestGroup.ToComponentDataArray<SplashDamageRequest>(Allocator.TempJob);
 
 		
 		
 		
 		
 		
-		var hitCollisionEntityArray = ColliderGroup.GetEntityArray();
+		var hitCollisionEntityArray = ColliderGroup.ToEntityArray(Allocator.TempJob);
 
 		var requstCount = requestArray.Length;
 		
@@ -177,6 +177,10 @@ public class HandleSplashDamageRequests : BaseComponentSystem
 			boundsArray[i].Dispose();
 			broadPhaseResultArray[i].Dispose();
 		}
+		
+		requestEntityArray.Dispose();
+		requestArray.Dispose();
+		hitCollisionEntityArray.Dispose();
 	}
 
 	void Damage(float3 origin, ref SplashDamageSettings settings, Entity instigator, Entity hitCollisionOwnerEntity, float3 centerOfMass)

@@ -10,27 +10,27 @@ public class UpdateSpectatorCamControl : BaseComponentSystem
 {
     struct GroupType
     {
-        public ComponentArray<LocalPlayer> localPlayers;
-        public ComponentArray<PlayerCameraSettings> cameraSettings;
-        public ComponentArray<SpectatorCamControl> spectatorCamCtrls;
+        public LocalPlayer[] localPlayers;
+        public PlayerCameraSettings[] cameraSettings;
+        public SpectatorCamControl[] spectatorCamCtrls;
     }
 
 
-    ComponentGroup Group;
+    EntityQuery Group;
     
     public UpdateSpectatorCamControl(GameWorld world) : base(world)
     {}
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(LocalPlayer), typeof(PlayerCameraSettings), typeof(SpectatorCamControl));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(LocalPlayer), typeof(PlayerCameraSettings), typeof(SpectatorCamControl));
     }
 
     protected override void OnUpdate()
     {
-        var localPlayerArray = Group.GetComponentArray<LocalPlayer>();
-        var cameraSettingsArray = Group.GetComponentArray<PlayerCameraSettings>();
+        var localPlayerArray = Group.ToComponentArray<LocalPlayer>();
+        var cameraSettingsArray = Group.ToComponentArray<PlayerCameraSettings>();
         
         for (var i = 0; i < localPlayerArray.Length; i++)
         {

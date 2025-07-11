@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Collections;
+using UnityEngine;
 using Unity.Entities;
 using UnityEditor;
 using UnityEngine.Profiling;
@@ -32,23 +33,23 @@ public class DestructibleProp : MonoBehaviour
 [DisableAutoCreation]
 public class UpdateDestructableProps : BaseComponentSystem
 {
-	ComponentGroup Group;
+	EntityQuery Group;
 	
 	public UpdateDestructableProps(GameWorld world) : base(world) {}
 
-	protected override void OnCreateManager()
+	protected override void OnCreate()
 	{
-		base.OnCreateManager();
-		Group = GetComponentGroup(typeof(HitCollisionOwnerData), typeof(DestructibleProp),
+		base.OnCreate();
+		Group = GetEntityQuery(typeof(HitCollisionOwnerData), typeof(DestructibleProp),
 			typeof(DestructablePropReplicatedData));
 	}
 
 	protected override void OnUpdate()
 	{
-		var entityArray = Group.GetEntityArray();
-		var hitCollArray = Group.GetComponentDataArray<HitCollisionOwnerData>();
-		var propArray = Group.GetComponentArray<DestructibleProp>();
-		var replicatedDataArray = Group.GetComponentDataArray<DestructablePropReplicatedData>();
+		var entityArray = Group.ToEntityArray(Allocator.TempJob);
+		var hitCollArray = Group.ToComponentDataArray<HitCollisionOwnerData>(Allocator.TempJob);
+		var propArray = Group.ToComponentArray<DestructibleProp>();
+		var replicatedDataArray = Group.ToComponentDataArray<DestructablePropReplicatedData>(Allocator.TempJob);
 
 		for (int i = 0; i < entityArray.Length; i++)
 		{
@@ -110,6 +111,9 @@ public class UpdateDestructableProps : BaseComponentSystem
 				EntityManager.SetComponentData(entity,replicatedState);
 			}
 		}
-		
+
+		entityArray.Dispose();
+		hitCollArray.Dispose();
+		replicatedDataArray.Dispose();
 	}
 } 

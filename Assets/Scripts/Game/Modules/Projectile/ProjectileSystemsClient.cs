@@ -31,7 +31,7 @@ public struct ClientProjectileOwner : IComponentData
 [DisableAutoCreation]
 public class HandleClientProjectileRequests : BaseComponentSystem
 {
-    ComponentGroup RequestGroup;
+    EntityQuery RequestGroup;
     readonly GameObject m_SystemRoot;
     readonly BundledResourceManager m_resourceSystem;
     readonly ProjectileModuleSettings m_settings;
@@ -47,27 +47,27 @@ public class HandleClientProjectileRequests : BaseComponentSystem
         m_clientProjectileFactory = clientProjectileFactory;
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        RequestGroup = GetComponentGroup(typeof(ProjectileRequest));
+        base.OnCreate();
+        RequestGroup = GetEntityQuery(typeof(ProjectileRequest));
     }
 
-    protected override void OnDestroyManager()
+    protected override void OnDestroy()
     {
-        base.OnDestroyManager();
+        base.OnDestroy();
         Resources.UnloadAsset(m_settings);
     }
 
     protected override void OnUpdate()
     {
-        if (RequestGroup.CalculateLength() == 0)
+        if (RequestGroup.IsEmpty)
             return;
 
         // Copy requests as spawning will invalidate Group 
         requestBuffer.Clear();
-        var requestArray = RequestGroup.GetComponentDataArray<ProjectileRequest>();
-        var requestEntityArray = RequestGroup.GetEntityArray();
+        var requestArray = RequestGroup.ToComponentDataArray<ProjectileRequest>(Allocator.TempJob);
+        var requestEntityArray = RequestGroup.ToEntityArray(Allocator.TempJob);
         for (var i = 0; i < requestArray.Length; i++)
         {
             requestBuffer.Add(requestArray[i]);
@@ -107,6 +107,9 @@ public class HandleClientProjectileRequests : BaseComponentSystem
                 Debug.DrawLine(projectileData.startPos, projectileData.endPos, Color.cyan, 1.0f);
             }
         }
+        
+        requestArray.Dispose();
+        requestEntityArray.Dispose();
     }
 }
 
@@ -160,7 +163,7 @@ class ProjectilesSystemsClient
 
             if (clientProjectile.impactEffect != null)
             {
-                world.GetECSWorld().GetExistingManager<HandleSpatialEffectRequests>().Request(clientProjectile.impactEffect, 
+                world.GetECSWorld().GetExistingSystem<HandleSpatialEffectRequests>().Request(clientProjectile.impactEffect, 
                     projectileData.impactPos, Quaternion.LookRotation(projectileData.impactNormal));
             }
 
@@ -190,7 +193,7 @@ public class UpdateClientProjectilesPredicted : BaseComponentSystem<ClientProjec
 {
     public UpdateClientProjectilesPredicted(GameWorld world) : base(world)
     {
-        ExtraComponentRequirements = new [] { ComponentType.Create<UpdateProjectileFlag>() };
+        ExtraComponentRequirements = new [] { ComponentType.ReadWrite<UpdateProjectileFlag>() };
     }
 
     protected override void Update(Entity entity, ClientProjectile clientProjectile)
@@ -204,7 +207,7 @@ public class UpdateClientProjectilesNonPredicted : BaseComponentSystem<ClientPro
 {
     public UpdateClientProjectilesNonPredicted(GameWorld world) : base(world)
     {
-        ExtraComponentRequirements = new [] { ComponentType.Subtractive<UpdateProjectileFlag>() };
+        ExtraComponentRequirements = new [] { ComponentType.Exclude<UpdateProjectileFlag>() };
     }
 
     protected override void Update(Entity entity, ClientProjectile clientProjectile)
@@ -221,8 +224,8 @@ public class HandleProjectileSpawn : BaseComponentSystem
     readonly GameObject m_SystemRoot;
     readonly BundledResourceManager m_resourceSystem;
 
-    ComponentGroup PredictedProjectileGroup;
-    ComponentGroup IncommingProjectileGroup;
+    EntityQuery PredictedProjectileGroup;
+    EntityQuery IncommingProjectileGroup;
 
     private ClientProjectileFactory m_clientProjectileFactory;
     private List<Entity> addClientProjArray = new List<Entity>(32);
@@ -234,20 +237,20 @@ public class HandleProjectileSpawn : BaseComponentSystem
         m_clientProjectileFactory = projectileFactory;
     }
     
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
+        base.OnCreate();
 
         
-        PredictedProjectileGroup = GetComponentGroup(typeof(ProjectileData), typeof(PredictedProjectile), ComponentType.Subtractive<DespawningEntity>());
-        IncommingProjectileGroup = GetComponentGroup(typeof(ProjectileData), ComponentType.Subtractive<ClientProjectileOwner>());
+        PredictedProjectileGroup = GetEntityQuery(typeof(ProjectileData), typeof(PredictedProjectile), ComponentType.Exclude<DespawningEntity>());
+        IncommingProjectileGroup = GetEntityQuery(typeof(ProjectileData), ComponentType.Exclude<ClientProjectileOwner>());
     }
     
     
     protected override void OnUpdate()
     {
 
-        if (IncommingProjectileGroup.CalculateLength() > 0)
+        if (!IncommingProjectileGroup.IsEmpty)
             HandleIncommingProjectiles();
     }
     
@@ -257,11 +260,11 @@ public class HandleProjectileSpawn : BaseComponentSystem
         // If none is found add to addClientProjArray so a client projectile will be created for projectile
         addClientProjArray.Clear();
 
-        var inEntityArray = IncommingProjectileGroup.GetEntityArray();
-        var inProjectileDataArray = IncommingProjectileGroup.GetComponentDataArray<ProjectileData>();
+        var inEntityArray = IncommingProjectileGroup.ToEntityArray(Allocator.TempJob);
+        var inProjectileDataArray = IncommingProjectileGroup.ToComponentDataArray<ProjectileData>(Allocator.TempJob);
         
-        var predictedProjectileArray = PredictedProjectileGroup.GetComponentDataArray<ProjectileData>();
-        var predictedProjectileEntities = PredictedProjectileGroup.GetEntityArray();
+        var predictedProjectileArray = PredictedProjectileGroup.ToComponentDataArray<ProjectileData>(Allocator.TempJob);
+        var predictedProjectileEntities = PredictedProjectileGroup.ToEntityArray(Allocator.TempJob);
         for(var j=0;j<inProjectileDataArray.Length;j++)
         {
             var inProjectileData = inProjectileDataArray[j];
@@ -348,6 +351,12 @@ public class HandleProjectileSpawn : BaseComponentSystem
             
             m_clientProjectileFactory.CreateClientProjectile(projectileEntity);
         }
+        
+        inEntityArray.Dispose();
+       inProjectileDataArray.Dispose(); 
+ 
+       predictedProjectileArray.Dispose();
+       predictedProjectileEntities.Dispose();
     }
 }
 
@@ -356,23 +365,23 @@ public class HandleProjectileSpawn : BaseComponentSystem
 [AlwaysUpdateSystemAttribute]
 public class RemoveMispredictedProjectiles : BaseComponentSystem
 {
-    ComponentGroup PredictedProjectileGroup;
+    EntityQuery PredictedProjectileGroup;
 
     public RemoveMispredictedProjectiles(GameWorld world) :
         base(world)
     {}
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        PredictedProjectileGroup = GetComponentGroup(typeof(PredictedProjectile), ComponentType.Subtractive<DespawningEntity>());
+        base.OnCreate();
+        PredictedProjectileGroup = GetEntityQuery(typeof(PredictedProjectile), ComponentType.Exclude<DespawningEntity>());
     }
 
     protected override void OnUpdate()
     {
         // Remove all predicted projectiles that should have been acknowledged by now
-        var predictedProjectileArray = PredictedProjectileGroup.GetComponentDataArray<PredictedProjectile>();
-        var predictedProjectileEntityArray = PredictedProjectileGroup.GetEntityArray();
+        var predictedProjectileArray = PredictedProjectileGroup.ToComponentDataArray<PredictedProjectile>(Allocator.TempJob);
+        var predictedProjectileEntityArray = PredictedProjectileGroup.ToEntityArray(Allocator.TempJob);
         for (var i=0;i<predictedProjectileArray.Length;i++)
         {
             var predictedEntity = predictedProjectileArray[i];
@@ -389,6 +398,9 @@ public class RemoveMispredictedProjectiles : BaseComponentSystem
             if (ProjectileModuleClient.logInfo.IntValue > 0)
                 GameDebug.Log(string.Format("<color=red>Predicted projectile {0} destroyed as it was not verified. startTick:{1}]</color>", entity, predictedEntity.startTick));
         }
+
+        predictedProjectileArray.Dispose();
+        predictedProjectileEntityArray.Dispose();
     }
 }
 
@@ -397,7 +409,7 @@ public class RemoveMispredictedProjectiles : BaseComponentSystem
 [AlwaysUpdateSystemAttribute]
 public class DespawnClientProjectiles : BaseComponentSystem
 {
-    ComponentGroup DespawningClientProjectileOwnerGroup;
+    EntityQuery DespawningClientProjectileOwnerGroup;
     ClientProjectileFactory m_clientProjectileFactory;
 
     public DespawnClientProjectiles(GameWorld world, ClientProjectileFactory clientProjectileFactory) :
@@ -406,18 +418,18 @@ public class DespawnClientProjectiles : BaseComponentSystem
         m_clientProjectileFactory = clientProjectileFactory;
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
+        base.OnCreate();
 
-        DespawningClientProjectileOwnerGroup = GetComponentGroup(typeof(ClientProjectileOwner), typeof(DespawningEntity));
+        DespawningClientProjectileOwnerGroup = GetEntityQuery(typeof(ClientProjectileOwner), typeof(DespawningEntity));
     }
 
     List<Entity> clientProjectiles = new List<Entity>(32);
     protected override void OnUpdate()
     {
         // Remove all client projectiles that are has despawning projectile
-        var clientProjectileOwnerArray = DespawningClientProjectileOwnerGroup.GetComponentDataArray<ClientProjectileOwner>();
+        var clientProjectileOwnerArray = DespawningClientProjectileOwnerGroup.ToComponentDataArray<ClientProjectileOwner>(Allocator.TempJob);
 
         if (clientProjectileOwnerArray.Length > 0)
         {
@@ -435,6 +447,8 @@ public class DespawnClientProjectiles : BaseComponentSystem
                     GameDebug.Log(string.Format("Projectile despawned so despawn of clientprojectile requested"));
             }
         }
+
+        clientProjectileOwnerArray.Dispose();
     }
 }
 

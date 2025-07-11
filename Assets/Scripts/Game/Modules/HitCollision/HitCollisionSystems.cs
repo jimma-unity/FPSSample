@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Schema;
 using Primitives;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Unity.Entities;
@@ -18,11 +19,11 @@ public class HandleHitCollisionSpawning : InitializeComponentGroupSystem<HitColl
         m_bufferSize = bufferSize;
     }
 
-    protected override void Initialize(ref ComponentGroup group)
+    protected override void Initialize(ref EntityQuery group)
     {
         // We copy to list of incoming hitcollisions as it is not allowed to add entities while iterating componentarray 
-        var hitCollisionArray = group.GetComponentArray<HitCollisionHistory>().ToArray();
-        var hitCollisionEntityArray = group.GetEntityArray().ToArray();
+        var hitCollisionArray = group.ToComponentArray<HitCollisionHistory>();
+        var hitCollisionEntityArray = group.ToEntityArray(Allocator.TempJob);
         
         for (var iHitColl = 0; iHitColl < hitCollisionArray.Length; iHitColl++)
         {
@@ -104,6 +105,8 @@ public class HandleHitCollisionSpawning : InitializeComponentGroupSystem<HitColl
             
             
         }
+
+        hitCollisionEntityArray.Dispose();
     }
 
     
@@ -133,9 +136,9 @@ public class HandleHitCollisionDespawning : DeinitializeComponentGroupSystem<Hit
     public HandleHitCollisionDespawning(GameWorld world) : base(world)
     {}
 
-    protected override void Deinitialize(ref ComponentGroup group)
+    protected override void Deinitialize(ref EntityQuery group)
     {
-        var hitCollHistoryArray = group.GetComponentArray<HitCollisionHistory>().ToArray();
+        var hitCollHistoryArray = group.ToComponentArray<HitCollisionHistory>();
 
         for (var i = 0; i < hitCollHistoryArray.Length; i++)
         {

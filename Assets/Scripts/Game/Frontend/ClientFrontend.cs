@@ -140,30 +140,30 @@ public class ClientFrontend : MonoBehaviour
 
 class ClientFrontendUpdate : BaseComponentSystem
 {
-    ComponentGroup m_gameModeGroup;
-    ComponentGroup m_localPlayerGroup;
+    EntityQuery m_gameModeGroup;
+    EntityQuery m_localPlayerGroup;
 
     public ClientFrontendUpdate(GameWorld world) : base(world)
     {
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        m_gameModeGroup = GetComponentGroup(typeof(GameMode));
-        m_localPlayerGroup = GetComponentGroup(typeof(LocalPlayer));
+        base.OnCreate();
+        m_gameModeGroup = GetEntityQuery(typeof(GameMode));
+        m_localPlayerGroup = GetEntityQuery(typeof(LocalPlayer));
     }
 
     protected override void OnUpdate()
     {
-        var gameModeArray = m_gameModeGroup.GetComponentArray<GameMode>();
+        var gameModeArray = m_gameModeGroup.ToComponentArray<GameMode>();
         if (gameModeArray.Length == 0)
             return;
 
         GameDebug.Assert(gameModeArray.Length == 1, "There should only be one gamemode. Found:{0}",
             gameModeArray.Length);
 
-        var localPlayerArray = m_localPlayerGroup.GetComponentArray<LocalPlayer>();
+        var localPlayerArray = m_localPlayerGroup.ToComponentArray<LocalPlayer>();
         GameDebug.Assert(localPlayerArray.Length == 1, "There should only be one localplayer. Found:{0}",
             localPlayerArray.Length);
 

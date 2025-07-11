@@ -3,14 +3,14 @@
 [DisableAutoCreation]
 public class ResolvePlayerReference : BaseComponentSystem
 {
-    ComponentGroup Group;   
+    EntityQuery Group;   
     
     public ResolvePlayerReference(GameWorld world) : base(world) {}
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(PlayerState));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(PlayerState));
     }
 
     public void SetLocalPlayer(LocalPlayer localPlayer)
@@ -24,7 +24,7 @@ public class ResolvePlayerReference : BaseComponentSystem
             return;
         
         // Find player with correct player id
-        var playerStateArray = Group.GetComponentArray<PlayerState>();
+        var playerStateArray = Group.ToComponentArray<PlayerState>();
         for(var playerIndex=0;playerIndex < playerStateArray.Length; playerIndex++)
         {
             if (playerStateArray[playerIndex].playerId == m_LocalPlayer.playerId)

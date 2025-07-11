@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ public class PresentationOwner : ComponentDataProxy<PresentationOwnerData>
 [DisableAutoCreation]
 public class UpdatePresentationOwners : BaseComponentSystem
 {
-    ComponentGroup Group;
+    EntityQuery Group;
     readonly PresentationRegistry m_presentationRegistry;
     readonly BundledResourceManager m_resourceManager;
     
@@ -35,10 +36,10 @@ public class UpdatePresentationOwners : BaseComponentSystem
         m_resourceManager = resourceManager;
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(PresentationOwnerData));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(PresentationOwnerData));
     }
 
 
@@ -47,8 +48,8 @@ public class UpdatePresentationOwners : BaseComponentSystem
     protected override void OnUpdate()
     {
         // Add entities that needs change to buffer (as we cant destroy/create while iterating)
-        var gameEntityTypeArray = Group.GetComponentDataArray<PresentationOwnerData>();
-        var entityArray = Group.GetEntityArray();
+        var gameEntityTypeArray = Group.ToComponentDataArray<PresentationOwnerData>(Allocator.TempJob);
+        var entityArray = Group.ToEntityArray(Allocator.TempJob);
         m_entityBuffer.Clear();
         m_typeDataBuffer.Clear();
         for (int i = 0; i < gameEntityTypeArray.Length; i++)
@@ -101,6 +102,9 @@ public class UpdatePresentationOwners : BaseComponentSystem
             presentationEntity.ownerEntity = entity;
 
         }
+
+        gameEntityTypeArray.Dispose();
+        entityArray.Dispose();
     }
 } 
 

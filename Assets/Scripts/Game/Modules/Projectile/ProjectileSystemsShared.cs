@@ -7,21 +7,21 @@ using Unity.Mathematics;
 [DisableAutoCreation]
 public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
 {
-    ComponentGroup ProjectileGroup;
+    EntityQuery ProjectileGroup;
 
     public CreateProjectileMovementCollisionQueries(GameWorld world) : base(world) { }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        ProjectileGroup = GetComponentGroup(typeof(UpdateProjectileFlag), typeof(ProjectileData), 
-            ComponentType.Subtractive<DespawningEntity>());
+        base.OnCreate();
+        ProjectileGroup = GetEntityQuery(typeof(UpdateProjectileFlag), typeof(ProjectileData), 
+            ComponentType.Exclude<DespawningEntity>());
     }
 
     protected override void OnUpdate()
     {
-        var entityArray = ProjectileGroup.GetEntityArray();
-        var projectileDataArray = ProjectileGroup.GetComponentDataArray<ProjectileData>();
+        var entityArray = ProjectileGroup.ToEntityArray(Allocator.TempJob);
+        var projectileDataArray = ProjectileGroup.ToComponentDataArray<ProjectileData>(Allocator.TempJob);
         var time = m_world.worldTime;
         for (var i = 0; i < projectileDataArray.Length; i++)
         {
@@ -42,7 +42,7 @@ public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
 
             var collisionMask = ~(1U << projectileData.teamId);
 
-            var queryReciever = World.GetExistingManager<RaySphereQueryReciever>();
+            var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
             projectileData.rayQueryId = queryReciever.RegisterQuery(new RaySphereQueryReciever.Query()
             {
                 hitCollisionTestTick = collisionTestTick,
@@ -55,28 +55,30 @@ public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
             });
             PostUpdateCommands.SetComponent(entity,projectileData);
         }
+        entityArray.Dispose();
+        projectileDataArray.Dispose();
     }
 }
 
 [DisableAutoCreation]
 public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
 {
-    ComponentGroup ProjectileGroup;
+    EntityQuery ProjectileGroup;
 
     public HandleProjectileMovementCollisionQuery(GameWorld world) : base(world) { }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        ProjectileGroup = GetComponentGroup(typeof(UpdateProjectileFlag), typeof(ProjectileData), 
-            ComponentType.Subtractive<DespawningEntity>());
+        base.OnCreate();
+        ProjectileGroup = GetEntityQuery(typeof(UpdateProjectileFlag), typeof(ProjectileData), 
+            ComponentType.Exclude<DespawningEntity>());
     }
     
     protected override void OnUpdate()
     {
-        var entityArray = ProjectileGroup.GetEntityArray();
-        var projectileDataArray = ProjectileGroup.GetComponentDataArray<ProjectileData>();
-        var queryReciever = World.GetExistingManager<RaySphereQueryReciever>();    
+        var entityArray = ProjectileGroup.ToEntityArray(Allocator.TempJob);
+        var projectileDataArray = ProjectileGroup.ToComponentDataArray<ProjectileData>(Allocator.TempJob);
+        var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();    
         for (var i = 0; i < projectileDataArray.Length; i++)
         {
             var projectileData = projectileDataArray[i];
@@ -138,6 +140,8 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
             projectileData.position = newPosition;
             PostUpdateCommands.SetComponent(entityArray[i],projectileData);
         }
+        entityArray.Dispose();
+        projectileDataArray.Dispose();
     }
 }
 
@@ -145,21 +149,21 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
 [DisableAutoCreation]
 public class DespawnProjectiles : BaseComponentSystem
 {
-    ComponentGroup ProjectileGroup;
+    EntityQuery ProjectileGroup;
 
     public DespawnProjectiles(GameWorld world) : base(world) { }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        ProjectileGroup = GetComponentGroup(typeof(ProjectileData));
+        base.OnCreate();
+        ProjectileGroup = GetEntityQuery(typeof(ProjectileData));
     }
     
     protected override void OnUpdate()
     {
         var time = m_world.worldTime;
-        var entityArray = ProjectileGroup.GetEntityArray();
-        var projectileDataArray = ProjectileGroup.GetComponentDataArray<ProjectileData>();
+        var entityArray = ProjectileGroup.ToEntityArray(Allocator.TempJob);
+        var projectileDataArray = ProjectileGroup.ToComponentDataArray<ProjectileData>(Allocator.TempJob);
         for (var i = 0; i < projectileDataArray.Length; i++)
         {
             var projectileData = projectileDataArray[i];
@@ -180,6 +184,8 @@ public class DespawnProjectiles : BaseComponentSystem
                 PostUpdateCommands.AddComponent(entityArray[i],new DespawningEntity());
             }
         }
+        entityArray.Dispose();
+        projectileDataArray.Dispose();
     }
 }
 

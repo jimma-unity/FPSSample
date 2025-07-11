@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Unity.Collections;
 using Object = UnityEngine.Object;
 
 using Unity.Entities;
@@ -21,21 +22,22 @@ public struct EntityGroupChildren : IBufferElementData
 [DisableAutoCreation]
 public class DestroyDespawning : ComponentSystem
 {
-    ComponentGroup Group;
+    EntityQuery Group;
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
-        base.OnCreateManager();
-        Group = GetComponentGroup(typeof(DespawningEntity));
+        base.OnCreate();
+        Group = GetEntityQuery(typeof(DespawningEntity));
     }
     
     protected override void OnUpdate()
     {
-        var entityArray = Group.GetEntityArray();
+        var entityArray = Group.ToEntityArray(Allocator.TempJob);
         for (var i = 0; i < entityArray.Length; i++)
         {
             PostUpdateCommands.DestroyEntity(entityArray[i]);
         }
+        entityArray.Dispose();
     }
 }
 
@@ -74,10 +76,10 @@ public class GameWorld
             GameObject.DontDestroyOnLoad(m_sceneRoot);
         }
         
-        GameDebug.Assert(World.Active != null,"There is no active world");
-        m_ECSWorld = World.Active; 
+        GameDebug.Assert(World.All[0] != null,"There is no active world");
+        m_ECSWorld = World.All[0]; 
         
-        m_EntityManager = m_ECSWorld.GetOrCreateManager<EntityManager>();
+        m_EntityManager = m_ECSWorld.EntityManager;
         
         GameDebug.Assert(m_EntityManager.IsCreated);
 
@@ -87,7 +89,7 @@ public class GameWorld
 
         s_Worlds.Add(this);
 
-        m_destroyDespawningSystem = m_ECSWorld.CreateManager<DestroyDespawning>();
+        m_destroyDespawningSystem = m_ECSWorld.CreateSystem<DestroyDespawning>();
     }
 
     public void Shutdown()
