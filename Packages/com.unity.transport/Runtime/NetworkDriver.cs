@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using Unity.Networking.Transport.LowLevel.Unsafe;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.CollectionsCustom;
 using Unity.Networking.Transport.Protocols;
 using Unity.Networking.Transport.Utilities;
 using Unity.Jobs;

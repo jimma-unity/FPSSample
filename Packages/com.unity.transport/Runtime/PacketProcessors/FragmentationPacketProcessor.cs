@@ -1,5 +1,6 @@
 using System;
 using Unity.Collections;
+using Unity.CollectionsCustom;
 
 namespace Unity.Networking.Transport.PacketProcessors
 {

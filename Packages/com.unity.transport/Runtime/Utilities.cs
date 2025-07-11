@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.CollectionsCustom;
 
 namespace Unity.Networking.Transport.Utilities
 {

@@ -2,6 +2,8 @@ using System;
 using System.Threading;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.CollectionsCustom;
+using Unity.CollectionsCustom.LowLevel.Unsafe;
 
 namespace Unity.Networking.Transport
 {

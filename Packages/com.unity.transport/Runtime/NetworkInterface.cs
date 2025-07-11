@@ -8,6 +8,7 @@ using Unity.Networking.Transport.Protocols;
 using Unity.Networking.Transport.Utilities;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.CollectionsCustom;
 using Unity.Jobs;
 using UnityEngine;
 

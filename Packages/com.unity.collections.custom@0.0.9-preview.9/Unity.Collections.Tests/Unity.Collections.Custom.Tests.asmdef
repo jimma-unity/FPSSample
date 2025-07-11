@@ -1,0 +1,13 @@
+{
+    "name": "Unity.Collections.Custom.Tests",
+    "references": [
+        "Unity.Collections.Custom"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}

@@ -1,9 +1,16 @@
 {
     "name": "Unity.Networking.Transport",
+    "rootNamespace": "",
     "references": [
-           "Unity.Collections"
+        "Unity.Collections.Custom"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": true
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
