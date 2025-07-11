@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Networking.Transport.Utilities;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.CollectionsCustom;
 using Unity.Jobs;
 using Socket = Unity.Networking.Transport.IPCSocket;
 

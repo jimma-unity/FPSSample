@@ -1,16 +1,26 @@
 {
     "name": "Unity.Networking.Transport.EditorTests",
+    "rootNamespace": "",
     "references": [
-        "Unity.Collections",
+        "Unity.Collections.Custom",
         "Unity.Mathematics",
-        "Unity.Networking.Transport"
-    ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
+        "Unity.Networking.Transport",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
-    "allowUnsafeCode": true
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
