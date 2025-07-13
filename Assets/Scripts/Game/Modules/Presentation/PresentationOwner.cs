@@ -19,8 +19,16 @@ public struct PresentationOwnerData : IComponentData
     }
 }
 
-public class PresentationOwner : ComponentDataProxy<PresentationOwnerData>
-{}
+public class PresentationOwner : MonoBehaviour, IConvertGameObjectToEntity
+{
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        // Convert the MonoBehaviour data into the ECS component
+        dstManager.AddComponentData(entity, new PresentationOwnerData
+        {
+        });
+    }
+}
 
 
 [DisableAutoCreation]

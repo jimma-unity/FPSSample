@@ -42,7 +42,14 @@ public struct DamageHistoryData : IComponentData, IReplicatedComponent
     }
 }
 
-public class DamageHistory : ComponentDataProxy<DamageHistoryData>
+public class DamageHistory  : MonoBehaviour, IConvertGameObjectToEntity
 {
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        // Convert the MonoBehaviour data into the ECS component
+        dstManager.AddComponentData(entity, new DamageHistoryData
+        {
+        });
+    }
 }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 
@@ -48,7 +47,13 @@ public struct HealthStateData : IComponentData, IReplicatedComponent
 }
 
 
-public class HealthState : ComponentDataProxy<HealthStateData>
+public class HealthState : MonoBehaviour, IConvertGameObjectToEntity
 {
-    
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        // Convert the MonoBehaviour data into the ECS component
+        dstManager.AddComponentData(entity, new HealthStateData
+        {
+        });
+    }
 }

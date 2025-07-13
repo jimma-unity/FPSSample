@@ -57,8 +57,8 @@ public class FanSystem
 {
     public FanSystem(GameWorld world)
     {
-        m_HandleFanSpawns = world.GetECSWorld().CreateSystem<HandleFanSpawns>(world);
-        m_HandleFanDespawns = world.GetECSWorld().CreateSystem<HandleFanDespawns>(world);
+        m_HandleFanSpawns = world.GetECSWorld().AddSystem(new HandleFanSpawns(world));
+        m_HandleFanDespawns = world.GetECSWorld().AddSystem(new HandleFanDespawns(world));
         m_World = world;
 
         s_SourceJoints = new TransformAccessArray(k_MaxFanJoints / 2, 1);

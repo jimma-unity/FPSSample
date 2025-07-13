@@ -133,5 +133,13 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
 #endif    
 }
 
-public class CharacterPredicted : ComponentDataProxy<CharacterPredictedData>
-{}
+public class CharacterPredicted : MonoBehaviour, IConvertGameObjectToEntity
+{
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        // Convert the MonoBehaviour data into the ECS component
+        dstManager.AddComponentData(entity, new CharacterPredictedData
+        {
+        });
+    }
+}

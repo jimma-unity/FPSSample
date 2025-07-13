@@ -39,8 +39,16 @@ public struct MovableData : IComponentData, IInterpolatedComponent<MovableData>
 }
 
 [RequireComponent(typeof(Rigidbody))]
-public class Movable : ComponentDataProxy<MovableData>
+public class Movable :  MonoBehaviour, IConvertGameObjectToEntity
 {
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        // Convert the MonoBehaviour data into the ECS component
+        dstManager.AddComponentData(entity, new MovableData
+        {
+        });
+    }
+    
     public void Start()
     {
         if(Game.GetGameLoop<ServerGameLoop>() == null)

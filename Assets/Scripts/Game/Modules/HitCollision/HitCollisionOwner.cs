@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
@@ -22,8 +21,18 @@ public struct HitCollisionOwnerData : IComponentData
 
 
 [DisallowMultipleComponent]
-public class HitCollisionOwner : ComponentDataProxy<HitCollisionOwnerData>
+public class HitCollisionOwner : MonoBehaviour, IConvertGameObjectToEntity
 {
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        // Convert the MonoBehaviour data into the ECS component
+        dstManager.AddComponentData(entity, new HitCollisionOwnerData
+        {
+            //colliderFlags = (uint)colliderFlags,
+            //collisionEnabled = collisionEnabled ? 1 : 0 // Convert bool to int (1 = enabled, 0 = disabled)
+        });
+    }
+
     private void OnEnable()
     {
         // Make sure damage event buffer is created

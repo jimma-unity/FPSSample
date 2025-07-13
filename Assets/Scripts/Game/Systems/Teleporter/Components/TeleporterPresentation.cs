@@ -25,7 +25,13 @@ public struct TeleporterPresentationData : IComponentData, IReplicatedComponent
 }
 
 [DisallowMultipleComponent]
-public class TeleporterPresentation : ComponentDataProxy<TeleporterPresentationData>
+public class TeleporterPresentation : MonoBehaviour, IConvertGameObjectToEntity
 {
-    
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        // Convert the MonoBehaviour data into the ECS component
+        dstManager.AddComponentData(entity, new TeleporterPresentationData
+        {
+        });
+    }
 }

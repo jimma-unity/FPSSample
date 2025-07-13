@@ -28,9 +28,15 @@ public struct SpectatorCamData : IComponentData, IReplicatedComponent
 
 
 
-public class SpectatorCam : ComponentDataProxy<SpectatorCamData>
+public class SpectatorCam : MonoBehaviour, IConvertGameObjectToEntity
 {
-    
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        // Convert the MonoBehaviour data into the ECS component
+        dstManager.AddComponentData(entity, new SpectatorCamData
+        {
+        });
+    }
 }
 
 

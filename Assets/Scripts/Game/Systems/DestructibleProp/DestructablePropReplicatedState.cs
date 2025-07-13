@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 using Unity.Entities;
 
 [Serializable]
@@ -22,6 +23,13 @@ public struct DestructablePropReplicatedData : IComponentData, IReplicatedCompon
     }
 }
 
-public class DestructablePropReplicatedState : ComponentDataProxy<DestructablePropReplicatedData>
+public class DestructablePropReplicatedState : MonoBehaviour, IConvertGameObjectToEntity
 {
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        // Convert the MonoBehaviour data into the ECS component
+        dstManager.AddComponentData(entity, new DestructablePropReplicatedData
+        {
+        });
+    }
 }

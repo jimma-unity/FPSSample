@@ -7,8 +7,8 @@ public class SpectatorCamModuleClient
     public SpectatorCamModuleClient(GameWorld world)
     {
         m_world = world;
-        m_UpdateSpectatorCam =  m_world.GetECSWorld().CreateSystem<UpdateSpectatorCam>(m_world);
-        m_UpdateSpectatorCamControl =  m_world.GetECSWorld().CreateSystem<UpdateSpectatorCamControl>(m_world);
+        m_UpdateSpectatorCam =  m_world.GetECSWorld().AddSystem(new UpdateSpectatorCam(m_world));
+        m_UpdateSpectatorCamControl =  m_world.GetECSWorld().AddSystem(new UpdateSpectatorCamControl(m_world));
 
     }
 
