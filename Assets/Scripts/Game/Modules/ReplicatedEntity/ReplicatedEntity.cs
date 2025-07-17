@@ -49,17 +49,15 @@ public struct ReplicatedEntityData : IComponentData, IReplicatedComponent
 
 [ExecuteAlways, DisallowMultipleComponent]
 [RequireComponent(typeof(GameObjectEntity))]
-public class ReplicatedEntity : ComponentDataProxy<ReplicatedEntityData>
+public class ReplicatedEntity : MonoBehaviour
 {
     public byte[] netID;    // guid of instance. Used for identifying replicated entities from the scene
 
     private void Awake()
     {
-        // Ensure replicatedEntityData is set to default
-        var val = Value;
-        val.id = -1;
-        val.predictingPlayerId = -1;
-        Value = val;
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new ReplicatedEntityData() { id=-1, predictingPlayerId=-1 });
+        
 #if UNITY_EDITOR
         if (!EditorApplication.isPlaying)
             SetUniqueNetID();
@@ -89,12 +87,13 @@ public class ReplicatedEntity : ComponentDataProxy<ReplicatedEntityData>
     public bool SetAssetGUID(string guidStr)
     {
         var guid = new WeakAssetReference(guidStr);
-        var val = Value;
-        var currentGuid = val.assetGuid; 
+        var goe = GetComponent<GameObjectEntity>();
+        var val = goe.EntityManager.GetComponentData<ReplicatedEntityData>(goe.Entity);
+        var currentGuid = val.assetGuid; // The crux of the issue is here - if we no longer have ComponentProxyData, how do we retrieve associated existing GUID ?
         if (!guid.Equals(currentGuid))
         {
             val.assetGuid = guid;
-            Value = val;
+            goe.EntityManager.SetComponentData(goe.Entity, val);
             PrefabUtility.SavePrefabAsset(gameObject);
             return true;
         }

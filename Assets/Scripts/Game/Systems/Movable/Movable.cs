@@ -38,8 +38,9 @@ public struct MovableData : IComponentData, IInterpolatedComponent<MovableData>
     }
 }
 
+[RequireComponent(typeof(GameObjectEntity))]
 [RequireComponent(typeof(Rigidbody))]
-public class Movable : ComponentDataProxy<MovableData>
+public class Movable : MonoBehaviour
 {
     public void Start()
     {
@@ -47,5 +48,18 @@ public class Movable : ComponentDataProxy<MovableData>
         {
             GetComponent<Rigidbody>().isKinematic = true;
         }
+    }
+    
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new MovableData());
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<MovableData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<MovableData>(goe.Entity);
     }
 }

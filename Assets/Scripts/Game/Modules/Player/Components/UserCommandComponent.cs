@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using UnityEngine;
 
 [Serializable]
 public struct UserCommandComponentData: IComponentData, IReplicatedComponent    
@@ -38,5 +39,19 @@ public struct UserCommandComponentData: IComponentData, IReplicatedComponent
     }
 }
 
-public class UserCommandComponent : ComponentDataProxy<UserCommandComponentData>
-{}
+[RequireComponent(typeof(GameObjectEntity))]
+public class UserCommandComponent : MonoBehaviour
+{
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new UserCommandComponentData());
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<UserCommandComponentData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<UserCommandComponentData>(goe.Entity);
+    }
+}

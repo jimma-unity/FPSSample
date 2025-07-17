@@ -42,7 +42,20 @@ public struct DamageHistoryData : IComponentData, IReplicatedComponent
     }
 }
 
-public class DamageHistory : ComponentDataProxy<DamageHistoryData>
+[RequireComponent(typeof(GameObjectEntity))]
+public class DamageHistory : MonoBehaviour
 {
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new DamageHistoryData());
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<DamageHistoryData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<DamageHistoryData>(goe.Entity);
+    }
 }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using UnityEngine;
 
 [Serializable]
 public struct DestructablePropReplicatedData : IComponentData, IReplicatedComponent
@@ -22,6 +23,19 @@ public struct DestructablePropReplicatedData : IComponentData, IReplicatedCompon
     }
 }
 
-public class DestructablePropReplicatedState : ComponentDataProxy<DestructablePropReplicatedData>
+[RequireComponent(typeof(GameObjectEntity))]
+public class DestructablePropReplicatedState : MonoBehaviour
 {
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new DestructablePropReplicatedData());
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<DestructablePropReplicatedData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<DestructablePropReplicatedData>(goe.Entity);
+    }
 }

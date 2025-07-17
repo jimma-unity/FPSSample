@@ -26,7 +26,19 @@ public struct RagdollStateData : IComponentData, IReplicatedComponent
     }
 }
 
-public class RagdollState : ComponentDataProxy<RagdollStateData>
+[RequireComponent(typeof(GameObjectEntity))]
+public class RagdollState : MonoBehaviour
 {
-    
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new RagdollStateData());
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<RagdollStateData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<RagdollStateData>(goe.Entity);
+    }
 }

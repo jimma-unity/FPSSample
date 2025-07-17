@@ -26,14 +26,22 @@ public struct SpectatorCamData : IComponentData, IReplicatedComponent
     }
 }
 
-
-
-public class SpectatorCam : ComponentDataProxy<SpectatorCamData>
+[RequireComponent(typeof(GameObjectEntity))]
+public class SpectatorCam : MonoBehaviour
 {
-    
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new SpectatorCamData());
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<SpectatorCamData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<SpectatorCamData>(goe.Entity);
+    }
 }
-
-
 
 
 public struct SpectatorCamSpawnRequest : IComponentData

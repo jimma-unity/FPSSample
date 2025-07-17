@@ -47,8 +47,19 @@ public struct HealthStateData : IComponentData, IReplicatedComponent
     }
 }
 
-
-public class HealthState : ComponentDataProxy<HealthStateData>
+[RequireComponent(typeof(GameObjectEntity))]
+public class HealthState : MonoBehaviour
 {
-    
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new HealthStateData());
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<HealthStateData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<HealthStateData>(goe.Entity);
+    }
 }

@@ -133,5 +133,19 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
 #endif    
 }
 
-public class CharacterPredicted : ComponentDataProxy<CharacterPredictedData>
-{}
+[RequireComponent(typeof(GameObjectEntity))]
+public class CharacterPredicted : MonoBehaviour
+{
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new CharacterPredictedData());
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<CharacterPredictedData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<CharacterPredictedData>(goe.Entity);
+    }
+}

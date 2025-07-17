@@ -180,5 +180,19 @@ public struct CharacterInterpolatedData : IInterpolatedComponent<CharacterInterp
     }
 }
 
-public class CharacterInterpolated : ComponentDataProxy<CharacterInterpolatedData>
-{}
+[RequireComponent(typeof(GameObjectEntity))]
+public class CharacterInterpolated : MonoBehaviour
+{
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new CharacterInterpolatedData());
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<CharacterInterpolatedData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<CharacterInterpolatedData>(goe.Entity);
+    }
+}

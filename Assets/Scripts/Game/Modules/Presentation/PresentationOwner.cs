@@ -19,9 +19,22 @@ public struct PresentationOwnerData : IComponentData
     }
 }
 
-public class PresentationOwner : ComponentDataProxy<PresentationOwnerData>
-{}
+[RequireComponent(typeof(GameObjectEntity))]
+public class PresentationOwner : MonoBehaviour
+{
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new PresentationOwnerData());
+    }
 
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<PresentationOwnerData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<PresentationOwnerData>(goe.Entity);
+    }
+}
 
 [DisableAutoCreation]
 public class UpdatePresentationOwners : BaseComponentSystem

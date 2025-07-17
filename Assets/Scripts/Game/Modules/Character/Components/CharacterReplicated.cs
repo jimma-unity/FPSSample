@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using UnityEngine;
 
 [Serializable]
 public struct CharacterReplicatedData : IComponentData, IReplicatedComponent
@@ -40,6 +41,19 @@ public struct CharacterReplicatedData : IComponentData, IReplicatedComponent
     }
 }
 
-public class CharacterReplicated : ComponentDataProxy<CharacterReplicatedData>
+[RequireComponent(typeof(GameObjectEntity))]
+public class CharacterReplicated : MonoBehaviour
 {
+    private void OnEnable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new CharacterReplicatedData());
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<CharacterReplicatedData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<CharacterReplicatedData>(goe.Entity);
+    }
 }

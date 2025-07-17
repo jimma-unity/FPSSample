@@ -20,19 +20,27 @@ public struct HitCollisionOwnerData : IComponentData
     public int collisionEnabled;
 }
 
-
+[RequireComponent(typeof(GameObjectEntity))]
 [DisallowMultipleComponent]
-public class HitCollisionOwner : ComponentDataProxy<HitCollisionOwnerData>
+public class HitCollisionOwner : MonoBehaviour
 {
     private void OnEnable()
     {
-        // Make sure damage event buffer is created
-        // TODO (mogensh) create DamageEvent buffer using monobehavior wrapper (when it is available) 
         var goe = GetComponent<GameObjectEntity>();
+        goe.EntityManager.AddComponentData(goe.Entity, new HitCollisionOwnerData());
+        
+        // Make sure damage event buffer is created
+        // TODO (mogensh) create DamageEvent buffer using monobehavior wrapper (when it is available)
         if (goe != null && goe.EntityManager != null)
         {
             goe.EntityManager.AddBuffer<DamageEvent>(goe.Entity);
         }
-        
+    }
+
+    private void OnDisable()
+    {
+        var goe = GetComponent<GameObjectEntity>();
+        if ((goe.Entity != Entity.Null) && goe.EntityManager.HasComponent<HitCollisionOwnerData>(goe.Entity))
+            goe.EntityManager.RemoveComponent<HitCollisionOwnerData>(goe.Entity);
     }
 }
