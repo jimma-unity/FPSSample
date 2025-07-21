@@ -89,7 +89,7 @@ public class GameWorld
 
         s_Worlds.Add(this);
 
-        m_destroyDespawningSystem = m_ECSWorld.CreateSystem<DestroyDespawning>();
+        m_destroyDespawningSystem = m_ECSWorld.AddSystem(new DestroyDespawning());
     }
 
     public void Shutdown()

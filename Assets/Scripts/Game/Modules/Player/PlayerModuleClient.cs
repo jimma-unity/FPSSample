@@ -25,10 +25,10 @@ public class PlayerModuleClient
     {
         m_world = world;
 
-        m_HandlePlayerCameraControlSpawn = m_world.GetECSWorld().CreateSystem<HandlePlayerCameraControlSpawn>(m_world);
-        m_UpdatePlayerCameras = m_world.GetECSWorld().CreateSystem<UpdatePlayerCameras>(m_world);
-        m_ResolvePlayerReference = m_world.GetECSWorld().CreateSystem<ResolvePlayerReference>(m_world);
-        m_UpdateServerEntityComponent = m_world.GetECSWorld().CreateSystem<UpdateServerEntityComponent>(m_world);
+        m_HandlePlayerCameraControlSpawn = m_world.GetECSWorld().AddSystem(new HandlePlayerCameraControlSpawn(m_world));
+        m_UpdatePlayerCameras = m_world.GetECSWorld().AddSystem(new UpdatePlayerCameras(m_world));
+        m_ResolvePlayerReference = m_world.GetECSWorld().AddSystem(new ResolvePlayerReference(m_world));
+        m_UpdateServerEntityComponent = m_world.GetECSWorld().AddSystem(new UpdateServerEntityComponent(m_world));
     }
 
     public void Shutdown()

@@ -45,27 +45,27 @@ public class ClientGameWorld
         m_ItemModule = new ItemModule(m_GameWorld);
         m_ragdollSystem = new RagdollModule(m_GameWorld);
 
-        m_GameModeSystem = m_GameWorld.GetECSWorld().CreateSystem<GameModeSystemClient>(m_GameWorld);
+        m_GameModeSystem = m_GameWorld.GetECSWorld().AddSystem(new GameModeSystemClient(m_GameWorld));
 
-        m_ClientFrontendUpdate = m_GameWorld.GetECSWorld().CreateSystem<ClientFrontendUpdate>(m_GameWorld);
+        m_ClientFrontendUpdate = m_GameWorld.GetECSWorld().AddSystem(new ClientFrontendUpdate(m_GameWorld));
         
-        m_DestructiblePropSystemClient = m_GameWorld.GetECSWorld().CreateSystem<DestructiblePropSystemClient>(m_GameWorld);
+        m_DestructiblePropSystemClient = m_GameWorld.GetECSWorld().AddSystem(new DestructiblePropSystemClient(m_GameWorld));
         
-        m_ApplyGrenadePresentation = m_GameWorld.GetECSWorld().CreateSystem<ApplyGrenadePresentation>(m_GameWorld);
+        m_ApplyGrenadePresentation = m_GameWorld.GetECSWorld().AddSystem(new ApplyGrenadePresentation(m_GameWorld));
         
-        m_UpdatePresentationOwners = m_GameWorld.GetECSWorld().CreateSystem<UpdatePresentationOwners>(
-            m_GameWorld, resourceSystem);
-        m_HandlePresentationOwnerDespawn = m_GameWorld.GetECSWorld().CreateSystem<HandlePresentationOwnerDesawn>(m_GameWorld);
+        m_UpdatePresentationOwners = m_GameWorld.GetECSWorld().AddSystem(new UpdatePresentationOwners(
+            m_GameWorld, resourceSystem));
+        m_HandlePresentationOwnerDespawn = m_GameWorld.GetECSWorld().AddSystem(new HandlePresentationOwnerDesawn(m_GameWorld));
         
-        m_moverUpdate = m_GameWorld.GetECSWorld().CreateSystem<MoverUpdate>(m_GameWorld);
+        m_moverUpdate = m_GameWorld.GetECSWorld().AddSystem(new MoverUpdate(m_GameWorld));
         
-        m_TeleporterSystemClient = m_GameWorld.GetECSWorld().CreateSystem<TeleporterSystemClient>(m_GameWorld);
+        m_TeleporterSystemClient = m_GameWorld.GetECSWorld().AddSystem(new TeleporterSystemClient(m_GameWorld));
             
-        m_SpinSystem = m_GameWorld.GetECSWorld().CreateSystem<SpinSystem>(m_GameWorld);
+        m_SpinSystem = m_GameWorld.GetECSWorld().AddSystem(new SpinSystem(m_GameWorld));
         
-        m_HandleNamePlateOwnerSpawn = m_GameWorld.GetECSWorld().CreateSystem<HandleNamePlateSpawn>(m_GameWorld);
-        m_HandleNamePlateOwnerDespawn = m_GameWorld.GetECSWorld().CreateSystem<HandleNamePlateDespawn>(m_GameWorld);
-        m_UpdateNamePlates = m_GameWorld.GetECSWorld().CreateSystem<UpdateNamePlates>(m_GameWorld);
+        m_HandleNamePlateOwnerSpawn = m_GameWorld.GetECSWorld().AddSystem(new HandleNamePlateSpawn(m_GameWorld));
+        m_HandleNamePlateOwnerDespawn = m_GameWorld.GetECSWorld().AddSystem(new HandleNamePlateDespawn(m_GameWorld));
+        m_UpdateNamePlates = m_GameWorld.GetECSWorld().AddSystem(new UpdateNamePlates(m_GameWorld));
         
         m_GameModeSystem.SetLocalPlayerId(m_NetworkClient.clientId);
     

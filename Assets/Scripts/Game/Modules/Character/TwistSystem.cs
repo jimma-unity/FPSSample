@@ -57,8 +57,8 @@ public class TwistSystem
 {
     public TwistSystem(GameWorld world)
     {
-        m_HandleTwistSpawns = world.GetECSWorld().CreateSystem<HandleTwistSpawns>(world);
-        m_HandleTwistDespawns = world.GetECSWorld().CreateSystem<HandleTwistDespawns>(world);
+        m_HandleTwistSpawns = world.GetECSWorld().AddSystem(new HandleTwistSpawns(world));
+        m_HandleTwistDespawns = world.GetECSWorld().AddSystem(new HandleTwistDespawns(world));
         m_World = world;
 
         s_SourceJoints = new TransformAccessArray(k_MaxSetups, 1);

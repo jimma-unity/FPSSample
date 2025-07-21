@@ -72,14 +72,14 @@ public class ReplicatedEntityModuleServer
             m_SystemRoot.transform.SetParent(world.SceneRoot.transform);
         }
         
-        m_handleDataSpawn = m_world.GetECSWorld().CreateSystem<HandleReplicatedEntityDataSpawn>(m_world, network,
-            m_assetRegistry, m_entityCollection);
+        m_handleDataSpawn = m_world.GetECSWorld().AddSystem(new HandleReplicatedEntityDataSpawn(m_world, network,
+            m_assetRegistry, m_entityCollection));
 
-        m_handleDataDespawn = m_world.GetECSWorld().CreateSystem<HandleReplicatedEntityDataDespawn>(m_world, network,
-            m_entityCollection);
+        m_handleDataDespawn = m_world.GetECSWorld().AddSystem(new HandleReplicatedEntityDataDespawn(m_world, network,
+            m_entityCollection));
         
         
-        m_UpdateReplicatedOwnerFlag = m_world.GetECSWorld().CreateSystem<UpdateReplicatedOwnerFlag>(m_world);
+        m_UpdateReplicatedOwnerFlag = m_world.GetECSWorld().AddSystem(new UpdateReplicatedOwnerFlag(m_world));
         m_UpdateReplicatedOwnerFlag.SetLocalPlayerId(-1);
         
         // Load all replicated entity resources

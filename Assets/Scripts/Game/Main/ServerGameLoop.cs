@@ -38,19 +38,19 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
         m_ReplicatedEntityModule.ReserveSceneEntities(networkServer);
         m_ItemModule = new ItemModule(m_GameWorld);
 
-        m_GameModeSystem = m_GameWorld.GetECSWorld().CreateSystem<GameModeSystemServer>(m_GameWorld, m_ChatSystem, resourceSystem);
+        m_GameModeSystem = m_GameWorld.GetECSWorld().AddSystem(new GameModeSystemServer(m_GameWorld, m_ChatSystem, resourceSystem));
 
-        m_DestructablePropSystem = m_GameWorld.GetECSWorld().CreateSystem<UpdateDestructableProps>(m_GameWorld);
+        m_DestructablePropSystem = m_GameWorld.GetECSWorld().AddSystem(new UpdateDestructableProps(m_GameWorld));
 
-        m_DamageAreaSystem = m_GameWorld.GetECSWorld().CreateSystem<DamageAreaSystemServer>(m_GameWorld);
+        m_DamageAreaSystem = m_GameWorld.GetECSWorld().AddSystem(new DamageAreaSystemServer(m_GameWorld));
 
-        m_TeleporterSystem = m_GameWorld.GetECSWorld().CreateSystem<TeleporterSystemServer>(m_GameWorld);
+        m_TeleporterSystem = m_GameWorld.GetECSWorld().AddSystem(new TeleporterSystemServer(m_GameWorld));
 
-        m_HandleGrenadeRequests = m_GameWorld.GetECSWorld().CreateSystem<HandleGrenadeRequest>(m_GameWorld, resourceSystem);
-        m_StartGrenadeMovement = m_GameWorld.GetECSWorld().CreateSystem<StartGrenadeMovement>(m_GameWorld);
-        m_FinalizeGrenadeMovement = m_GameWorld.GetECSWorld().CreateSystem<FinalizeGrenadeMovement>(m_GameWorld);
+        m_HandleGrenadeRequests = m_GameWorld.GetECSWorld().AddSystem(new HandleGrenadeRequest(m_GameWorld, resourceSystem));
+        m_StartGrenadeMovement = m_GameWorld.GetECSWorld().AddSystem(new StartGrenadeMovement(m_GameWorld));
+        m_FinalizeGrenadeMovement = m_GameWorld.GetECSWorld().AddSystem(new FinalizeGrenadeMovement(m_GameWorld));
 
-        m_platformSystem = m_GameWorld.GetECSWorld().CreateSystem<MoverUpdate>(m_GameWorld);
+        m_platformSystem = m_GameWorld.GetECSWorld().AddSystem(new MoverUpdate(m_GameWorld));
 
         m_MoveableSystem = new MovableSystemServer(m_GameWorld, resourceSystem);
         m_CameraSystem = new ServerCameraSystem(m_GameWorld);

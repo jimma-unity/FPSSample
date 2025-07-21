@@ -12,7 +12,7 @@ public class ReplicatedEntityModuleClient : ISnapshotConsumer
         m_assetRegistry = resourceSystem.GetResourceRegistry<ReplicatedEntityRegistry>();
         m_entityCollection = new ReplicatedEntityCollection(m_world);
         
-        m_UpdateReplicatedOwnerFlag = m_world.GetECSWorld().CreateSystem<UpdateReplicatedOwnerFlag>(m_world);
+        m_UpdateReplicatedOwnerFlag = m_world.GetECSWorld().AddSystem(new UpdateReplicatedOwnerFlag(m_world));
         
         // Load all replicated entity resources
         m_assetRegistry.LoadAllResources(resourceSystem);
