@@ -27,6 +27,7 @@ public struct GrenadeSpawnRequest : IComponentData
     }
 }
 
+[DisableAutoCreation]
 public class HandleGrenadeRequest : BaseComponentDataSystem<GrenadeSpawnRequest>
 {
     private readonly BundledResourceManager m_resourceManager;
