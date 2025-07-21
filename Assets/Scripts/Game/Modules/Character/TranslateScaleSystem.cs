@@ -57,8 +57,8 @@ public class TranslateScaleSystem
 {
     public TranslateScaleSystem(GameWorld world)
     {
-        m_HandleTranslateScaleSpawns = world.GetECSWorld().CreateSystem<HandleTranslateScaleSpawns>(world);
-        m_HandleTranslateScaleDespawns = world.GetECSWorld().CreateSystem<HandleTranslateScaleDespawns>(world);
+        m_HandleTranslateScaleSpawns = world.GetECSWorld().AddSystem(new HandleTranslateScaleSpawns(world));
+        m_HandleTranslateScaleDespawns = world.GetECSWorld().AddSystem(new HandleTranslateScaleDespawns(world));
         m_World = world;
 
         s_SourceJoints = new TransformAccessArray(k_MaxDrivers, 1);

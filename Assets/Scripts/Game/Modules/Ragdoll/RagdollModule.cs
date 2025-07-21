@@ -12,9 +12,9 @@ public class RagdollModule
             m_SystemRoot.transform.SetParent(world.SceneRoot.transform);
         }
         
-        m_updateRagdolls = m_world.GetECSWorld().CreateSystem<UpdateRagdolls>(m_world);
-        m_handleRagdollSpawn = m_world.GetECSWorld().CreateSystem<HandleRagdollSpawn>(m_world, m_SystemRoot);
-        m_handleRagdollDespawn = m_world.GetECSWorld().CreateSystem<HandleRagdollDespawn>(m_world);
+        m_updateRagdolls = m_world.GetECSWorld().AddSystem(new UpdateRagdolls(m_world));
+        m_handleRagdollSpawn = m_world.GetECSWorld().AddSystem(new HandleRagdollSpawn(m_world, m_SystemRoot));
+        m_handleRagdollDespawn = m_world.GetECSWorld().AddSystem(new HandleRagdollDespawn(m_world));
     }
 
     public void Shutdown()

@@ -13,10 +13,10 @@ public class ProjectileModuleServer
     {
         m_GameWorld = gameWorld;
 
-        m_handleRequests = m_GameWorld.GetECSWorld().CreateSystem<HandleServerProjectileRequests>(m_GameWorld, resourceSystem);
-        m_CreateMovementQueries =  m_GameWorld.GetECSWorld().CreateSystem<CreateProjectileMovementCollisionQueries>(m_GameWorld);
-        m_HandleMovementQueries = m_GameWorld.GetECSWorld().CreateSystem<HandleProjectileMovementCollisionQuery>(m_GameWorld);
-        m_DespawnProjectiles = m_GameWorld.GetECSWorld().CreateSystem<DespawnProjectiles>(m_GameWorld);
+        m_handleRequests = m_GameWorld.GetECSWorld().AddSystem(new HandleServerProjectileRequests(m_GameWorld, resourceSystem));
+        m_CreateMovementQueries =  m_GameWorld.GetECSWorld().AddSystem(new CreateProjectileMovementCollisionQueries(m_GameWorld));
+        m_HandleMovementQueries = m_GameWorld.GetECSWorld().AddSystem(new HandleProjectileMovementCollisionQuery(m_GameWorld));
+        m_DespawnProjectiles = m_GameWorld.GetECSWorld().AddSystem(new DespawnProjectiles(m_GameWorld));
     }
 
     public void Shutdown()

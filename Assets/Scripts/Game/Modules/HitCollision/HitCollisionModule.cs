@@ -26,11 +26,11 @@ public class HitCollisionModule
 
         m_primDebugChannel = primDebugChannel;
         
-        m_RaySphereQueryReciever = m_world.GetECSWorld().CreateSystem<RaySphereQueryReciever>(m_world);
-        m_HandleSplashDamageRequest = m_world.GetECSWorld().CreateSystem<HandleSplashDamageRequests>(m_world);
-        m_StoreColliderStates = m_world.GetECSWorld().CreateSystem<StoreColliderStates>(m_world);
-        m_HandleHitCollisionSpawning = m_world.GetECSWorld().CreateSystem<HandleHitCollisionSpawning>(m_world,m_SystemRoot,bufferSize);
-        m_HandleHitCollisionDespawning = m_world.GetECSWorld().CreateSystem<HandleHitCollisionDespawning>(m_world);
+        m_RaySphereQueryReciever = m_world.GetECSWorld().AddSystem(new RaySphereQueryReciever(m_world));
+        m_HandleSplashDamageRequest = m_world.GetECSWorld().AddSystem(new HandleSplashDamageRequests(m_world));
+        m_StoreColliderStates = m_world.GetECSWorld().AddSystem(new StoreColliderStates(m_world));
+        m_HandleHitCollisionSpawning = m_world.GetECSWorld().AddSystem(new HandleHitCollisionSpawning(m_world,m_SystemRoot,bufferSize));
+        m_HandleHitCollisionDespawning = m_world.GetECSWorld().AddSystem(new HandleHitCollisionDespawning(m_world));
         
         HitCollisionLayer = LayerMask.NameToLayer("hitcollision_enabled");
         DisabledHitCollisionLayer = LayerMask.NameToLayer("hitcollision_disabled");

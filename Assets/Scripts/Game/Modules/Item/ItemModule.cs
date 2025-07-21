@@ -12,11 +12,11 @@ public class ItemModule
         m_world = world;
         
         // TODO (mogensh) make server version without all this client stuff
-        m_systems.Add(world.GetECSWorld().CreateSystem<RobotWeaponClientProjectileSpawnHandler>(world));
-        m_systems.Add(world.GetECSWorld().CreateSystem<TerraformerWeaponClientProjectileSpawnHandler>(world));
-        m_systems.Add(world.GetECSWorld().CreateSystem<UpdateTerraformerWeaponA>(world));
-        m_systems.Add(world.GetECSWorld().CreateSystem<UpdateItemActionTimelineTrigger>(world));
-        m_systems.Add(world.GetECSWorld().CreateSystem<System_RobotWeaponA>(world));
+        m_systems.Add(world.GetECSWorld().AddSystem(new RobotWeaponClientProjectileSpawnHandler(world)));
+        m_systems.Add(world.GetECSWorld().AddSystem(new TerraformerWeaponClientProjectileSpawnHandler(world)));
+        m_systems.Add(world.GetECSWorld().AddSystem(new UpdateTerraformerWeaponA(world)));
+        m_systems.Add(world.GetECSWorld().AddSystem(new UpdateItemActionTimelineTrigger(world)));
+        m_systems.Add(world.GetECSWorld().AddSystem(new System_RobotWeaponA(world)));
     }
 
     public void HandleSpawn()
