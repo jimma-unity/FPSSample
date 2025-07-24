@@ -27,7 +27,7 @@ public class RagdollOwner : MonoBehaviour
 
 
 [DisableAutoCreation]
-public class HandleRagdollSpawn : InitializeComponentSystem<RagdollOwner>
+public partial class HandleRagdollSpawn : InitializeComponentSystem<RagdollOwner>
 {
     public HandleRagdollSpawn(GameWorld gameWorld, GameObject systemRoot) : base(gameWorld)
     {
@@ -71,7 +71,7 @@ public class HandleRagdollSpawn : InitializeComponentSystem<RagdollOwner>
 
 
 [DisableAutoCreation]
-public class HandleRagdollDespawn : DeinitializeComponentSystem<RagdollOwner>
+public partial class HandleRagdollDespawn : DeinitializeComponentSystem<RagdollOwner>
 {
     public HandleRagdollDespawn(GameWorld gameWorld) : base(gameWorld)
     {}
@@ -84,7 +84,7 @@ public class HandleRagdollDespawn : DeinitializeComponentSystem<RagdollOwner>
 
 
 [DisableAutoCreation]
-public class UpdateRagdolls : BaseComponentSystem<CharacterPresentationSetup, RagdollOwner>
+public partial class UpdateRagdolls : BaseComponentSystem<CharacterPresentationSetup, RagdollOwner>
 {
     public UpdateRagdolls(GameWorld gameWorld) : base(gameWorld) {}
     

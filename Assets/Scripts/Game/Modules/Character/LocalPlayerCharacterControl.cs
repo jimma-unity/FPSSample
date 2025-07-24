@@ -33,7 +33,7 @@ public class LocalPlayerCharacterControl : MonoBehaviour
 
 
 [DisableAutoCreation]
-public class UpdateCharacter1PSpawn : BaseComponentSystem  
+public partial class UpdateCharacter1PSpawn : BaseComponentSystem  
 {   
     EntityQuery Group;
     
@@ -138,7 +138,7 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
 
 
 [DisableAutoCreation]
-public class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,LocalPlayerCharacterControl,PlayerCameraSettings>
+public partial class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,LocalPlayerCharacterControl,PlayerCameraSettings>
 {
     private const float k_default3PDisst = 2.5f;
     private float camDist3P = k_default3PDisst; 

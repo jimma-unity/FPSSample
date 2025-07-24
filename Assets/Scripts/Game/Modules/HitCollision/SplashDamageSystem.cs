@@ -44,7 +44,7 @@ public struct SplashDamageRequest: IComponentData
 }
 
 [DisableAutoCreation]
-public class HandleSplashDamageRequests : BaseComponentSystem
+public partial class HandleSplashDamageRequests : BaseComponentSystem
 {
 	EntityQuery RequestGroup;   
 	EntityQuery ColliderGroup;

@@ -27,7 +27,7 @@ public class Ability_Movement : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class Movement_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_Movement.Settings>
+partial class Movement_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_Movement.Settings>
 {
     public Movement_RequestActive(GameWorld world) : base(world)
     {
@@ -50,7 +50,7 @@ class Movement_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityCont
 
 
 [DisableAutoCreation]
-class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, Ability_Movement.Settings>
+partial class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, Ability_Movement.Settings>
 {
     [ConfigVar(Name = "debug.charactermove", Description = "Show graphs of one character's movement along x, y, z", DefaultValue = "0")]
     public static ConfigVar debugCharacterMove;
@@ -297,7 +297,7 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
 }
 
 [DisableAutoCreation]
-class Movement_HandleCollision : BaseComponentDataSystem<CharBehaviour, AbilityControl, Ability_Movement.Settings>
+partial class Movement_HandleCollision : BaseComponentDataSystem<CharBehaviour, AbilityControl, Ability_Movement.Settings>
 {
     public Movement_HandleCollision(GameWorld world) : base(world)
     {

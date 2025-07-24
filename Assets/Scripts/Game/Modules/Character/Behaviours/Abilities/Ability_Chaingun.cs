@@ -148,7 +148,7 @@ public class Ability_Chaingun : CharBehaviorFactory
 }
 
 [DisableAutoCreation]
-class Chaingun_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_Chaingun.PredictedState,Ability_Chaingun.Settings>
+partial class Chaingun_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_Chaingun.PredictedState,Ability_Chaingun.Settings>
 {
     public Chaingun_RequestActive(GameWorld world) : base(world)
     {
@@ -170,7 +170,7 @@ class Chaingun_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityCont
 
 
 [DisableAutoCreation]
-class Chaingun_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl,Ability_Chaingun.PredictedState,Ability_Chaingun.Settings>
+partial class Chaingun_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl,Ability_Chaingun.PredictedState,Ability_Chaingun.Settings>
 {
     public Chaingun_Update(GameWorld world) : base(world)
     {

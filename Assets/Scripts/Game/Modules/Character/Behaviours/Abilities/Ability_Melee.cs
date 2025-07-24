@@ -119,7 +119,7 @@ public class Ability_Melee : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class Melee_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
+partial class Melee_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
     Ability_Melee.PredictedState,Ability_Melee.Settings>
 {
     public Melee_RequestActive(GameWorld world) : base(world)
@@ -142,7 +142,7 @@ class Melee_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl
 
 
 [DisableAutoCreation]
-class Melee_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl, Ability_Melee.LocalState,
+partial class Melee_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl, Ability_Melee.LocalState,
     Ability_Melee.PredictedState, Ability_Melee.Settings>
 {
     public Melee_Update(GameWorld world) : base(world)
@@ -192,7 +192,7 @@ class Melee_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl, Abili
 
                         predictedState.SetPhase(Ability_Melee.Phase.Hold, time.tick);
 
-                        var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
+                        var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
                         localState.rayQueryId = queryReciever.RegisterQuery(new RaySphereQueryReciever.Query()
                         {
                             origin = eyePos,
@@ -239,7 +239,7 @@ class Melee_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl, Abili
 
 
 [DisableAutoCreation]
-class Melee_HandleCollision : BaseComponentDataSystem<Ability_Melee.LocalState>
+partial class Melee_HandleCollision : BaseComponentDataSystem<Ability_Melee.LocalState>
 {
     public Melee_HandleCollision(GameWorld world) : base(world)
     {
@@ -251,7 +251,7 @@ class Melee_HandleCollision : BaseComponentDataSystem<Ability_Melee.LocalState>
         if (localState.rayQueryId == -1)
             return;
         
-        var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
+        var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
         
         RaySphereQueryReciever.Query query;
         RaySphereQueryReciever.QueryResult queryResult;

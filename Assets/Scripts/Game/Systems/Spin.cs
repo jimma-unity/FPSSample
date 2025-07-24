@@ -11,7 +11,7 @@ public class Spin : MonoBehaviour
 }
 
 [DisableAutoCreation]
-public class SpinSystem : BaseComponentSystem
+public partial class SpinSystem : BaseComponentSystem
 {
     EntityQuery Group; 
     

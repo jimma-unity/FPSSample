@@ -60,7 +60,7 @@ public class Ability_Emote : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class Emote_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl, Ability_Emote.InternalState>
+partial class Emote_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl, Ability_Emote.InternalState>
 {
 	public Emote_RequestActive(GameWorld world) : base(world)
 	{
@@ -82,7 +82,7 @@ class Emote_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl
 
 
 [DisableAutoCreation]
-class Emote_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, Ability_Emote.InternalState, Ability_Emote.SerializerState>
+partial class Emote_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, Ability_Emote.InternalState, Ability_Emote.SerializerState>
 {
 	public Emote_Update(GameWorld world) : base(world)
 	{

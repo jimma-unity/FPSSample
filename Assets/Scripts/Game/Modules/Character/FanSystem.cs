@@ -8,7 +8,7 @@ using UnityEngine.Jobs;
 using UnityEngine.Profiling;
 
 [DisableAutoCreation]
-public partial class HandleFanSpawns : InitializeEntityQuerySystem<Fan, HandleFanSpawns.Initialized>
+public partial class HandleFanSpawns : InitializeComponentGroupSystem<Fan, HandleFanSpawns.Initialized>
 {
     EntityQuery Group;
     
@@ -31,7 +31,7 @@ public partial class HandleFanSpawns : InitializeEntityQuerySystem<Fan, HandleFa
 }
 
 [DisableAutoCreation]
-public partial class HandleFanDespawns : DeinitializeEntityQuerySystem<Fan>
+public partial class HandleFanDespawns : DeinitializeComponentGroupSystem<Fan>
 {
     EntityQuery Group;
 

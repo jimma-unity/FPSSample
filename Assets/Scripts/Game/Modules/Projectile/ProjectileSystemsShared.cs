@@ -5,7 +5,7 @@ using UnityEngine.Profiling;
 using Unity.Mathematics;
 
 [DisableAutoCreation]
-public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
+public partial class CreateProjectileMovementCollisionQueries : BaseComponentSystem
 {
     EntityQuery ProjectileGroup;
 
@@ -42,7 +42,7 @@ public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
 
             var collisionMask = ~(1U << projectileData.teamId);
 
-            var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
+            var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
             projectileData.rayQueryId = queryReciever.RegisterQuery(new RaySphereQueryReciever.Query()
             {
                 hitCollisionTestTick = collisionTestTick,
@@ -61,7 +61,7 @@ public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
 }
 
 [DisableAutoCreation]
-public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
+public partial class HandleProjectileMovementCollisionQuery : BaseComponentSystem
 {
     EntityQuery ProjectileGroup;
 
@@ -78,7 +78,7 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
     {
         var entityArray = ProjectileGroup.ToEntityArray(Allocator.TempJob);
         var projectileDataArray = ProjectileGroup.ToComponentDataArray<ProjectileData>(Allocator.TempJob);
-        var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();    
+        var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();    
         for (var i = 0; i < projectileDataArray.Length; i++)
         {
             var projectileData = projectileDataArray[i];
@@ -147,7 +147,7 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
 
 
 [DisableAutoCreation]
-public class DespawnProjectiles : BaseComponentSystem
+public partial class DespawnProjectiles : BaseComponentSystem
 {
     EntityQuery ProjectileGroup;
 

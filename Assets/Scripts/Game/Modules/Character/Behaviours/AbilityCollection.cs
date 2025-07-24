@@ -144,7 +144,7 @@ public class DefaultCharBehaviourControllerEditor : ReplicatedEntityFactoryEdito
 #endif
 
 [DisableAutoCreation]
-class DefaultBehaviourController_Update : BaseComponentDataSystem<AbilityCollection.InternalState>
+partial class DefaultBehaviourController_Update : BaseComponentDataSystem<AbilityCollection.InternalState>
 {
     public DefaultBehaviourController_Update(GameWorld world) : base(world)
     {

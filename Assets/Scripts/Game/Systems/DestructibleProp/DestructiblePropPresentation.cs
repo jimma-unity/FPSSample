@@ -103,7 +103,7 @@ public partial class DestructiblePropSystemClient : BaseComponentSystem
     
                 if (presentation.destructionEffect != null)
                 {
-                    World.GetExistingSystem<HandleSpatialEffectRequests>().Request(presentation.destructionEffect, 
+                    World.GetExistingSystemManaged<HandleSpatialEffectRequests>().Request(presentation.destructionEffect, 
                         presentation.destructionEffectTransform.position, presentation.destructionEffectTransform.rotation);
                 }
             }

@@ -51,7 +51,7 @@ public class TerraformerWeaponA : MonoBehaviour
 
 // System
 [DisableAutoCreation]
-public class UpdateTerraformerWeaponA : BaseComponentSystem<CharacterPresentationSetup,TerraformerWeaponA>
+public partial class UpdateTerraformerWeaponA : BaseComponentSystem<CharacterPresentationSetup,TerraformerWeaponA>
 {
     public UpdateTerraformerWeaponA(GameWorld world) : base(world)
     {
@@ -200,7 +200,7 @@ public class UpdateTerraformerWeaponA : BaseComponentSystem<CharacterPresentatio
 
 
 [DisableAutoCreation]
-public class TerraformerWeaponClientProjectileSpawnHandler : InitializeComponentGroupSystem<ClientProjectile, TerraformerWeaponClientProjectileSpawnHandler.Initialized>
+public partial class TerraformerWeaponClientProjectileSpawnHandler : InitializeComponentGroupSystem<ClientProjectile, TerraformerWeaponClientProjectileSpawnHandler.Initialized>
 {
     public struct Initialized : IComponentData {}
     

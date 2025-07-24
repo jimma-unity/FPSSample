@@ -149,7 +149,7 @@ public class ReplicatedEntity : ComponentDataProxy<ReplicatedEntityData>
 
 
 [DisableAutoCreation]
-public class UpdateReplicatedOwnerFlag : BaseComponentSystem
+public partial class UpdateReplicatedOwnerFlag : BaseComponentSystem
 {
     EntityQuery RepEntityDataGroup;
 

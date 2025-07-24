@@ -7,12 +7,12 @@ public class SpectatorCamModuleServer
     public SpectatorCamModuleServer(GameWorld world, BundledResourceManager resourceManager)
     {
         m_world = world;
-        m_HandleSpectatorCamRequests =  world.GetECSWorld().AddSystem(new HandleSpectatorCamRequests(world, resourceManager));
+        m_HandleSpectatorCamRequests =  world.GetECSWorld().AddSystemManaged(new HandleSpectatorCamRequests(world, resourceManager));
     }
 
     public void Shutdown()
     {
-        m_world.GetECSWorld().DestroySystem(m_HandleSpectatorCamRequests);  
+        m_world.GetECSWorld().DestroySystemManaged(m_HandleSpectatorCamRequests);  
     }
 
     public void HandleSpawnRequests()

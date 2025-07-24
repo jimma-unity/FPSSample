@@ -28,7 +28,7 @@ public struct GrenadeSpawnRequest : IComponentData
 }
 
 [DisableAutoCreation]
-public class HandleGrenadeRequest : BaseComponentDataSystem<GrenadeSpawnRequest>
+public partial class HandleGrenadeRequest : BaseComponentDataSystem<GrenadeSpawnRequest>
 {
     private readonly BundledResourceManager m_resourceManager;
 
@@ -55,7 +55,7 @@ public class HandleGrenadeRequest : BaseComponentDataSystem<GrenadeSpawnRequest>
 
 
 [DisableAutoCreation]
-public class StartGrenadeMovement : BaseComponentSystem
+public partial class StartGrenadeMovement : BaseComponentSystem
 {
     EntityQuery Group;   
     
@@ -120,7 +120,7 @@ public class StartGrenadeMovement : BaseComponentSystem
 }
 
 [DisableAutoCreation]
-public class FinalizeGrenadeMovement : BaseComponentSystem
+public partial class FinalizeGrenadeMovement : BaseComponentSystem
 {
     EntityQuery Group;   
     

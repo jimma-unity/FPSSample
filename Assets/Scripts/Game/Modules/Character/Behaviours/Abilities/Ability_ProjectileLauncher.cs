@@ -99,7 +99,7 @@ public class Ability_ProjectileLauncher : CharBehaviorFactory
 }
                   
 [DisableAutoCreation]
-class ProjectileLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
+partial class ProjectileLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
     Ability_ProjectileLauncher.PredictedState,Ability_ProjectileLauncher.Settings>
 {
     public ProjectileLauncher_RequestActive(GameWorld world) : base(world)
@@ -123,7 +123,7 @@ class ProjectileLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,A
 
 
 [DisableAutoCreation]
-class ProjectileLauncher_Update : BaseComponentDataSystem<AbilityControl,Ability_ProjectileLauncher.PredictedState,
+partial class ProjectileLauncher_Update : BaseComponentDataSystem<AbilityControl,Ability_ProjectileLauncher.PredictedState,
     Ability_ProjectileLauncher.Settings>
 {
     public ProjectileLauncher_Update(GameWorld world) : base(world)

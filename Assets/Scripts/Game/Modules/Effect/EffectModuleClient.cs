@@ -9,16 +9,16 @@ public class EffectModuleClient
         m_GameWorld = world;
         m_resourceSystem = resourceSystem;
 
-        m_HandleSpatialEffectRequests = m_GameWorld.GetECSWorld().AddSystem(new HandleSpatialEffectRequests(m_GameWorld));
-        m_HandleHitscanEffectRequests = m_GameWorld.GetECSWorld().AddSystem(new HandleHitscanEffectRequests(m_GameWorld));
-        m_VFXSystem = m_GameWorld.GetECSWorld().AddSystem(new VFXSystem());
+        m_HandleSpatialEffectRequests = m_GameWorld.GetECSWorld().AddSystemManaged(new HandleSpatialEffectRequests(m_GameWorld));
+        m_HandleHitscanEffectRequests = m_GameWorld.GetECSWorld().AddSystemManaged(new HandleHitscanEffectRequests(m_GameWorld));
+        m_VFXSystem = m_GameWorld.GetECSWorld().AddSystemManaged(new VFXSystem());
     }
 
     public void Shutdown()
     {
-        m_GameWorld.GetECSWorld().DestroySystem(m_HandleSpatialEffectRequests);
-        m_GameWorld.GetECSWorld().DestroySystem(m_HandleHitscanEffectRequests);
-        m_GameWorld.GetECSWorld().DestroySystem(m_VFXSystem);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_HandleSpatialEffectRequests);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_HandleHitscanEffectRequests);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_VFXSystem);
     }
 
     public void ClientUpdate()

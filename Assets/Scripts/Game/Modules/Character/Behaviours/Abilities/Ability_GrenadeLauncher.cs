@@ -116,7 +116,7 @@ public class Ability_GrenadeLauncher : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class GrenadeLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
+partial class GrenadeLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
     Ability_GrenadeLauncher.PredictedState,Ability_GrenadeLauncher.Settings>
 {
     public GrenadeLauncher_RequestActive(GameWorld world) : base(world)
@@ -139,7 +139,7 @@ class GrenadeLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,Abil
 
 
 [DisableAutoCreation]
-class GrenadeLauncher_Update : BaseComponentDataSystem<AbilityControl,Ability_GrenadeLauncher.PredictedState,Ability_GrenadeLauncher.Settings>
+partial class GrenadeLauncher_Update : BaseComponentDataSystem<AbilityControl,Ability_GrenadeLauncher.PredictedState,Ability_GrenadeLauncher.Settings>
 {
     public GrenadeLauncher_Update(GameWorld world) : base(world)
     {

@@ -199,7 +199,7 @@ partial class AutoRifle_RequestActive : BaseComponentDataSystem<CharBehaviour,Ab
 }
 
 [DisableAutoCreation]
-class AutoRifle_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_AutoRifle.PredictedState,Ability_AutoRifle.Settings>
+partial class AutoRifle_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_AutoRifle.PredictedState,Ability_AutoRifle.Settings>
 {
 	public AutoRifle_Update(GameWorld world) : base(world)
 	{
@@ -353,7 +353,7 @@ class AutoRifle_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ab
 			const int distance = 500;
 			var collisionMask = ~(1U << character.teamId);
 
-			var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
+			var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
 			internalState.rayQueryId = queryReciever.RegisterQuery(new RaySphereQueryReciever.Query()
 			{
 				origin = eyePos,

@@ -5,7 +5,7 @@ using Unity.Entities;
 using UnityEngine.Profiling;
 
 [DisableAutoCreation]
-public class HandleServerProjectileRequests : BaseComponentSystem
+public partial class HandleServerProjectileRequests : BaseComponentSystem
 {
 	EntityQuery Group;
 

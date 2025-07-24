@@ -2,7 +2,7 @@
 using Unity.Entities;
 
 [DisableAutoCreation]
-public class TeleporterSystemServer : ComponentSystem
+public partial class TeleporterSystemServer : SystemBase
 {
 
     public TeleporterSystemServer(GameWorld gameWorld)

@@ -6,7 +6,7 @@ public class SpectatorCamControl : MonoBehaviour
 }
 
 [DisableAutoCreation]
-public class UpdateSpectatorCamControl : BaseComponentSystem
+public partial class UpdateSpectatorCamControl : BaseComponentSystem
 {
     struct GroupType
     {

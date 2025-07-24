@@ -29,7 +29,7 @@ public struct ClientProjectileOwner : IComponentData
 }
 
 [DisableAutoCreation]
-public class HandleClientProjectileRequests : BaseComponentSystem
+public partial class HandleClientProjectileRequests : BaseComponentSystem
 {
     EntityQuery RequestGroup;
     readonly GameObject m_SystemRoot;
@@ -189,7 +189,7 @@ class ProjectilesSystemsClient
 
 
 [DisableAutoCreation]
-public class UpdateClientProjectilesPredicted : BaseComponentSystem<ClientProjectile>
+public partial class UpdateClientProjectilesPredicted : BaseComponentSystem<ClientProjectile>
 {
     public UpdateClientProjectilesPredicted(GameWorld world) : base(world)
     {
@@ -203,7 +203,7 @@ public class UpdateClientProjectilesPredicted : BaseComponentSystem<ClientProjec
 }
 
 [DisableAutoCreation]
-public class UpdateClientProjectilesNonPredicted : BaseComponentSystem<ClientProjectile>
+public partial class UpdateClientProjectilesNonPredicted : BaseComponentSystem<ClientProjectile>
 {
     public UpdateClientProjectilesNonPredicted(GameWorld world) : base(world)
     {
@@ -218,8 +218,8 @@ public class UpdateClientProjectilesNonPredicted : BaseComponentSystem<ClientPro
 
 
 [DisableAutoCreation]
-[AlwaysUpdateSystemAttribute]
-public class HandleProjectileSpawn : BaseComponentSystem
+[AlwaysUpdateSystem]
+public partial class HandleProjectileSpawn : BaseComponentSystem
 {
     readonly GameObject m_SystemRoot;
     readonly BundledResourceManager m_resourceSystem;
@@ -363,7 +363,7 @@ public class HandleProjectileSpawn : BaseComponentSystem
 
 [DisableAutoCreation]
 [AlwaysUpdateSystemAttribute]
-public class RemoveMispredictedProjectiles : BaseComponentSystem
+public partial class RemoveMispredictedProjectiles : BaseComponentSystem
 {
     EntityQuery PredictedProjectileGroup;
 
@@ -407,7 +407,7 @@ public class RemoveMispredictedProjectiles : BaseComponentSystem
 
 [DisableAutoCreation]
 [AlwaysUpdateSystemAttribute]
-public class DespawnClientProjectiles : BaseComponentSystem
+public partial class DespawnClientProjectiles : BaseComponentSystem
 {
     EntityQuery DespawningClientProjectileOwnerGroup;
     ClientProjectileFactory m_clientProjectileFactory;
