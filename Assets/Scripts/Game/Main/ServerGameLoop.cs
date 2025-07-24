@@ -38,19 +38,19 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
         m_ReplicatedEntityModule.ReserveSceneEntities(networkServer);
         m_ItemModule = new ItemModule(m_GameWorld);
 
-        m_GameModeSystem = m_GameWorld.GetECSWorld().AddSystem(new GameModeSystemServer(m_GameWorld, m_ChatSystem, resourceSystem));
+        m_GameModeSystem = m_GameWorld.GetECSWorld().AddSystemManaged(new GameModeSystemServer(m_GameWorld, m_ChatSystem, resourceSystem));
 
-        m_DestructablePropSystem = m_GameWorld.GetECSWorld().AddSystem(new UpdateDestructableProps(m_GameWorld));
+        m_DestructablePropSystem = m_GameWorld.GetECSWorld().AddSystemManaged(new UpdateDestructableProps(m_GameWorld));
 
-        m_DamageAreaSystem = m_GameWorld.GetECSWorld().AddSystem(new DamageAreaSystemServer(m_GameWorld));
+        m_DamageAreaSystem = m_GameWorld.GetECSWorld().AddSystemManaged(new DamageAreaSystemServer(m_GameWorld));
 
-        m_TeleporterSystem = m_GameWorld.GetECSWorld().AddSystem(new TeleporterSystemServer(m_GameWorld));
+        m_TeleporterSystem = m_GameWorld.GetECSWorld().AddSystemManaged(new TeleporterSystemServer(m_GameWorld));
 
-        m_HandleGrenadeRequests = m_GameWorld.GetECSWorld().AddSystem(new HandleGrenadeRequest(m_GameWorld, resourceSystem));
-        m_StartGrenadeMovement = m_GameWorld.GetECSWorld().AddSystem(new StartGrenadeMovement(m_GameWorld));
-        m_FinalizeGrenadeMovement = m_GameWorld.GetECSWorld().AddSystem(new FinalizeGrenadeMovement(m_GameWorld));
+        m_HandleGrenadeRequests = m_GameWorld.GetECSWorld().AddSystemManaged(new HandleGrenadeRequest(m_GameWorld, resourceSystem));
+        m_StartGrenadeMovement = m_GameWorld.GetECSWorld().AddSystemManaged(new StartGrenadeMovement(m_GameWorld));
+        m_FinalizeGrenadeMovement = m_GameWorld.GetECSWorld().AddSystemManaged(new FinalizeGrenadeMovement(m_GameWorld));
 
-        m_platformSystem = m_GameWorld.GetECSWorld().AddSystem(new MoverUpdate(m_GameWorld));
+        m_platformSystem = m_GameWorld.GetECSWorld().AddSystemManaged(new MoverUpdate(m_GameWorld));
 
         m_MoveableSystem = new MovableSystemServer(m_GameWorld, resourceSystem);
         m_CameraSystem = new ServerCameraSystem(m_GameWorld);
@@ -64,15 +64,15 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
         m_PlayerModule.Shutdown();
         m_SpectatorCamModule.Shutdown();
 
-        m_GameWorld.GetECSWorld().DestroySystem(m_DestructablePropSystem);
-        m_GameWorld.GetECSWorld().DestroySystem(m_DamageAreaSystem);
-        m_GameWorld.GetECSWorld().DestroySystem(m_TeleporterSystem);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_DestructablePropSystem);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_DamageAreaSystem);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_TeleporterSystem);
 
-        m_GameWorld.GetECSWorld().DestroySystem(m_HandleGrenadeRequests);
-        m_GameWorld.GetECSWorld().DestroySystem(m_StartGrenadeMovement);
-        m_GameWorld.GetECSWorld().DestroySystem(m_FinalizeGrenadeMovement);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_HandleGrenadeRequests);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_StartGrenadeMovement);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_FinalizeGrenadeMovement);
 
-        m_GameWorld.GetECSWorld().DestroySystem(m_platformSystem);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_platformSystem);
 
         m_ReplicatedEntityModule.Shutdown();
         m_ItemModule.Shutdown();

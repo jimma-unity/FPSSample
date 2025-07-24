@@ -120,7 +120,7 @@ public class Ability_RocketJump : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class RocketJump_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
+partial class RocketJump_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
     Ability_RocketJump.PredictedState,Ability_RocketJump.Settings>
 {
     public RocketJump_RequestActive(GameWorld world) : base(world)
@@ -143,7 +143,7 @@ class RocketJump_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityCo
 
 
 [DisableAutoCreation]
-class RocketJump_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl, Ability_RocketJump.PredictedState, 
+partial class RocketJump_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl, Ability_RocketJump.PredictedState, 
     Ability_RocketJump.InterpolatedState, Ability_RocketJump.Settings>
 {
     public RocketJump_Update(GameWorld world) : base(world)

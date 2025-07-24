@@ -3,7 +3,7 @@ using Unity.Entities;
 using System.Collections.Generic;
 
 [DisableAutoCreation]
-public class HandlePlayerCameraControlSpawn : InitializeComponentSystem<PlayerCameraSettings>
+public partial class HandlePlayerCameraControlSpawn : InitializeComponentSystem<PlayerCameraSettings>
 {
     public HandlePlayerCameraControlSpawn(GameWorld world) : base(world)
     {
@@ -21,7 +21,7 @@ public class HandlePlayerCameraControlSpawn : InitializeComponentSystem<PlayerCa
 }
 
 [DisableAutoCreation]
-public class UpdatePlayerCameras : BaseComponentSystem
+public partial class UpdatePlayerCameras : BaseComponentSystem
 {
     public EntityQuery Group;
 

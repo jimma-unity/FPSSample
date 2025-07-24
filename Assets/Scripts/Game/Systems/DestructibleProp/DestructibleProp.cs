@@ -31,7 +31,7 @@ public class DestructibleProp : MonoBehaviour
 }
 
 [DisableAutoCreation]
-public class UpdateDestructableProps : BaseComponentSystem
+public partial class UpdateDestructableProps : BaseComponentSystem
 {
 	EntityQuery Group;
 	

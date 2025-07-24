@@ -46,7 +46,7 @@ public class DestructiblePropPresentation : MonoBehaviour
 }
 
 [DisableAutoCreation]
-public class DestructiblePropSystemClient : BaseComponentSystem
+public partial class DestructiblePropSystemClient : BaseComponentSystem
 {
     EntityQuery Group;    
     

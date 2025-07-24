@@ -20,7 +20,7 @@ public struct EntityGroupChildren : IBufferElementData
 }
 
 [DisableAutoCreation]
-public class DestroyDespawning : ComponentSystem
+public partial class DestroyDespawning : ComponentSystem
 {
     EntityQuery Group;
 
@@ -33,10 +33,13 @@ public class DestroyDespawning : ComponentSystem
     protected override void OnUpdate()
     {
         var entityArray = Group.ToEntityArray(Allocator.TempJob);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         for (var i = 0; i < entityArray.Length; i++)
         {
-            PostUpdateCommands.DestroyEntity(entityArray[i]);
+            ecb.DestroyEntity(entityArray[i]);
         }
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         entityArray.Dispose();
     }
 }

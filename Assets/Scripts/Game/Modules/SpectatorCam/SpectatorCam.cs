@@ -56,7 +56,7 @@ public struct SpectatorCamSpawnRequest : IComponentData
 }
 
 [DisableAutoCreation]
-public class UpdateSpectatorCam : BaseComponentSystem
+public partial class UpdateSpectatorCam : BaseComponentSystem
 {
     EntityQuery Group;
     
@@ -98,7 +98,7 @@ public class UpdateSpectatorCam : BaseComponentSystem
 
 
 [DisableAutoCreation]
-public class HandleSpectatorCamRequests : BaseComponentSystem
+public partial class HandleSpectatorCamRequests : BaseComponentSystem
 {
     EntityQuery Group;   
 

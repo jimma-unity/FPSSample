@@ -35,7 +35,7 @@ public class Team
 }
 
 [DisableAutoCreation]
-public class GameModeSystemServer : ComponentSystem
+public partial class GameModeSystemServer : BaseComponentSystem
 {
     [ConfigVar(Name = "game.respawndelay", DefaultValue = "10", Description = "Time from death to respawning")]
     public static ConfigVar respawnDelay;

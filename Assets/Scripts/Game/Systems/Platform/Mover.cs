@@ -36,7 +36,7 @@ public class Mover : MonoBehaviour
 
 
 [DisableAutoCreation]
-public class MoverUpdate : BaseComponentSystem<Mover>       
+public partial class MoverUpdate : BaseComponentSystem<Mover>       
 {
 	public MoverUpdate(GameWorld world) : base(world) {}
 

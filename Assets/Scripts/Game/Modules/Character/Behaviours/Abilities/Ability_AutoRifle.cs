@@ -175,7 +175,7 @@ public class Ability_AutoRifle : CharBehaviorFactory
 }
 
 [DisableAutoCreation]
-class AutoRifle_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_AutoRifle.PredictedState,Ability_AutoRifle.Settings>
+partial class AutoRifle_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_AutoRifle.PredictedState,Ability_AutoRifle.Settings>
 {
 	public AutoRifle_RequestActive(GameWorld world) : base(world)
 	{
@@ -375,7 +375,7 @@ class AutoRifle_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ab
 }
 
 [DisableAutoCreation]
-class AutoRifle_HandleCollisionQuery : BaseComponentDataSystem<Ability_AutoRifle.InternalState,Ability_AutoRifle.InterpolatedState>
+partial class AutoRifle_HandleCollisionQuery : BaseComponentDataSystem<Ability_AutoRifle.InternalState,Ability_AutoRifle.InterpolatedState>
 {
 	public AutoRifle_HandleCollisionQuery(GameWorld world) : base(world)
 	{
@@ -388,7 +388,7 @@ class AutoRifle_HandleCollisionQuery : BaseComponentDataSystem<Ability_AutoRifle
 			return;
 
 		Profiler.BeginSample("-get result");
-		var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
+		var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
 		RaySphereQueryReciever.Query query;
 		RaySphereQueryReciever.QueryResult queryResult;
 		queryReciever.GetResult(internalState.rayQueryId, out query, out queryResult);

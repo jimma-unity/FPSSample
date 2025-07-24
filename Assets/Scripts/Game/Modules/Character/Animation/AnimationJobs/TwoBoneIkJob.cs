@@ -150,6 +150,7 @@ public struct TwoBoneIKJob : UnityEngine.Animations.IAnimationJob
             weight = m_AnimatorWeight.GetFloat(stream);
             weight += m_AnimatorWeightOffset.GetFloat(stream);
             weight = Mathf.Clamp01(weight);
+            // FIX ?
             //m_WeightHandle.SetFloat(stream, weight);
         }
         else

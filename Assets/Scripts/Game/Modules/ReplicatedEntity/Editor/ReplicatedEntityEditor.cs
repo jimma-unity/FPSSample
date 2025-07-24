@@ -9,6 +9,6 @@ public class ReplicatedEntityEditor : Editor
     {
         base.OnInspectorGUI();
         var replicatedEntity = target as ReplicatedEntity;
-        GUILayout.Label("GUID:" + replicatedEntity.Value.assetGuid.GetGuidStr());
+        //GUILayout.Label("GUID:" + replicatedEntity.Value.assetGuid.GetGuidStr());
     }
 }

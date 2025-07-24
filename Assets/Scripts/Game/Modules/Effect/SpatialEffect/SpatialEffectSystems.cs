@@ -5,7 +5,7 @@ using UnityEngine;
 
 [AlwaysUpdateSystem]
 [DisableAutoCreation]
-public class HandleSpatialEffectRequests : BaseComponentSystem 
+public partial class HandleSpatialEffectRequests : BaseComponentSystem 
 {
 	struct SpatialEffectRequest 
 	{
@@ -41,7 +41,7 @@ public class HandleSpatialEffectRequests : BaseComponentSystem
 			{
 				var normal = math.mul(request.rotation,new float3(0,0,1));
 
-				var vfxSystem = World.GetExistingSystem<VFXSystem>();
+				var vfxSystem = World.GetExistingSystemManaged<VFXSystem>();
 				vfxSystem.SpawnPointEffect(request.effectDef.effect, request.position, normal);
 			}
 
