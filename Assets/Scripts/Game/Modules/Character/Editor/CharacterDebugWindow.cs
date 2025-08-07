@@ -130,7 +130,7 @@ public class CharacterDebugWindow : EditorWindow
             var damStart = aimPointWorld - damDir * 2;
             
             var collisionMask = ~0U;
-            var queryReciever = goe.World.GetExistingSystem<RaySphereQueryReciever>();
+            var queryReciever = goe.World.GetExistingSystemManaged<RaySphereQueryReciever>();
             var id = queryReciever.RegisterQuery(new RaySphereQueryReciever.Query()
             {
                 origin = damStart,
