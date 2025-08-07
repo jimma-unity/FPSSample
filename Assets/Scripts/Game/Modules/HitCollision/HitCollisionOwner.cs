@@ -29,7 +29,7 @@ public class HitCollisionOwner : ComponentDataProxy<HitCollisionOwnerData>
         // Make sure damage event buffer is created
         // TODO (mogensh) create DamageEvent buffer using monobehavior wrapper (when it is available) 
         var goe = GetComponent<GameObjectEntity>();
-        if (goe != null && goe.EntityManager != null)
+        if (goe != null && goe.World != null)
         {
             goe.EntityManager.AddBuffer<DamageEvent>(goe.Entity);
         }
