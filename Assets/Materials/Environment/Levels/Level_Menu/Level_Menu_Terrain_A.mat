@@ -12,21 +12,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da692e001514ec24dbc4cca1949ff7e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 11
+  version: 13
+  hdPluginSubTargetMaterialVersions:
+    m_Keys: []
+    m_Values: 
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Level_Menu_Terrain_A
   m_Shader: {fileID: 4800000, guid: eab0538d9d5746246806a9611c04ac4d, type: 3}
-  m_ShaderKeywords: _DISPLACEMENT_LOCK_TILING_SCALE _HEIGHTMAP1 _HEIGHTMAP2 _HEIGHTMAP3
-    _HEIGHT_BASED_BLEND _LAYEREDLIT_4_LAYERS _LAYER_MASK_VERTEX_COLOR_ADD _MAIN_LAYER_INFLUENCE_MODE
-    _MASKMAP0 _MASKMAP1 _MASKMAP2 _MASKMAP3 _NORMALMAP0 _NORMALMAP1 _NORMALMAP2 _NORMALMAP3
-    _NORMALMAP_TANGENT_SPACE0 _NORMALMAP_TANGENT_SPACE1 _NORMALMAP_TANGENT_SPACE2
-    _NORMALMAP_TANGENT_SPACE3 _TESSELLATION_DISPLACEMENT _TESSELLATION_PHONG
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _DISPLACEMENT_LOCK_TILING_SCALE
+  - _HEIGHTMAP1
+  - _HEIGHTMAP2
+  - _HEIGHTMAP3
+  - _HEIGHT_BASED_BLEND
+  - _LAYEREDLIT_4_LAYERS
+  - _LAYER_MASK_VERTEX_COLOR_ADD
+  - _MAIN_LAYER_INFLUENCE_MODE
+  - _MASKMAP0
+  - _MASKMAP1
+  - _MASKMAP2
+  - _MASKMAP3
+  - _NORMALMAP0
+  - _NORMALMAP1
+  - _NORMALMAP2
+  - _NORMALMAP3
+  - _NORMALMAP_TANGENT_SPACE0
+  - _NORMALMAP_TANGENT_SPACE1
+  - _NORMALMAP_TANGENT_SPACE2
+  - _NORMALMAP_TANGENT_SPACE3
+  - _TESSELLATION_DISPLACEMENT
+  - _TESSELLATION_PHONG
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -36,6 +60,10 @@ Material:
   - DistortionVectors
   - MOTIONVECTORS
   - RayTracingPrepass
+  - TransparentDepthPrepass
+  - TransparentDepthPostpass
+  - TransparentBackface
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -291,6 +319,26 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TransmissionMaskMap0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TransmissionMaskMap1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TransmissionMaskMap2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TransmissionMaskMap3:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TransmittanceColorMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -303,6 +351,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AORemapMax0: 1
     - _AORemapMax1: 1
@@ -317,7 +366,18 @@ Material:
     - _AlbedoAffectEmissive: 0
     - _AlphaCutoff: 0.5
     - _AlphaCutoffEnable: 0
+    - _AlphaCutoffPostpass: 0.5
+    - _AlphaCutoffPrepass: 0.5
+    - _AlphaCutoffShadow: 0.5
     - _AlphaDstBlend: 0
+    - _AlphaRemapMax0: 1
+    - _AlphaRemapMax1: 1
+    - _AlphaRemapMax2: 1
+    - _AlphaRemapMax3: 1
+    - _AlphaRemapMin0: 0
+    - _AlphaRemapMin1: 0
+    - _AlphaRemapMin2: 0
+    - _AlphaRemapMin3: 0
     - _AlphaSrcBlend: 1
     - _AlphaToMask: 0
     - _AlphaToMaskInspectorValue: 0
@@ -368,6 +428,7 @@ Material:
     - _DistortionScale: 1
     - _DistortionSrcBlend: 1
     - _DoubleSidedEnable: 0
+    - _DoubleSidedGIMode: 0
     - _DoubleSidedNormalMode: 1
     - _Drag: 1
     - _DstBlend: 0
@@ -390,10 +451,10 @@ Material:
     - _HeightAmplitude2: 0.099999994
     - _HeightAmplitude3: 0.5
     - _HeightCenter: 0.5
-    - _HeightCenter0: 0
+    - _HeightCenter0: 1
     - _HeightCenter1: 0
-    - _HeightCenter2: 0
-    - _HeightCenter3: 0
+    - _HeightCenter2: 0.5
+    - _HeightCenter3: 0.0004
     - _HeightMapParametrization0: 0
     - _HeightMapParametrization1: 0
     - _HeightMapParametrization2: 0
@@ -441,6 +502,7 @@ Material:
     - _InvTilingScale1: 0.5
     - _InvTilingScale2: 0.4
     - _InvTilingScale3: 0.25
+    - _Ior: 1.5
     - _LayerCount: 4
     - _LinkDetailsWithBase: 1
     - _LinkDetailsWithBase0: 1
@@ -472,6 +534,7 @@ Material:
     - _NormalScale2: 1
     - _NormalScale3: 1
     - _ObjectScaleAffectTile: 0
+    - _ObjectSpaceUVMappingEmissive: 0
     - _OpacityAsDensity0: 0
     - _OpacityAsDensity1: 0
     - _OpacityAsDensity2: 0
@@ -486,6 +549,7 @@ Material:
     - _RayTracing: 0
     - _ReceivesSSR: 1
     - _RefractionMode: 0
+    - _RefractionModel: 0
     - _ShiverDirectionality: 0.5
     - _ShiverDrag: 0.2
     - _ShowLayer0: 0
@@ -517,9 +581,9 @@ Material:
     - _StencilRefGBuffer: 10
     - _StencilRefMV: 40
     - _StencilWriteMask: 6
-    - _StencilWriteMaskDepth: 8
-    - _StencilWriteMaskGBuffer: 14
-    - _StencilWriteMaskMV: 40
+    - _StencilWriteMaskDepth: 9
+    - _StencilWriteMaskGBuffer: 15
+    - _StencilWriteMaskMV: 41
     - _Stiffness: 1
     - _SubsurfaceMask0: 1
     - _SubsurfaceMask1: 1
@@ -544,7 +608,9 @@ Material:
     - _TessellationFactorMinDistance: 12
     - _TessellationFactorTriangleSize: 0
     - _TessellationMode: 1
+    - _TessellationObjectScale: 1
     - _TessellationShapeFactor: 1
+    - _TessellationTilingScale: 1
     - _TexWorldScale: 1
     - _TexWorldScale0: 1
     - _TexWorldScale1: 1
@@ -559,8 +625,16 @@ Material:
     - _Thickness3: 1
     - _ThicknessMultiplier: 1
     - _TransmissionEnable: 1
+    - _TransmissionMask0: 1
+    - _TransmissionMask1: 1
+    - _TransmissionMask2: 1
+    - _TransmissionMask3: 1
+    - _TransparentBackfaceEnable: 0
     - _TransparentCullMode: 2
+    - _TransparentDepthPostpassEnable: 0
+    - _TransparentDepthPrepassEnable: 0
     - _TransparentSortPriority: 0
+    - _TransparentWritingMotionVec: 0
     - _TransparentZWrite: 0
     - _UVBase: 0
     - _UVBase0: 0
@@ -578,6 +652,7 @@ Material:
     - _UseEmissiveIntensity: 0
     - _UseHeightBasedBlend: 1
     - _UseMainLayerInfluence: 1
+    - _UseShadowThreshold: 0
     - _VertexColorMode: 2
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 4
