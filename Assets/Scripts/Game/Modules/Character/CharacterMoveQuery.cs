@@ -55,7 +55,7 @@ public class CharacterMoveQuery : MonoBehaviour
 
 
 [DisableAutoCreation]
-class HandleMovementQueries : BaseComponentSystem
+partial class HandleMovementQueries : BaseComponentSystem
 {
     EntityQuery Group;
 	

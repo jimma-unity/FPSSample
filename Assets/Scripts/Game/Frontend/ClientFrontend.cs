@@ -139,7 +139,7 @@ public class ClientFrontend : MonoBehaviour
 }
 
 [DisableAutoCreation]
-class ClientFrontendUpdate : BaseComponentSystem
+partial class ClientFrontendUpdate : BaseComponentSystem
 {
     EntityQuery m_gameModeGroup;
     EntityQuery m_localPlayerGroup;

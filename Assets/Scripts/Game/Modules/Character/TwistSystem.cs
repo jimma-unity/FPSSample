@@ -9,7 +9,7 @@ using UnityEngine.Profiling;
 
 
 [DisableAutoCreation]
-public class HandleTwistSpawns : InitializeComponentGroupSystem<Twist, HandleTwistSpawns.Initialized>
+public partial class HandleTwistSpawns : InitializeComponentGroupSystem<Twist, HandleTwistSpawns.Initialized>
 {
     EntityQuery Group;
 
@@ -32,7 +32,7 @@ public class HandleTwistSpawns : InitializeComponentGroupSystem<Twist, HandleTwi
 }
 
 [DisableAutoCreation]
-public class HandleTwistDespawns : DeinitializeComponentGroupSystem<Twist>
+public partial class HandleTwistDespawns : DeinitializeComponentGroupSystem<Twist>
 {
     EntityQuery Group;
     
@@ -57,8 +57,8 @@ public class TwistSystem
 {
     public TwistSystem(GameWorld world)
     {
-        m_HandleTwistSpawns = world.GetECSWorld().AddSystem(new HandleTwistSpawns(world));
-        m_HandleTwistDespawns = world.GetECSWorld().AddSystem(new HandleTwistDespawns(world));
+        m_HandleTwistSpawns = world.GetECSWorld().AddSystemManaged(new HandleTwistSpawns(world));
+        m_HandleTwistDespawns = world.GetECSWorld().AddSystemManaged(new HandleTwistDespawns(world));
         m_World = world;
 
         s_SourceJoints = new TransformAccessArray(k_MaxSetups, 1);
@@ -74,8 +74,8 @@ public class TwistSystem
         s_SourceJoints.Dispose();
         s_TwistJoints.Dispose();
         s_TargetData.Dispose();
-        m_World.GetECSWorld().DestroySystem(m_HandleTwistSpawns);
-        m_World.GetECSWorld().DestroySystem(m_HandleTwistDespawns);
+        m_World.GetECSWorld().DestroySystemManaged(m_HandleTwistSpawns);
+        m_World.GetECSWorld().DestroySystemManaged(m_HandleTwistDespawns);
     }
 
     public void HandleSpawning()

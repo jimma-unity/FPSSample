@@ -1,8 +1,9 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using UnityEngine;
 
 [DisableAutoCreation]
-public class UpdateCharacterUI : BaseComponentSystem
+public partial class UpdateCharacterUI : BaseComponentSystem
 {
     EntityQuery Group;   
 
@@ -21,12 +22,15 @@ public class UpdateCharacterUI : BaseComponentSystem
     protected override void OnDestroy()
     {
         var charControlArray = Group.ToComponentArray<LocalPlayerCharacterControl>();
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         for (int i = 0; i < charControlArray.Length; i++)
         {
             if (charControlArray[i].hud == null)
                 continue;
-            m_world.RequestDespawn(charControlArray[i].hud.gameObject, PostUpdateCommands);
+            m_world.RequestDespawn(charControlArray[i].hud.gameObject, ecb);
         }
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 
     protected override void OnUpdate()

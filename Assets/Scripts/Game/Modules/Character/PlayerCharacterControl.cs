@@ -9,7 +9,7 @@ public class PlayerCharacterControl : MonoBehaviour
 }
 
 [DisableAutoCreation]
-public class PlayerCharacterControlSystem : ComponentSystem
+public partial class PlayerCharacterControlSystem : SystemBase
 {
     EntityQuery Group;
 

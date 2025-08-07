@@ -10,6 +10,8 @@ using Unity.Collections;
 using Unity.Networking.Transport.LowLevel.Unsafe;
 using UdpNetworkDriver = Unity.Networking.Transport.BasicNetworkDriver<Unity.Networking.Transport.IPv4UDPSocket>;
 using ExperimentalEventType = Unity.Networking.Transport.NetworkEvent.Type;
+using DataStreamReader = Unity.Networking.Transport.DataStreamReader;
+using DataStreamWriter = Unity.Networking.Transport.DataStreamWriter;
 
 namespace TransportTests
 {

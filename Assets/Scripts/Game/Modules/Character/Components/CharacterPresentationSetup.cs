@@ -33,7 +33,7 @@ public class CharacterPresentationSetup : MonoBehaviour
 }
 
 [DisableAutoCreation]
-public class UpdatePresentationRootTransform : BaseComponentSystem<CharacterPresentationSetup>
+public partial class UpdatePresentationRootTransform : BaseComponentSystem<CharacterPresentationSetup>
 {
     private EntityQuery Group;
     
@@ -54,7 +54,7 @@ public class UpdatePresentationRootTransform : BaseComponentSystem<CharacterPres
 }
 
 [DisableAutoCreation]
-public class UpdatePresentationAttachmentTransform : BaseComponentSystem<CharacterPresentationSetup>
+public partial class UpdatePresentationAttachmentTransform : BaseComponentSystem<CharacterPresentationSetup>
 {
     public UpdatePresentationAttachmentTransform(GameWorld world) : base(world) {}
 

@@ -21,7 +21,7 @@ public interface IInterpolatedComponentSerializerFactory
 }
     
 class ReplicatedComponentSerializerFactory<T> : IReplicatedComponentSerializerFactory 
-    where T : struct, IReplicatedComponent, IComponentData
+    where T : unmanaged, IReplicatedComponent, IComponentData
 {
     public IReplicatedSerializer CreateSerializer(EntityManager entityManager, Entity entity, 
         IEntityReferenceSerializer refSerializer)
@@ -31,7 +31,7 @@ class ReplicatedComponentSerializerFactory<T> : IReplicatedComponentSerializerFa
 }
     
 class PredictedComponentSerializerFactory<T> : IPredictedComponentSerializerFactory  
-    where T : struct, IPredictedComponent<T>, IComponentData
+    where T : unmanaged, IPredictedComponent<T>, IComponentData
 {
     public IPredictedSerializer CreateSerializer(EntityManager entityManager, Entity entity,
         IEntityReferenceSerializer refSerializer)
@@ -41,7 +41,7 @@ class PredictedComponentSerializerFactory<T> : IPredictedComponentSerializerFact
 }
     
 class InterpolatedComponentSerializerFactory<T> : IInterpolatedComponentSerializerFactory 
-    where T : struct, IInterpolatedComponent<T>, IComponentData
+    where T : unmanaged, IInterpolatedComponent<T>, IComponentData
 {
     public IInterpolatedSerializer CreateSerializer(EntityManager entityManager, Entity entity,
         IEntityReferenceSerializer refSerializer)
@@ -82,7 +82,7 @@ public interface IInterpolatedSerializer
 }
 
     class ReplicatedComponentSerializer<T> : IReplicatedSerializer 
-        where T : struct, IReplicatedComponent, IComponentData    
+        where T : unmanaged, IReplicatedComponent, IComponentData    
     {
          protected SerializeContext context;
         
@@ -110,7 +110,7 @@ public interface IInterpolatedSerializer
     }
     
     class PredictedComponentSerializer<T> : IPredictedSerializer 
-        where T : struct, IPredictedComponent<T>, IComponentData    
+        where T : unmanaged, IPredictedComponent<T>, IComponentData    
     {
         SerializeContext context;
         T m_lastServerState;
@@ -226,7 +226,7 @@ public interface IInterpolatedSerializer
     }
     
     class InterpolatedComponentSerializer<T> : IInterpolatedSerializer  
-        where T : struct, IInterpolatedComponent<T>, IComponentData    
+        where T : unmanaged, IInterpolatedComponent<T>, IComponentData    
     {
         SerializeContext context;
         TickStateSparseBuffer<T> stateHistory = new TickStateSparseBuffer<T>(32);

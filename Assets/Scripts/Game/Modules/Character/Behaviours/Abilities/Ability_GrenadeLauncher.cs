@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -116,7 +117,7 @@ public class Ability_GrenadeLauncher : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class GrenadeLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
+partial class GrenadeLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
     Ability_GrenadeLauncher.PredictedState,Ability_GrenadeLauncher.Settings>
 {
     public GrenadeLauncher_RequestActive(GameWorld world) : base(world)
@@ -139,11 +140,21 @@ class GrenadeLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,Abil
 
 
 [DisableAutoCreation]
-class GrenadeLauncher_Update : BaseComponentDataSystem<AbilityControl,Ability_GrenadeLauncher.PredictedState,Ability_GrenadeLauncher.Settings>
+partial class GrenadeLauncher_Update : BaseComponentDataSystem<AbilityControl,Ability_GrenadeLauncher.PredictedState,Ability_GrenadeLauncher.Settings>
 {
+    private EntityCommandBuffer ecb;
+    
     public GrenadeLauncher_Update(GameWorld world) : base(world)
     {
         ExtraComponentRequirements = new ComponentType[] { typeof(ServerEntity) } ;
+    }
+    
+    protected override void OnUpdate()
+    {
+        ecb = new EntityCommandBuffer(Allocator.TempJob);
+        base.OnUpdate();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
     
     protected override void Update(Entity entity, AbilityControl abilityCtrl, Ability_GrenadeLauncher.PredictedState predictedState, Ability_GrenadeLauncher.Settings state)
@@ -186,7 +197,7 @@ class GrenadeLauncher_Update : BaseComponentDataSystem<AbilityControl,Ability_Gr
                             
                         var velocity = startDir*state.grenadeVelocity;
 
-                        GrenadeSpawnRequest.Create(PostUpdateCommands, state.assetGuid, eyePos,
+                        GrenadeSpawnRequest.Create(ecb, state.assetGuid, eyePos,
                             velocity, charAbility.character, character.teamId);
 
                         interpolatedState.fireTick = time.tick;

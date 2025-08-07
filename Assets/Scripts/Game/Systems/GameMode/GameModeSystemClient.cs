@@ -4,7 +4,7 @@ using Unity.Entities;
 using UnityEngine.UI;
 
 [DisableAutoCreation]
-public class GameModeSystemClient : ComponentSystem
+public partial class GameModeSystemClient : SystemBase
 {
     EntityQuery PlayersGroup;
     EntityQuery GameModesGroup;

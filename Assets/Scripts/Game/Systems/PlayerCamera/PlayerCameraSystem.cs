@@ -3,7 +3,7 @@ using Unity.Entities;
 using System.Collections.Generic;
 
 [DisableAutoCreation]
-public class HandlePlayerCameraControlSpawn : InitializeComponentSystem<PlayerCameraSettings>
+public partial class HandlePlayerCameraControlSpawn : InitializeComponentSystem<PlayerCameraSettings>
 {
     public HandlePlayerCameraControlSpawn(GameWorld world) : base(world)
     {
@@ -21,7 +21,7 @@ public class HandlePlayerCameraControlSpawn : InitializeComponentSystem<PlayerCa
 }
 
 [DisableAutoCreation]
-public class UpdatePlayerCameras : BaseComponentSystem
+public partial class UpdatePlayerCameras : BaseComponentSystem
 {
     public EntityQuery Group;
 
@@ -85,12 +85,12 @@ public class UpdatePlayerCameras : BaseComponentSystem
                 eu.x = Mathf.Clamp(eu.x, -70.0f, 70.0f);
                 eu += new Vector3(-Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"), 0);
                 float invertY = Game.configInvertY.IntValue > 0 ? 1.0f : -1.0f;
-                eu += Time.DeltaTime * (new Vector3(- invertY * Input.GetAxisRaw("RightStickY")*InputSystem.s_JoystickLookSensitivity.y, Input.GetAxisRaw("RightStickX") * InputSystem.s_JoystickLookSensitivity.x, 0));
+                eu += SystemAPI.Time.DeltaTime * (new Vector3(- invertY * Input.GetAxisRaw("RightStickY")*InputSystem.s_JoystickLookSensitivity.y, Input.GetAxisRaw("RightStickX") * InputSystem.s_JoystickLookSensitivity.x, 0));
                 camera.transform.localEulerAngles = eu;
                 m_DetachedMoveSpeed += Input.GetAxisRaw("Mouse ScrollWheel");
                 float verticalMove = (Input.GetKey(KeyCode.R) ? 1.0f : 0.0f) + (Input.GetKey(KeyCode.F) ? -1.0f : 0.0f);
                 verticalMove += Input.GetAxisRaw("Trigger");
-                camera.transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal"), verticalMove, Input.GetAxisRaw("Vertical")) * Time.DeltaTime * m_DetachedMoveSpeed);
+                camera.transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal"), verticalMove, Input.GetAxisRaw("Vertical")) * SystemAPI.Time.DeltaTime * m_DetachedMoveSpeed);
             }
 
             if (debugCameraMove.IntValue > 0)

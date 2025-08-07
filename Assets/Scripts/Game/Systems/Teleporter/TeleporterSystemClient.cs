@@ -2,7 +2,7 @@
 using Unity.Entities;
 
 [DisableAutoCreation]
-public class TeleporterSystemClient : ComponentSystem
+public partial class TeleporterSystemClient : SystemBase
 {
 	EntityQuery Group;
 
@@ -31,7 +31,7 @@ public class TeleporterSystemClient : ComponentSystem
 			{
 				if (teleporterClient.effect != null)
 				{
-					World.GetExistingSystem<HandleSpatialEffectRequests>().Request(teleporterClient.effect, 
+					World.GetExistingSystemManaged<HandleSpatialEffectRequests>().Request(teleporterClient.effect, 
 						teleporterClient.effectTransform.position, teleporterClient.effectTransform.rotation);
 				}
 			}

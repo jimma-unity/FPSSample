@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -148,7 +149,7 @@ public class Ability_Chaingun : CharBehaviorFactory
 }
 
 [DisableAutoCreation]
-class Chaingun_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_Chaingun.PredictedState,Ability_Chaingun.Settings>
+partial class Chaingun_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_Chaingun.PredictedState,Ability_Chaingun.Settings>
 {
     public Chaingun_RequestActive(GameWorld world) : base(world)
     {
@@ -170,11 +171,21 @@ class Chaingun_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityCont
 
 
 [DisableAutoCreation]
-class Chaingun_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl,Ability_Chaingun.PredictedState,Ability_Chaingun.Settings>
+partial class Chaingun_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl,Ability_Chaingun.PredictedState,Ability_Chaingun.Settings>
 {
+    private EntityCommandBuffer ecb;
+    
     public Chaingun_Update(GameWorld world) : base(world)
     {
         ExtraComponentRequirements = new ComponentType[] { typeof(ServerEntity) } ;
+    }
+    
+    protected override void OnUpdate()
+    {
+        ecb = new EntityCommandBuffer(Allocator.TempJob);
+        base.OnUpdate();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
     
     protected override void Update(Entity abilityEntity, CharBehaviour charAbility, AbilityControl abilityCtrl, Ability_Chaingun.PredictedState predictedState, Ability_Chaingun.Settings settings)
@@ -306,7 +317,7 @@ class Chaingun_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl,Ab
             var endPos = eyePos + command.lookDir * settings.projectileRange;
 
             //GameDebug.Log("Request Projectile. Tick:" + tick);
-            ProjectileRequest.Create(PostUpdateCommands, tick, tick - command.renderTick,
+            ProjectileRequest.Create(ecb, tick, tick - command.renderTick,
                 settings.projectileAssetGuid, charAbility.character, character.teamId, eyePos, endPos);
 
             // 

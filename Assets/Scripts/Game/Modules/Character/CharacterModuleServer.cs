@@ -53,7 +53,7 @@ public struct CharacterDespawnRequest : IComponentData
 }
 
 [DisableAutoCreation]
-public class HandleCharacterSpawnRequests : BaseComponentSystem
+public partial class HandleCharacterSpawnRequests : BaseComponentSystem
 {
     EntityQuery SpawnGroup;
     CharacterModuleSettings m_settings;
@@ -82,13 +82,14 @@ public class HandleCharacterSpawnRequests : BaseComponentSystem
         if (requestArray.Length > 0)
         {
             var requestEntityArray = SpawnGroup.ToEntityArray(Allocator.TempJob);
+            var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
             // Copy requests as spawning will invalidate Group
             var spawnRequests = new CharacterSpawnRequest[requestArray.Length];
             for (var i = 0; i < requestArray.Length; i++)
             {
                 spawnRequests[i] = requestArray[i];
-                PostUpdateCommands.DestroyEntity(requestEntityArray[i]);
+                ecb.DestroyEntity(requestEntityArray[i]);
             }
 
             for (var i = 0; i < spawnRequests.Length; i++)
@@ -100,6 +101,8 @@ public class HandleCharacterSpawnRequests : BaseComponentSystem
                 playerState.controlledEntity = character.gameObject.GetComponent<GameObjectEntity>().Entity;
             }
 
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
             requestEntityArray.Dispose();
         }
         requestArray.Dispose();
@@ -147,7 +150,7 @@ public class HandleCharacterSpawnRequests : BaseComponentSystem
 
 
 [DisableAutoCreation]
-public class HandleCharacterDespawnRequests : BaseComponentSystem
+public partial class HandleCharacterDespawnRequests : BaseComponentSystem
 {
     EntityQuery DespawnGroup;
 //    EntityQuery ItemGroup;
@@ -168,8 +171,8 @@ public class HandleCharacterDespawnRequests : BaseComponentSystem
         if (requestArray.Length > 0)
         {
             Profiler.BeginSample("HandleCharacterDespawnRequests");
-
             var requestEntityArray = DespawnGroup.ToEntityArray(Allocator.TempJob);
+            var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
             for (var i = 0; i < requestArray.Length; i++)
             {
@@ -181,14 +184,16 @@ public class HandleCharacterDespawnRequests : BaseComponentSystem
 
                 GameDebug.Log("Despawning character:" + character.name + " tick:" + m_world.worldTime.tick);
 
-                m_world.RequestDespawn(character.gameObject, PostUpdateCommands);
+                m_world.RequestDespawn(character.gameObject, ecb);
 
                 var charRepAll = EntityManager.GetComponentData<CharacterReplicatedData>(request.characterEntity);
-                m_world.RequestDespawn(PostUpdateCommands, charRepAll.abilityCollection);
+                m_world.RequestDespawn(ecb, charRepAll.abilityCollection);
 
-                PostUpdateCommands.DestroyEntity(requestEntityArray[i]);
+                ecb.DestroyEntity(requestEntityArray[i]);
             }
-
+            
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
             requestEntityArray.Dispose();
             Profiler.EndSample();
         }
@@ -197,7 +202,7 @@ public class HandleCharacterDespawnRequests : BaseComponentSystem
 }
 
 [DisableAutoCreation]
-public class HandleDamage : BaseComponentSystem
+public partial class HandleDamage : BaseComponentSystem
 {
     private EntityQuery Group;
     
@@ -300,11 +305,11 @@ public class CharacterModuleServer : CharacterModuleShared
     public CharacterModuleServer(GameWorld world, BundledResourceManager resourceSystem): base(world)
     {
         // Handle spawn requests
-        m_HandleCharacterSpawnRequests = m_world.GetECSWorld().AddSystem(new HandleCharacterSpawnRequests(m_world, resourceSystem, true));
-        m_HandleCharacterDespawnRequests = m_world.GetECSWorld().AddSystem(new HandleCharacterDespawnRequests(m_world));
+        m_HandleCharacterSpawnRequests = m_world.GetECSWorld().AddSystemManaged(new HandleCharacterSpawnRequests(m_world, resourceSystem, true));
+        m_HandleCharacterDespawnRequests = m_world.GetECSWorld().AddSystemManaged(new HandleCharacterDespawnRequests(m_world));
 
         // Handle controlled entity changed
-        m_ControlledEntityChangedSystems.Add(m_world.GetECSWorld().AddSystem(new PlayerCharacterControlSystem(m_world)));
+        m_ControlledEntityChangedSystems.Add(m_world.GetECSWorld().AddSystemManaged(new PlayerCharacterControlSystem(m_world)));
 
         // Handle spawn
         CharacterBehaviours.CreateHandleSpawnSystems(m_world, m_HandleSpawnSystems, resourceSystem, true);
@@ -314,34 +319,34 @@ public class CharacterModuleServer : CharacterModuleShared
         
         // Behavior
         CharacterBehaviours.CreateAbilityRequestSystems(m_world, m_AbilityRequestUpdateSystems);
-        m_MovementStartSystems.Add(m_world.GetECSWorld().AddSystem(new UpdateTeleportation(m_world)));
+        m_MovementStartSystems.Add(m_world.GetECSWorld().AddSystemManaged(new UpdateTeleportation(m_world)));
         CharacterBehaviours.CreateMovementStartSystems(m_world,m_MovementStartSystems);
         CharacterBehaviours.CreateMovementResolveSystems(m_world,m_MovementResolveSystems);
         CharacterBehaviours.CreateAbilityStartSystems(m_world,m_AbilityStartSystems);
         CharacterBehaviours.CreateAbilityResolveSystems(m_world,m_AbilityResolveSystems);
         
         
-        m_UpdateCharPresentationState = m_world.GetECSWorld().AddSystem(new UpdateCharPresentationState(m_world));
-        m_ApplyPresentationState = m_world.GetECSWorld().AddSystem(new ApplyPresentationState(m_world));
+        m_UpdateCharPresentationState = m_world.GetECSWorld().AddSystemManaged(new UpdateCharPresentationState(m_world));
+        m_ApplyPresentationState = m_world.GetECSWorld().AddSystemManaged(new ApplyPresentationState(m_world));
 
         
-        m_HandleDamage = m_world.GetECSWorld().AddSystem(new HandleDamage(m_world));
-        m_UpdatePresentationRootTransform = m_world.GetECSWorld().AddSystem(new UpdatePresentationRootTransform(m_world));
-        m_UpdatePresentationAttachmentTransform = m_world.GetECSWorld().AddSystem(new UpdatePresentationAttachmentTransform(m_world));
+        m_HandleDamage = m_world.GetECSWorld().AddSystemManaged(new HandleDamage(m_world));
+        m_UpdatePresentationRootTransform = m_world.GetECSWorld().AddSystemManaged(new UpdatePresentationRootTransform(m_world));
+        m_UpdatePresentationAttachmentTransform = m_world.GetECSWorld().AddSystemManaged(new UpdatePresentationAttachmentTransform(m_world));
     }
 
     public override void Shutdown()
     {
         base.Shutdown();
         
-        m_world.GetECSWorld().DestroySystem(m_HandleCharacterDespawnRequests);
+        m_world.GetECSWorld().DestroySystemManaged(m_HandleCharacterDespawnRequests);
         
-        m_world.GetECSWorld().DestroySystem(m_UpdateCharPresentationState);
+        m_world.GetECSWorld().DestroySystemManaged(m_UpdateCharPresentationState);
 
-        m_world.GetECSWorld().DestroySystem(m_HandleDamage);
-        m_world.GetECSWorld().DestroySystem(m_UpdatePresentationRootTransform);
-        m_world.GetECSWorld().DestroySystem(m_UpdatePresentationAttachmentTransform);
-        m_world.GetECSWorld().DestroySystem(m_ApplyPresentationState);
+        m_world.GetECSWorld().DestroySystemManaged(m_HandleDamage);
+        m_world.GetECSWorld().DestroySystemManaged(m_UpdatePresentationRootTransform);
+        m_world.GetECSWorld().DestroySystemManaged(m_UpdatePresentationAttachmentTransform);
+        m_world.GetECSWorld().DestroySystemManaged(m_ApplyPresentationState);
     }
 
     public void HandleSpawnRequests()

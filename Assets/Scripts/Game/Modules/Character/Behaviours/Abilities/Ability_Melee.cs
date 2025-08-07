@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -119,7 +120,7 @@ public class Ability_Melee : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class Melee_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
+partial class Melee_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
     Ability_Melee.PredictedState,Ability_Melee.Settings>
 {
     public Melee_RequestActive(GameWorld world) : base(world)
@@ -142,7 +143,7 @@ class Melee_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl
 
 
 [DisableAutoCreation]
-class Melee_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl, Ability_Melee.LocalState,
+partial class Melee_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl, Ability_Melee.LocalState,
     Ability_Melee.PredictedState, Ability_Melee.Settings>
 {
     public Melee_Update(GameWorld world) : base(world)
@@ -192,7 +193,7 @@ class Melee_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl, Abili
 
                         predictedState.SetPhase(Ability_Melee.Phase.Hold, time.tick);
 
-                        var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
+                        var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
                         localState.rayQueryId = queryReciever.RegisterQuery(new RaySphereQueryReciever.Query()
                         {
                             origin = eyePos,
@@ -239,11 +240,21 @@ class Melee_Update : BaseComponentDataSystem<CharBehaviour,AbilityControl, Abili
 
 
 [DisableAutoCreation]
-class Melee_HandleCollision : BaseComponentDataSystem<Ability_Melee.LocalState>
+partial class Melee_HandleCollision : BaseComponentDataSystem<Ability_Melee.LocalState>
 {
+    private EntityCommandBuffer ecb;
+    
     public Melee_HandleCollision(GameWorld world) : base(world)
     {
         ExtraComponentRequirements = new ComponentType[] { typeof(ServerEntity) } ;
+    }
+
+    protected override void OnUpdate()
+    {
+        ecb = new EntityCommandBuffer(Allocator.TempJob);
+        base.OnUpdate();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
     
     protected override void Update(Entity abilityEntity, Ability_Melee.LocalState localState)
@@ -251,7 +262,7 @@ class Melee_HandleCollision : BaseComponentDataSystem<Ability_Melee.LocalState>
         if (localState.rayQueryId == -1)
             return;
         
-        var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
+        var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
         
         RaySphereQueryReciever.Query query;
         RaySphereQueryReciever.QueryResult queryResult;
@@ -268,7 +279,7 @@ class Melee_HandleCollision : BaseComponentDataSystem<Ability_Melee.LocalState>
 
             var interpolatedState = EntityManager.GetComponentData<Ability_Melee.InterpolatedState>(abilityEntity);
             interpolatedState.impactTick = m_world.worldTime.tick;            
-            PostUpdateCommands.SetComponent(abilityEntity, interpolatedState);
+            ecb.SetComponent(abilityEntity, interpolatedState);
         }
         
         EntityManager.SetComponentData(abilityEntity, localState);

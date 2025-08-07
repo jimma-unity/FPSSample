@@ -33,7 +33,7 @@ public class ItemActionTimelineTrigger : MonoBehaviour
 
 // System
 [DisableAutoCreation]
-public class UpdateItemActionTimelineTrigger : BaseComponentSystem<CharacterPresentationSetup, ItemActionTimelineTrigger>
+public partial class UpdateItemActionTimelineTrigger : BaseComponentSystem<CharacterPresentationSetup, ItemActionTimelineTrigger>
 {
     public UpdateItemActionTimelineTrigger(GameWorld world) : base(world) {}
     
