@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Linq;
@@ -107,3 +108,4 @@ namespace Unity.Entities.Editor
         }
     }
 }
+#endif

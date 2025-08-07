@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
@@ -28,3 +29,4 @@ namespace Unity.Entities.Editor
         }
     }
 }
+#endif
