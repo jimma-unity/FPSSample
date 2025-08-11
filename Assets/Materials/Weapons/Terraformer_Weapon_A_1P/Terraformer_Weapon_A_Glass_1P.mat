@@ -258,7 +258,7 @@ Material:
     - _ReceivesSSRTransparent: 0
     - _RefractionMode: 2
     - _RefractionModel: 0
-    - _RenderQueueType: 1
+    - _RenderQueueType: 4
     - _RequireSplitLighting: 1
     - _SSRefractionProjectionModel: 2
     - _ShiverDirectionality: 0.5
