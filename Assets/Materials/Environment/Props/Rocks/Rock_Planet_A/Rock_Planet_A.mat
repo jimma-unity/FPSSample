@@ -44,8 +44,6 @@ Material:
   - _MASKMAP1
   - _MASKMAP2
   - _MASKMAP3
-  - _MATERIAL_FEATURE_SUBSURFACE_SCATTERING
-  - _MATERIAL_FEATURE_TRANSMISSION
   - _NORMALMAP0
   - _NORMALMAP1
   - _NORMALMAP2
@@ -376,6 +374,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TransmittanceColorMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -403,6 +405,9 @@ Material:
     - _AlbedoAffectEmissive: 0
     - _AlphaCutoff: 0.5
     - _AlphaCutoffEnable: 0
+    - _AlphaCutoffPostpass: 0.5
+    - _AlphaCutoffPrepass: 0.5
+    - _AlphaCutoffShadow: 0.5
     - _AlphaDstBlend: 0
     - _AlphaRemapMax0: 1
     - _AlphaRemapMax1: 1
@@ -527,6 +532,7 @@ Material:
     - _InvTilingScale1: 20
     - _InvTilingScale2: 5
     - _InvTilingScale3: 5
+    - _Ior: 1.5
     - _LayerCount: 4
     - _LayerTilingBlendMask: 1
     - _LinkDetailsWithBase: 1
@@ -534,7 +540,7 @@ Material:
     - _LinkDetailsWithBase1: 0
     - _LinkDetailsWithBase2: 1
     - _LinkDetailsWithBase3: 1
-    - _MaterialID: 0
+    - _MaterialID: 1
     - _Metallic: 1
     - _Metallic0: 0
     - _Metallic1: 0
@@ -559,6 +565,7 @@ Material:
     - _NormalScale2: 0.8
     - _NormalScale3: 1
     - _ObjectScaleAffectTile: 0
+    - _ObjectSpaceUVMappingEmissive: 0
     - _OpacityAsDensity0: 0
     - _OpacityAsDensity1: 0
     - _OpacityAsDensity2: 0
@@ -573,6 +580,7 @@ Material:
     - _RayTracing: 0
     - _ReceivesSSR: 1
     - _RefractionMode: 0
+    - _RefractionModel: 0
     - _ShiverDirectionality: 0.5
     - _ShiverDrag: 0.2
     - _ShowLayer0: 1
@@ -599,9 +607,9 @@ Material:
     - _SpecularAAThreshold: 0.2
     - _SpecularOcclusionMode: 1
     - _SrcBlend: 1
-    - _StencilRef: 4
+    - _StencilRef: 0
     - _StencilRefDepth: 8
-    - _StencilRefGBuffer: 14
+    - _StencilRefGBuffer: 10
     - _StencilRefMV: 40
     - _StencilWriteMask: 6
     - _StencilWriteMaskDepth: 9
@@ -654,6 +662,7 @@ Material:
     - _TransmissionMask3: 1
     - _TransparentCullMode: 2
     - _TransparentSortPriority: 0
+    - _TransparentWritingMotionVec: 0
     - _TransparentZWrite: 0
     - _UVBase: 0
     - _UVBase0: 0
@@ -671,6 +680,7 @@ Material:
     - _UseEmissiveIntensity: 0
     - _UseHeightBasedBlend: 0
     - _UseMainLayerInfluence: 1
+    - _UseShadowThreshold: 0
     - _VertexColorMode: 0
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 4
@@ -713,3 +723,4 @@ Material:
     - _UVMappingMaskBlendMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
