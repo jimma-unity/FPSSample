@@ -208,7 +208,7 @@ public class PlayerModuleClient
         {
             var serializeContext = new SerializeContext
             {
-                entityManager = null,
+                //entityManager = null,
                 entity = Entity.Null,
                 refSerializer = null,
                 tick = tick

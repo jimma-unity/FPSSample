@@ -77,11 +77,11 @@ public class GameWorld
         }
         
         GameDebug.Assert(World.All[0] != null,"There is no active world");
-        m_ECSWorld = World.All[0]; 
+        m_ECSWorld = World.All[0];
+        
+        GameDebug.Assert(m_ECSWorld.IsCreated);
         
         m_EntityManager = m_ECSWorld.EntityManager;
-        
-        GameDebug.Assert(m_EntityManager.IsCreated);
 
         worldTime.tickRate = 60;
 
