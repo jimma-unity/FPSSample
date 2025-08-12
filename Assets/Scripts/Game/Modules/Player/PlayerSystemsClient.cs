@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 
 [DisableAutoCreation]
-public class ResolvePlayerReference : BaseComponentSystem
+public partial class ResolvePlayerReference : BaseComponentSystem
 {
     EntityQuery Group;   
     
@@ -41,7 +41,7 @@ public class ResolvePlayerReference : BaseComponentSystem
 
 // TODO (mogensh) rename this. Or can we get rid of it as it not only sets controlled entity on localPlayer?
 [DisableAutoCreation]
-public class UpdateServerEntityComponent : BaseComponentSystem<LocalPlayer>    
+public partial class UpdateServerEntityComponent : BaseComponentSystem<LocalPlayer>    
 {
     public UpdateServerEntityComponent(GameWorld world) : base(world) {}
 

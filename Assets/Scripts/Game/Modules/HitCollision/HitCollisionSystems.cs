@@ -10,7 +10,7 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Jobs;
 
 [DisableAutoCreation]
-public class HandleHitCollisionSpawning : InitializeComponentGroupSystem<HitCollisionHistory, HandleHitCollisionSpawning.Initialized>
+public partial class HandleHitCollisionSpawning : InitializeComponentGroupSystem<HitCollisionHistory, HandleHitCollisionSpawning.Initialized>
 {
     public struct Initialized : IComponentData {}
     public HandleHitCollisionSpawning(GameWorld world, GameObject systemRoot, int bufferSize) : base(world)
@@ -131,7 +131,7 @@ public class HandleHitCollisionSpawning : InitializeComponentGroupSystem<HitColl
 
 
 [DisableAutoCreation]
-public class HandleHitCollisionDespawning : DeinitializeComponentGroupSystem<HitCollisionHistory>
+public partial class HandleHitCollisionDespawning : DeinitializeComponentGroupSystem<HitCollisionHistory>
 {
     public HandleHitCollisionDespawning(GameWorld world) : base(world)
     {}
@@ -152,7 +152,7 @@ public class HandleHitCollisionDespawning : DeinitializeComponentGroupSystem<Hit
 }
 
 [DisableAutoCreation]
-public class StoreColliderStates : BaseComponentSystem<HitCollisionHistory>
+public partial class StoreColliderStates : BaseComponentSystem<HitCollisionHistory>
 {
     public StoreColliderStates(GameWorld world) : base(world) {}
 

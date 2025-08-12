@@ -12,11 +12,11 @@ public class ItemModule
         m_world = world;
         
         // TODO (mogensh) make server version without all this client stuff
-        m_systems.Add(world.GetECSWorld().AddSystem(new RobotWeaponClientProjectileSpawnHandler(world)));
-        m_systems.Add(world.GetECSWorld().AddSystem(new TerraformerWeaponClientProjectileSpawnHandler(world)));
-        m_systems.Add(world.GetECSWorld().AddSystem(new UpdateTerraformerWeaponA(world)));
-        m_systems.Add(world.GetECSWorld().AddSystem(new UpdateItemActionTimelineTrigger(world)));
-        m_systems.Add(world.GetECSWorld().AddSystem(new System_RobotWeaponA(world)));
+        m_systems.Add(world.GetECSWorld().AddSystemManaged(new RobotWeaponClientProjectileSpawnHandler(world)));
+        m_systems.Add(world.GetECSWorld().AddSystemManaged(new TerraformerWeaponClientProjectileSpawnHandler(world)));
+        m_systems.Add(world.GetECSWorld().AddSystemManaged(new UpdateTerraformerWeaponA(world)));
+        m_systems.Add(world.GetECSWorld().AddSystemManaged(new UpdateItemActionTimelineTrigger(world)));
+        m_systems.Add(world.GetECSWorld().AddSystemManaged(new System_RobotWeaponA(world)));
     }
 
     public void HandleSpawn()
@@ -28,9 +28,9 @@ public class ItemModule
     public void Shutdown()
     {
         foreach (var system in m_handleSpawnSystems)
-            m_world.GetECSWorld().DestroySystem(system);
+            m_world.GetECSWorld().DestroySystemManaged(system);
         foreach (var system in m_systems)
-            m_world.GetECSWorld().DestroySystem(system);
+            m_world.GetECSWorld().DestroySystemManaged(system);
     }
 
     public void LateUpdate()

@@ -7,15 +7,15 @@ public class SpectatorCamModuleClient
     public SpectatorCamModuleClient(GameWorld world)
     {
         m_world = world;
-        m_UpdateSpectatorCam =  m_world.GetECSWorld().AddSystem(new UpdateSpectatorCam(m_world));
-        m_UpdateSpectatorCamControl =  m_world.GetECSWorld().AddSystem(new UpdateSpectatorCamControl(m_world));
+        m_UpdateSpectatorCam =  m_world.GetECSWorld().AddSystemManaged(new UpdateSpectatorCam(m_world));
+        m_UpdateSpectatorCamControl =  m_world.GetECSWorld().AddSystemManaged(new UpdateSpectatorCamControl(m_world));
 
     }
 
     public void Shutdown()
     {
-        m_world.GetECSWorld().DestroySystem(m_UpdateSpectatorCam);       
-        m_world.GetECSWorld().DestroySystem(m_UpdateSpectatorCamControl);       
+        m_world.GetECSWorld().DestroySystemManaged(m_UpdateSpectatorCam);       
+        m_world.GetECSWorld().DestroySystemManaged(m_UpdateSpectatorCamControl);       
     }
 
     public void Update()

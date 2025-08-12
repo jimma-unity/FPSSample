@@ -6,7 +6,7 @@ using UnityEngine.Profiling;
 
 
 [DisableAutoCreation]
-public class HandleCharacterSpawn : InitializeComponentGroupSystem<Character, HandleCharacterSpawn.Initialized>
+public partial class HandleCharacterSpawn : InitializeComponentGroupSystem<Character, HandleCharacterSpawn.Initialized>
 {
     public struct Initialized : IComponentData {}
     
@@ -131,7 +131,7 @@ public class HandleCharacterSpawn : InitializeComponentGroupSystem<Character, Ha
 }
 
 [DisableAutoCreation]
-public class HandleCharacterDespawn : DeinitializeComponentSystem<Character>
+public partial class HandleCharacterDespawn : DeinitializeComponentSystem<Character>
 {
     List<Character> characters = new List<Character>();
 
@@ -141,6 +141,7 @@ public class HandleCharacterDespawn : DeinitializeComponentSystem<Character>
     protected override void Deinitialize(Entity entity, Character character)
     {
         var charEntity = character.GetComponent<GameObjectEntity>().Entity;
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
             
         var moveQuery = EntityManager.GetComponentObject<CharacterMoveQuery>(charEntity);
         moveQuery.Shutdown();
@@ -148,14 +149,16 @@ public class HandleCharacterDespawn : DeinitializeComponentSystem<Character>
         // Remove presentations
         foreach (var charPresentation in character.presentations)
         {
-            m_world.RequestDespawn(charPresentation.gameObject, PostUpdateCommands);
+            m_world.RequestDespawn(charPresentation.gameObject, ecb);
         }
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }
 
 
 [DisableAutoCreation]
-public class UpdateTeleportation : BaseComponentSystem<Character>
+public partial class UpdateTeleportation : BaseComponentSystem<Character>
 {
     public UpdateTeleportation(GameWorld gameWorld) : base(gameWorld)
     {}
@@ -181,7 +184,7 @@ public class UpdateTeleportation : BaseComponentSystem<Character>
 }
 
 [DisableAutoCreation]
-public class UpdateCharPresentationState : BaseComponentSystem
+public partial class UpdateCharPresentationState : BaseComponentSystem
 {
     EntityQuery Group;
     const float k_StopMovePenalty = 0.075f;
@@ -276,7 +279,7 @@ public class UpdateCharPresentationState : BaseComponentSystem
 
 
 [DisableAutoCreation]
-public class GroundTest : BaseComponentSystem
+public partial class GroundTest : BaseComponentSystem
 {
     EntityQuery Group;
 
@@ -342,7 +345,7 @@ public class GroundTest : BaseComponentSystem
 
 
 [DisableAutoCreation]
-public class ApplyPresentationState : BaseComponentSystem    
+public partial class ApplyPresentationState : BaseComponentSystem    
 {
     EntityQuery CharGroup;
 

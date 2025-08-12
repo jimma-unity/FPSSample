@@ -5,7 +5,7 @@ using UnityEngine.Profiling;
 using Unity.Mathematics;
 
 [DisableAutoCreation]
-public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
+public partial class CreateProjectileMovementCollisionQueries : BaseComponentSystem
 {
     EntityQuery ProjectileGroup;
 
@@ -23,6 +23,7 @@ public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
         var entityArray = ProjectileGroup.ToEntityArray(Allocator.TempJob);
         var projectileDataArray = ProjectileGroup.ToComponentDataArray<ProjectileData>(Allocator.TempJob);
         var time = m_world.worldTime;
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         for (var i = 0; i < projectileDataArray.Length; i++)
         {
             var projectileData = projectileDataArray[i];
@@ -42,7 +43,7 @@ public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
 
             var collisionMask = ~(1U << projectileData.teamId);
 
-            var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
+            var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
             projectileData.rayQueryId = queryReciever.RegisterQuery(new RaySphereQueryReciever.Query()
             {
                 hitCollisionTestTick = collisionTestTick,
@@ -53,15 +54,17 @@ public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
                 mask = collisionMask,
                 ExcludeOwner = projectileData.projectileOwner,
             });
-            PostUpdateCommands.SetComponent(entity,projectileData);
+            ecb.SetComponent(entity,projectileData);
         }
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         entityArray.Dispose();
         projectileDataArray.Dispose();
     }
 }
 
 [DisableAutoCreation]
-public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
+public partial class HandleProjectileMovementCollisionQuery : BaseComponentSystem
 {
     EntityQuery ProjectileGroup;
 
@@ -78,7 +81,8 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
     {
         var entityArray = ProjectileGroup.ToEntityArray(Allocator.TempJob);
         var projectileDataArray = ProjectileGroup.ToComponentDataArray<ProjectileData>(Allocator.TempJob);
-        var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();    
+        var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         for (var i = 0; i < projectileDataArray.Length; i++)
         {
             var projectileData = projectileDataArray[i];
@@ -123,7 +127,7 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
                     if (damageInstigator != Entity.Null)
                     {
                         var collisionMask = ~(1 << projectileData.teamId);
-                        SplashDamageRequest.Create(PostUpdateCommands, query.hitCollisionTestTick, damageInstigator, queryResult.hitPoint, collisionMask, projectileData.settings.splashDamage);
+                        SplashDamageRequest.Create(ecb, query.hitCollisionTestTick, damageInstigator, queryResult.hitPoint, collisionMask, projectileData.settings.splashDamage);
                     }
                 }
 
@@ -138,8 +142,10 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
             }
 
             projectileData.position = newPosition;
-            PostUpdateCommands.SetComponent(entityArray[i],projectileData);
+            ecb.SetComponent(entityArray[i],projectileData);
         }
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         entityArray.Dispose();
         projectileDataArray.Dispose();
     }
@@ -147,7 +153,7 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
 
 
 [DisableAutoCreation]
-public class DespawnProjectiles : BaseComponentSystem
+public partial class DespawnProjectiles : BaseComponentSystem
 {
     EntityQuery ProjectileGroup;
 
@@ -164,6 +170,7 @@ public class DespawnProjectiles : BaseComponentSystem
         var time = m_world.worldTime;
         var entityArray = ProjectileGroup.ToEntityArray(Allocator.TempJob);
         var projectileDataArray = ProjectileGroup.ToComponentDataArray<ProjectileData>(Allocator.TempJob);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         for (var i = 0; i < projectileDataArray.Length; i++)
         {
             var projectileData = projectileDataArray[i];
@@ -172,7 +179,7 @@ public class DespawnProjectiles : BaseComponentSystem
             {
                 if (m_world.worldTime.DurationSinceTick(projectileData.impactTick) > 1.0f)
                 {
-                    PostUpdateCommands.AddComponent(entityArray[i],new DespawningEntity());
+                    ecb.AddComponent(entityArray[i],new DespawningEntity());
                 }
                 continue;
             }
@@ -181,9 +188,11 @@ public class DespawnProjectiles : BaseComponentSystem
             var toOld = age > projectileData.maxAge;
             if (toOld)
             {
-                PostUpdateCommands.AddComponent(entityArray[i],new DespawningEntity());
+                ecb.AddComponent(entityArray[i],new DespawningEntity());
             }
         }
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         entityArray.Dispose();
         projectileDataArray.Dispose();
     }

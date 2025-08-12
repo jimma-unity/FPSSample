@@ -18,7 +18,7 @@ public class NamePlateOwner : MonoBehaviour
 }
 
 [DisableAutoCreation]
-public class HandleNamePlateSpawn : InitializeComponentSystem<NamePlateOwner>
+public partial class HandleNamePlateSpawn : InitializeComponentSystem<NamePlateOwner>
 {
 	public HandleNamePlateSpawn(GameWorld world) : base(world) {}
 
@@ -29,7 +29,7 @@ public class HandleNamePlateSpawn : InitializeComponentSystem<NamePlateOwner>
 }
 
 [DisableAutoCreation]
-public class HandleNamePlateDespawn : DeinitializeComponentSystem<NamePlateOwner>
+public partial class HandleNamePlateDespawn : DeinitializeComponentSystem<NamePlateOwner>
 {
 	public HandleNamePlateDespawn(GameWorld world) : base(world) {}
 
@@ -42,7 +42,7 @@ public class HandleNamePlateDespawn : DeinitializeComponentSystem<NamePlateOwner
 
 
 [DisableAutoCreation]
-public class UpdateNamePlates : BaseComponentSystem
+public partial class UpdateNamePlates : BaseComponentSystem
 {
 	EntityQuery Group;
 	EntityQuery LocalPlayerGroup;

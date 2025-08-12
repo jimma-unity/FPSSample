@@ -20,7 +20,7 @@ public struct EntityGroupChildren : IBufferElementData
 }
 
 [DisableAutoCreation]
-public class DestroyDespawning : ComponentSystem
+public partial class DestroyDespawning : SystemBase
 {
     EntityQuery Group;
 
@@ -33,10 +33,13 @@ public class DestroyDespawning : ComponentSystem
     protected override void OnUpdate()
     {
         var entityArray = Group.ToEntityArray(Allocator.TempJob);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         for (var i = 0; i < entityArray.Length; i++)
         {
-            PostUpdateCommands.DestroyEntity(entityArray[i]);
+            ecb.DestroyEntity(entityArray[i]);
         }
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         entityArray.Dispose();
     }
 }
@@ -76,8 +79,8 @@ public class GameWorld
             GameObject.DontDestroyOnLoad(m_sceneRoot);
         }
         
-        GameDebug.Assert(World.All[0] != null,"There is no active world");
-        m_ECSWorld = World.All[0];
+        GameDebug.Assert(World.DefaultGameObjectInjectionWorld != null,"There is no active world");
+        m_ECSWorld = World.DefaultGameObjectInjectionWorld;
         
         GameDebug.Assert(m_ECSWorld.IsCreated);
         
@@ -89,7 +92,7 @@ public class GameWorld
 
         s_Worlds.Add(this);
 
-        m_destroyDespawningSystem = m_ECSWorld.AddSystem(new DestroyDespawning());
+        m_destroyDespawningSystem = m_ECSWorld.AddSystemManaged(new DestroyDespawning());
     }
 
     public void Shutdown()

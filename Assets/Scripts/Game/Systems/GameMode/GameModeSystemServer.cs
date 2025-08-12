@@ -35,7 +35,7 @@ public class Team
 }
 
 [DisableAutoCreation]
-public class GameModeSystemServer : ComponentSystem
+public partial class GameModeSystemServer : BaseComponentSystem
 {
     [ConfigVar(Name = "game.respawndelay", DefaultValue = "10", Description = "Time from death to respawning")]
     public static ConfigVar respawnDelay;
@@ -52,7 +52,7 @@ public class GameModeSystemServer : ComponentSystem
     public List<Team> teams = new List<Team>();
     public List<TeamBase> teamBases = new List<TeamBase>();
 
-    public GameModeSystemServer(GameWorld world, ChatSystemServer chatSystem, BundledResourceManager resourceSystem)
+    public GameModeSystemServer(GameWorld world, ChatSystemServer chatSystem, BundledResourceManager resourceSystem) : base(world)
     {
         m_World = world;
         m_ResourceSystem = resourceSystem;
@@ -129,14 +129,14 @@ public class GameModeSystemServer : ComponentSystem
     ConfigVar m_TimerLength;
     public void StartGameTimer(ConfigVar seconds, string message)
     {
-        m_TimerStart = (float)Time.ElapsedTime;
+        m_TimerStart = (float)SystemAPI.Time.ElapsedTime;
         m_TimerLength = seconds;
         gameModeState.gameTimerMessage = message;
     }
 
     public int GetGameTimer()
     {
-        return Mathf.Max(0, Mathf.FloorToInt(m_TimerStart + m_TimerLength.FloatValue - (float)Time.ElapsedTime));
+        return Mathf.Max(0, Mathf.FloorToInt(m_TimerStart + m_TimerLength.FloatValue - (float)SystemAPI.Time.ElapsedTime));
     }
 
     public void SetRespawnEnabled(bool enable)
@@ -192,6 +192,7 @@ public class GameModeSystemServer : ComponentSystem
 
         var playerEntities = m_PlayersComponentGroup.ToEntityArray(Allocator.TempJob);
         var playerCharacterControls = m_PlayersComponentGroup.ToComponentArray<PlayerCharacterControl>();
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         for (int i = 0, c = playerStates.Length; i < c; ++i)
         {
             var player = playerStates[i];
@@ -222,9 +223,9 @@ public class GameModeSystemServer : ComponentSystem
                 }
 
                 if (charControl.characterType == 1000)
-                    SpectatorCamSpawnRequest.Create(PostUpdateCommands, position, rotation, playerEntity);
+                    SpectatorCamSpawnRequest.Create(ecb, position, rotation, playerEntity);
                 else
-                    CharacterSpawnRequest.Create(PostUpdateCommands, charControl.characterType, position, rotation, playerEntity);
+                    CharacterSpawnRequest.Create(ecb, charControl.characterType, position, rotation, playerEntity);
 
                 continue;
             }
@@ -244,8 +245,8 @@ public class GameModeSystemServer : ComponentSystem
                             var predictedState = EntityManager.GetComponentData<CharacterPredictedData>(controlledEntity);
                             var rotation = predictedState.velocity.magnitude > 0.01f ? Quaternion.LookRotation(predictedState.velocity.normalized) : Quaternion.identity;
 
-                            CharacterDespawnRequest.Create(PostUpdateCommands, controlledEntity);
-                            CharacterSpawnRequest.Create(PostUpdateCommands, charControl.characterType, predictedState.position, rotation, playerEntity);
+                            CharacterDespawnRequest.Create(ecb, controlledEntity);
+                            CharacterSpawnRequest.Create(ecb, charControl.characterType, predictedState.position, rotation, playerEntity);
                         }
                         player.controlledEntity = Entity.Null;
                     }
@@ -288,13 +289,15 @@ public class GameModeSystemServer : ComponentSystem
                     {
                         // Despawn current controlled entity. New entity will be created later
                         if (EntityManager.HasComponent<Character>(controlledEntity))
-                            CharacterDespawnRequest.Create(PostUpdateCommands, controlledEntity);
+                            CharacterDespawnRequest.Create(ecb, controlledEntity);
                         player.controlledEntity = Entity.Null;
                     }
                 }
             }
         }
 
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         playerEntities.Dispose();
     }
 

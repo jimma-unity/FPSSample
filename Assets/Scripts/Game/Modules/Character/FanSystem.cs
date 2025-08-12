@@ -8,7 +8,7 @@ using UnityEngine.Jobs;
 using UnityEngine.Profiling;
 
 [DisableAutoCreation]
-public class HandleFanSpawns : InitializeComponentGroupSystem<Fan, HandleFanSpawns.Initialized>
+public partial class HandleFanSpawns : InitializeComponentGroupSystem<Fan, HandleFanSpawns.Initialized>
 {
     EntityQuery Group;
     
@@ -31,7 +31,7 @@ public class HandleFanSpawns : InitializeComponentGroupSystem<Fan, HandleFanSpaw
 }
 
 [DisableAutoCreation]
-public class HandleFanDespawns : DeinitializeComponentGroupSystem<Fan>
+public partial class HandleFanDespawns : DeinitializeComponentGroupSystem<Fan>
 {
     EntityQuery Group;
 
@@ -57,8 +57,8 @@ public class FanSystem
 {
     public FanSystem(GameWorld world)
     {
-        m_HandleFanSpawns = world.GetECSWorld().AddSystem(new HandleFanSpawns(world));
-        m_HandleFanDespawns = world.GetECSWorld().AddSystem(new HandleFanDespawns(world));
+        m_HandleFanSpawns = world.GetECSWorld().AddSystemManaged(new HandleFanSpawns(world));
+        m_HandleFanDespawns = world.GetECSWorld().AddSystemManaged(new HandleFanDespawns(world));
         m_World = world;
 
         s_SourceJoints = new TransformAccessArray(k_MaxFanJoints / 2, 1);
@@ -73,8 +73,8 @@ public class FanSystem
         s_SourceRotations.Dispose();
         s_FanJoints.Dispose();
 
-        m_World.GetECSWorld().DestroySystem(m_HandleFanSpawns);
-        m_World.GetECSWorld().DestroySystem(m_HandleFanDespawns);
+        m_World.GetECSWorld().DestroySystemManaged(m_HandleFanSpawns);
+        m_World.GetECSWorld().DestroySystemManaged(m_HandleFanDespawns);
     }
 
     public void HandleSpawning()

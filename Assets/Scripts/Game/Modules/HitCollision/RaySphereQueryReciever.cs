@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 
 [DisableAutoCreation]
-public class RaySphereQueryReciever : BaseComponentSystem
+public partial class RaySphereQueryReciever : BaseComponentSystem
 {
 	public struct Query
 	{

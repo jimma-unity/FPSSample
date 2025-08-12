@@ -25,18 +25,18 @@ public class PlayerModuleClient
     {
         m_world = world;
 
-        m_HandlePlayerCameraControlSpawn = m_world.GetECSWorld().AddSystem(new HandlePlayerCameraControlSpawn(m_world));
-        m_UpdatePlayerCameras = m_world.GetECSWorld().AddSystem(new UpdatePlayerCameras(m_world));
-        m_ResolvePlayerReference = m_world.GetECSWorld().AddSystem(new ResolvePlayerReference(m_world));
-        m_UpdateServerEntityComponent = m_world.GetECSWorld().AddSystem(new UpdateServerEntityComponent(m_world));
+        m_HandlePlayerCameraControlSpawn = m_world.GetECSWorld().AddSystemManaged(new HandlePlayerCameraControlSpawn(m_world));
+        m_UpdatePlayerCameras = m_world.GetECSWorld().AddSystemManaged(new UpdatePlayerCameras(m_world));
+        m_ResolvePlayerReference = m_world.GetECSWorld().AddSystemManaged(new ResolvePlayerReference(m_world));
+        m_UpdateServerEntityComponent = m_world.GetECSWorld().AddSystemManaged(new UpdateServerEntityComponent(m_world));
     }
 
     public void Shutdown()
     {
-        m_world.GetECSWorld().DestroySystem(m_HandlePlayerCameraControlSpawn);
-        m_world.GetECSWorld().DestroySystem(m_UpdatePlayerCameras);
-        m_world.GetECSWorld().DestroySystem(m_ResolvePlayerReference);
-        m_world.GetECSWorld().DestroySystem(m_UpdateServerEntityComponent);
+        m_world.GetECSWorld().DestroySystemManaged(m_HandlePlayerCameraControlSpawn);
+        m_world.GetECSWorld().DestroySystemManaged(m_UpdatePlayerCameras);
+        m_world.GetECSWorld().DestroySystemManaged(m_ResolvePlayerReference);
+        m_world.GetECSWorld().DestroySystemManaged(m_UpdateServerEntityComponent);
         
         if(m_LocalPlayer != null)
             m_world.RequestDespawn(m_LocalPlayer.gameObject);

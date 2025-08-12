@@ -29,7 +29,7 @@ public struct ClientProjectileOwner : IComponentData
 }
 
 [DisableAutoCreation]
-public class HandleClientProjectileRequests : BaseComponentSystem
+public partial class HandleClientProjectileRequests : BaseComponentSystem
 {
     EntityQuery RequestGroup;
     readonly GameObject m_SystemRoot;
@@ -68,10 +68,11 @@ public class HandleClientProjectileRequests : BaseComponentSystem
         requestBuffer.Clear();
         var requestArray = RequestGroup.ToComponentDataArray<ProjectileRequest>(Allocator.TempJob);
         var requestEntityArray = RequestGroup.ToEntityArray(Allocator.TempJob);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         for (var i = 0; i < requestArray.Length; i++)
         {
             requestBuffer.Add(requestArray[i]);
-            PostUpdateCommands.DestroyEntity(requestEntityArray[i]);
+            ecb.DestroyEntity(requestEntityArray[i]);
         }
 
         // Handle requests
@@ -108,6 +109,8 @@ public class HandleClientProjectileRequests : BaseComponentSystem
             }
         }
         
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         requestArray.Dispose();
         requestEntityArray.Dispose();
     }
@@ -163,7 +166,7 @@ class ProjectilesSystemsClient
 
             if (clientProjectile.impactEffect != null)
             {
-                world.GetECSWorld().GetExistingSystem<HandleSpatialEffectRequests>().Request(clientProjectile.impactEffect, 
+                world.GetECSWorld().GetExistingSystemManaged<HandleSpatialEffectRequests>().Request(clientProjectile.impactEffect, 
                     projectileData.impactPos, Quaternion.LookRotation(projectileData.impactNormal));
             }
 
@@ -189,37 +192,56 @@ class ProjectilesSystemsClient
 
 
 [DisableAutoCreation]
-public class UpdateClientProjectilesPredicted : BaseComponentSystem<ClientProjectile>
+public partial class UpdateClientProjectilesPredicted : BaseComponentSystem<ClientProjectile>
 {
+    private EntityCommandBuffer ecb;
+    
     public UpdateClientProjectilesPredicted(GameWorld world) : base(world)
     {
         ExtraComponentRequirements = new [] { ComponentType.ReadWrite<UpdateProjectileFlag>() };
     }
-
+    
+    protected override void OnUpdate()
+    {
+        ecb = new EntityCommandBuffer(Allocator.TempJob);
+        base.OnUpdate();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+    }
+    
     protected override void Update(Entity entity, ClientProjectile clientProjectile)
     {
-        ProjectilesSystemsClient.Update(m_world, PostUpdateCommands, clientProjectile);
+        ProjectilesSystemsClient.Update(m_world, ecb, clientProjectile);
     }
 }
 
 [DisableAutoCreation]
-public class UpdateClientProjectilesNonPredicted : BaseComponentSystem<ClientProjectile>
+public partial class UpdateClientProjectilesNonPredicted : BaseComponentSystem<ClientProjectile>
 {
+    private EntityCommandBuffer ecb;
+    
     public UpdateClientProjectilesNonPredicted(GameWorld world) : base(world)
     {
         ExtraComponentRequirements = new [] { ComponentType.Exclude<UpdateProjectileFlag>() };
     }
+    
+    protected override void OnUpdate()
+    {
+        ecb = new EntityCommandBuffer(Allocator.TempJob);
+        base.OnUpdate();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+    }
 
     protected override void Update(Entity entity, ClientProjectile clientProjectile)
     {
-        ProjectilesSystemsClient.Update(m_world, PostUpdateCommands, clientProjectile);
+        ProjectilesSystemsClient.Update(m_world, ecb, clientProjectile);
     }
 }
 
 
 [DisableAutoCreation]
-[AlwaysUpdateSystemAttribute]
-public class HandleProjectileSpawn : BaseComponentSystem
+public partial class HandleProjectileSpawn : BaseComponentSystem
 {
     readonly GameObject m_SystemRoot;
     readonly BundledResourceManager m_resourceSystem;
@@ -229,6 +251,7 @@ public class HandleProjectileSpawn : BaseComponentSystem
 
     private ClientProjectileFactory m_clientProjectileFactory;
     private List<Entity> addClientProjArray = new List<Entity>(32);
+    private EntityCommandBuffer ecb;
 
     public HandleProjectileSpawn(GameWorld world, GameObject systemRoot, BundledResourceManager resourceSystem, ClientProjectileFactory projectileFactory) : base(world)
     {
@@ -249,9 +272,13 @@ public class HandleProjectileSpawn : BaseComponentSystem
     
     protected override void OnUpdate()
     {
-
         if (!IncommingProjectileGroup.IsEmpty)
+        {
+            ecb = new EntityCommandBuffer(Allocator.TempJob);
             HandleIncommingProjectiles();
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
+        }
     }
     
     void HandleIncommingProjectiles()
@@ -313,16 +340,16 @@ public class HandleProjectileSpawn : BaseComponentSystem
                     var clientProjectile = 
                         EntityManager.GetComponentObject<ClientProjectile>(clientProjectileOwner.clientProjectile);
                     clientProjectile.projectile = inProjectileEntity;
-                    PostUpdateCommands.AddComponent(inProjectileEntity,clientProjectileOwner);
-                    PostUpdateCommands.AddComponent(inProjectileEntity, new UpdateProjectileFlag());
+                    ecb.AddComponent(inProjectileEntity,clientProjectileOwner);
+                    ecb.AddComponent(inProjectileEntity, new UpdateProjectileFlag());
                     
                     // Destroy predicted
                     if (ProjectileModuleClient.logInfo.IntValue > 0)
                         GameDebug.Log("ProjectileSystemClient. Destroying predicted:" + predictedProjectileEntity);
 
-                    PostUpdateCommands.RemoveComponent(predictedProjectileEntity,typeof(ClientProjectileOwner));
-                    PostUpdateCommands.RemoveComponent(predictedProjectileEntity,typeof(UpdateProjectileFlag));
-                    m_world.RequestDespawn(PostUpdateCommands, predictedProjectileEntity);
+                    ecb.RemoveComponent(predictedProjectileEntity,typeof(ClientProjectileOwner));
+                    ecb.RemoveComponent(predictedProjectileEntity,typeof(UpdateProjectileFlag));
+                    m_world.RequestDespawn(ecb, predictedProjectileEntity);
                     break;
                 }
             }
@@ -362,8 +389,7 @@ public class HandleProjectileSpawn : BaseComponentSystem
 
 
 [DisableAutoCreation]
-[AlwaysUpdateSystemAttribute]
-public class RemoveMispredictedProjectiles : BaseComponentSystem
+public partial class RemoveMispredictedProjectiles : BaseComponentSystem
 {
     EntityQuery PredictedProjectileGroup;
 
@@ -382,6 +408,7 @@ public class RemoveMispredictedProjectiles : BaseComponentSystem
         // Remove all predicted projectiles that should have been acknowledged by now
         var predictedProjectileArray = PredictedProjectileGroup.ToComponentDataArray<PredictedProjectile>(Allocator.TempJob);
         var predictedProjectileEntityArray = PredictedProjectileGroup.ToEntityArray(Allocator.TempJob);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         for (var i=0;i<predictedProjectileArray.Length;i++)
         {
             var predictedEntity = predictedProjectileArray[i];
@@ -390,7 +417,7 @@ public class RemoveMispredictedProjectiles : BaseComponentSystem
                 continue;
 
             var entity = predictedProjectileEntityArray[i]; 
-            PostUpdateCommands.AddComponent(entity, new DespawningEntity());
+            ecb.AddComponent(entity, new DespawningEntity());
             
 //            var gameObject = EntityManager.GetComponentObject<Transform>(predictedProjectileEntityArray[i]).gameObject;
 //            m_world.RequestDespawn(gameObject, PostUpdateCommands);
@@ -399,6 +426,8 @@ public class RemoveMispredictedProjectiles : BaseComponentSystem
                 GameDebug.Log(string.Format("<color=red>Predicted projectile {0} destroyed as it was not verified. startTick:{1}]</color>", entity, predictedEntity.startTick));
         }
 
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         predictedProjectileArray.Dispose();
         predictedProjectileEntityArray.Dispose();
     }
@@ -406,8 +435,7 @@ public class RemoveMispredictedProjectiles : BaseComponentSystem
 
 
 [DisableAutoCreation]
-[AlwaysUpdateSystemAttribute]
-public class DespawnClientProjectiles : BaseComponentSystem
+public partial class DespawnClientProjectiles : BaseComponentSystem
 {
     EntityQuery DespawningClientProjectileOwnerGroup;
     ClientProjectileFactory m_clientProjectileFactory;
@@ -433,6 +461,7 @@ public class DespawnClientProjectiles : BaseComponentSystem
 
         if (clientProjectileOwnerArray.Length > 0)
         {
+            var ecb = new EntityCommandBuffer(Allocator.TempJob);
             clientProjectiles.Clear();
             for(var i=0;i<clientProjectileOwnerArray.Length;i++)
             {
@@ -442,10 +471,12 @@ public class DespawnClientProjectiles : BaseComponentSystem
 
             for (var i = 0; i < clientProjectiles.Count; i++)
             {
-                m_clientProjectileFactory.DestroyClientProjectile(clientProjectiles[i], PostUpdateCommands);
+                m_clientProjectileFactory.DestroyClientProjectile(clientProjectiles[i], ecb);
                 if (ProjectileModuleClient.logInfo.IntValue > 0)
                     GameDebug.Log(string.Format("Projectile despawned so despawn of clientprojectile requested"));
             }
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
 
         clientProjectileOwnerArray.Dispose();

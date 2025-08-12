@@ -24,7 +24,7 @@ public class PresentationOwner : ComponentDataProxy<PresentationOwnerData>
 
 
 [DisableAutoCreation]
-public class UpdatePresentationOwners : BaseComponentSystem
+public partial class UpdatePresentationOwners : BaseComponentSystem
 {
     EntityQuery Group;
     readonly PresentationRegistry m_presentationRegistry;
@@ -111,7 +111,7 @@ public class UpdatePresentationOwners : BaseComponentSystem
 
 
 [DisableAutoCreation]
-public class HandlePresentationOwnerDesawn : DeinitializeComponentDataSystem<PresentationOwnerData>
+public partial class HandlePresentationOwnerDesawn : DeinitializeComponentDataSystem<PresentationOwnerData>
 {
     public HandlePresentationOwnerDesawn(GameWorld world) : base(world)
     {

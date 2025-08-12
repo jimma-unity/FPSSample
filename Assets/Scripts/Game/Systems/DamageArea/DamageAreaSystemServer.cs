@@ -5,7 +5,7 @@ using UnityEngine;
 using Unity.Entities;
 
 [DisableAutoCreation]
-public class DamageAreaSystemServer : ComponentSystem
+public partial class DamageAreaSystemServer : SystemBase
 {
     EntityQuery Group;
 

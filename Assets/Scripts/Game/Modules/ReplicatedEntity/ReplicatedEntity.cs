@@ -7,7 +7,7 @@ using Unity.Mathematics;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEditor.Experimental.SceneManagement;
+
 #endif
 
 
@@ -149,12 +149,14 @@ public class ReplicatedEntity : ComponentDataProxy<ReplicatedEntityData>
 
 
 [DisableAutoCreation]
-public class UpdateReplicatedOwnerFlag : BaseComponentSystem
+public partial class UpdateReplicatedOwnerFlag : BaseComponentSystem
 {
     EntityQuery RepEntityDataGroup;
 
     int m_localPlayerId;
     bool m_initialized;
+
+    private EntityCommandBuffer ecb;
     
     public UpdateReplicatedOwnerFlag(GameWorld world) : base(world)
     {}
@@ -175,6 +177,7 @@ public class UpdateReplicatedOwnerFlag : BaseComponentSystem
     {
         var entityArray = RepEntityDataGroup.ToEntityArray(Allocator.TempJob);
         var repEntityDataArray = RepEntityDataGroup.ToComponentDataArray<ReplicatedEntityData>(Allocator.TempJob);
+        ecb = new EntityCommandBuffer(Allocator.TempJob);
         for (int i = 0; i < entityArray.Length; i++)
         {
             var repDataEntity = repEntityDataArray[i];
@@ -182,6 +185,8 @@ public class UpdateReplicatedOwnerFlag : BaseComponentSystem
 
             SetFlagAndChildFlags(entityArray[i], locallyControlled);
         }
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         entityArray.Dispose();
         repEntityDataArray.Dispose();
     }
@@ -206,9 +211,9 @@ public class UpdateReplicatedOwnerFlag : BaseComponentSystem
         if (flagSet != set)
         {
             if (set)
-                PostUpdateCommands.AddComponent(entity, new ServerEntity());
+                ecb.AddComponent(entity, new ServerEntity());
             else
-                PostUpdateCommands.RemoveComponent<ServerEntity>(entity);
+                ecb.RemoveComponent<ServerEntity>(entity);
         }  
     }
 }

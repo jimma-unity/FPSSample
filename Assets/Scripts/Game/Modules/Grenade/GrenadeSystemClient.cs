@@ -4,7 +4,7 @@ using Unity.Entities;
 
 
 [DisableAutoCreation]
-public class ApplyGrenadePresentation : BaseComponentSystem
+public partial class ApplyGrenadePresentation : BaseComponentSystem
 {
     EntityQuery Group;   
     
@@ -49,7 +49,7 @@ public class ApplyGrenadePresentation : BaseComponentSystem
                 
                 if (grenadeClient.explodeEffect != null)
                 {
-                    World.GetExistingSystem<HandleSpatialEffectRequests>().Request(grenadeClient.explodeEffect, 
+                    World.GetExistingSystemManaged<HandleSpatialEffectRequests>().Request(grenadeClient.explodeEffect, 
                         interpolatedState.position,Quaternion.identity);
                 }
             }

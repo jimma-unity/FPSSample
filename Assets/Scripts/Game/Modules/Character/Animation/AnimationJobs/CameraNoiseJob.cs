@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 
 
-public struct CameraNoiseJob : UnityEngine.Animations.IAnimationJob
+public struct CameraNoiseJob : IAnimationJob
 {
     [Serializable]
     public struct JobSettings
@@ -35,8 +35,8 @@ public struct CameraNoiseJob : UnityEngine.Animations.IAnimationJob
         public JobSettings jobSettings;
     }
     
-    UnityEngine.Animations.TransformStreamHandle m_CameraHandle;
-    UnityEngine.Animations.TransformStreamHandle m_CharacterRoot;
+    TransformStreamHandle m_CameraHandle;
+    TransformStreamHandle m_CharacterRoot;
     
     float m_DollyPos;
     float m_PanPos;
@@ -54,7 +54,7 @@ public struct CameraNoiseJob : UnityEngine.Animations.IAnimationJob
         return true;
     }
 //    
-    public void Update(Vector3 target, JobSettings jobSettings, UnityEngine.Animations.AnimationScriptPlayable playable)
+    public void Update(Vector3 target, JobSettings jobSettings, AnimationScriptPlayable playable)
     {
         var job = playable.GetJobData<CameraNoiseJob>();
         job.target = target;
@@ -64,9 +64,9 @@ public struct CameraNoiseJob : UnityEngine.Animations.IAnimationJob
     
     public void Dispose() {}
 
-    public void ProcessRootMotion(UnityEngine.Animations.AnimationStream stream) { }
+    public void ProcessRootMotion(AnimationStream stream) { }
 
-    public void ProcessAnimation(UnityEngine.Animations.AnimationStream stream)
+    public void ProcessAnimation(AnimationStream stream)
     {
         var speedMult = 1f;
         
