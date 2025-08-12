@@ -4,7 +4,7 @@ using UnityEngine;
 
 [AlwaysUpdateSystem]
 [DisableAutoCreation]
-public class HandleHitscanEffectRequests : BaseComponentSystem 
+public partial class HandleHitscanEffectRequests : BaseComponentSystem 
 {
 	struct HitscanEffectReques 
 	{
@@ -36,7 +36,7 @@ public class HandleHitscanEffectRequests : BaseComponentSystem
 			
 			if(request.effectDef.effect != null)
 			{
-				var vfxSystem = World.GetExistingSystem<VFXSystem>();
+				var vfxSystem = World.GetExistingSystemManaged<VFXSystem>();
 				
 				vfxSystem.SpawnLineEffect(request.effectDef.effect, request.startPos, request.endPos);
 			}

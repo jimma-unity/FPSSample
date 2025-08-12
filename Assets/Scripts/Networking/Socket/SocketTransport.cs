@@ -4,6 +4,8 @@ using Unity.Collections;
 using UdpNetworkDriver = Unity.Networking.Transport.BasicNetworkDriver<Unity.Networking.Transport.IPv4UDPSocket>;
 using EventType = Unity.Networking.Transport.NetworkEvent.Type;
 using NetworkEvent = Unity.Networking.Transport.NetworkEvent;
+using DataStreamReader = Unity.Networking.Transport.DataStreamReader;
+using DataStreamWriter = Unity.Networking.Transport.DataStreamWriter;
 
 public class SocketTransport : INetworkTransport
 {

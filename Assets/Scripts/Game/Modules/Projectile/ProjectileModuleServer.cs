@@ -13,18 +13,18 @@ public class ProjectileModuleServer
     {
         m_GameWorld = gameWorld;
 
-        m_handleRequests = m_GameWorld.GetECSWorld().AddSystem(new HandleServerProjectileRequests(m_GameWorld, resourceSystem));
-        m_CreateMovementQueries =  m_GameWorld.GetECSWorld().AddSystem(new CreateProjectileMovementCollisionQueries(m_GameWorld));
-        m_HandleMovementQueries = m_GameWorld.GetECSWorld().AddSystem(new HandleProjectileMovementCollisionQuery(m_GameWorld));
-        m_DespawnProjectiles = m_GameWorld.GetECSWorld().AddSystem(new DespawnProjectiles(m_GameWorld));
+        m_handleRequests = m_GameWorld.GetECSWorld().AddSystemManaged(new HandleServerProjectileRequests(m_GameWorld, resourceSystem));
+        m_CreateMovementQueries =  m_GameWorld.GetECSWorld().AddSystemManaged(new CreateProjectileMovementCollisionQueries(m_GameWorld));
+        m_HandleMovementQueries = m_GameWorld.GetECSWorld().AddSystemManaged(new HandleProjectileMovementCollisionQuery(m_GameWorld));
+        m_DespawnProjectiles = m_GameWorld.GetECSWorld().AddSystemManaged(new DespawnProjectiles(m_GameWorld));
     }
 
     public void Shutdown()
     {
-        m_GameWorld.GetECSWorld().DestroySystem(m_handleRequests);
-        m_GameWorld.GetECSWorld().DestroySystem(m_CreateMovementQueries);
-        m_GameWorld.GetECSWorld().DestroySystem(m_HandleMovementQueries);
-        m_GameWorld.GetECSWorld().DestroySystem(m_DespawnProjectiles);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_handleRequests);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_CreateMovementQueries);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_HandleMovementQueries);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_DespawnProjectiles);
     }
 
     public void HandleRequests()

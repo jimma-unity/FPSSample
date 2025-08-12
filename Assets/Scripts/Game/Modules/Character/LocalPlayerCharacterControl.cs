@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 using UnityEditor;
@@ -33,7 +34,7 @@ public class LocalPlayerCharacterControl : MonoBehaviour
 
 
 [DisableAutoCreation]
-public class UpdateCharacter1PSpawn : BaseComponentSystem  
+public partial class UpdateCharacter1PSpawn : BaseComponentSystem  
 {   
     EntityQuery Group;
     
@@ -75,7 +76,7 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
 
         if (charControlBuffer.Count > 0)
         {
-
+            var ecb = new EntityCommandBuffer(Allocator.TempJob);
             for (var i = 0; i < charControlBuffer.Count; i++)
             {
                 var charCtrl = charControlBuffer[i];
@@ -84,7 +85,7 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
                 // Despawn all previous presentation
                 foreach (var charPresentation in charCtrl.firstPerson.presentations)
                 {
-                    m_world.RequestDespawn(charPresentation.gameObject, PostUpdateCommands);
+                    m_world.RequestDespawn(charPresentation.gameObject, ecb);
                 }
                 charCtrl.firstPerson.presentations.Clear();
                 charCtrl.firstPerson.char1P = Entity.Null;
@@ -128,6 +129,8 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
                     }
                 }
             }
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
     }
 
@@ -138,7 +141,7 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
 
 
 [DisableAutoCreation]
-public class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,LocalPlayerCharacterControl,PlayerCameraSettings>
+public partial class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,LocalPlayerCharacterControl,PlayerCameraSettings>
 {
     private const float k_default3PDisst = 2.5f;
     private float camDist3P = k_default3PDisst; 

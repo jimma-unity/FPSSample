@@ -81,7 +81,7 @@ public class CharacterEvents : MonoBehaviour
 
 
 [DisableAutoCreation]
-public class HandleCharacterEvents : ComponentSystem
+public partial class HandleCharacterEvents : SystemBase
 {
 	EntityQuery Group;
 
@@ -114,12 +114,12 @@ public class HandleCharacterEvents : ComponentSystem
 
 			if (charEvents.onFootDown)
 			{
-				if (Time.ElapsedTime > charEvents.lastFootstepTime + charEvents.minFootstepInterval)
+				if (SystemAPI.Time.ElapsedTime > charEvents.lastFootstepTime + charEvents.minFootstepInterval)
 				{
 					var sound = charEvents.nextFootLeft ? charEvents.footstepLeft : charEvents.footstepRight;
 					Game.SoundSystem.Play(sound, charEvents.transform);
 					charEvents.nextFootLeft = !charEvents.nextFootLeft;
-					charEvents.lastFootstepTime = (float)Time.ElapsedTime;
+					charEvents.lastFootstepTime = (float)SystemAPI.Time.ElapsedTime;
 				}
 
 				charEvents.onFootDown = false;

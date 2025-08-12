@@ -1,11 +1,14 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using UnityEngine;
 
 
 [DisableAutoCreation]
-public class HandleReplicatedEntityDataSpawn : InitializeComponentDataSystem<ReplicatedEntityData,HandleReplicatedEntityDataSpawn.Initialized>
+public partial class HandleReplicatedEntityDataSpawn : InitializeComponentDataSystem<ReplicatedEntityData,HandleReplicatedEntityDataSpawn.Initialized>
 {
     public struct Initialized : IComponentData{}
+
+    private EntityCommandBuffer ecb;
     
     public HandleReplicatedEntityDataSpawn(GameWorld world, NetworkServer network,
         ReplicatedEntityRegistry assetRegistry, ReplicatedEntityCollection entityCollection) : base(world)
@@ -13,6 +16,14 @@ public class HandleReplicatedEntityDataSpawn : InitializeComponentDataSystem<Rep
         m_assetRegistry = assetRegistry;
         m_entityCollection = entityCollection;
         m_network = network;
+    }
+    
+    protected override void OnUpdate()
+    {
+        ecb = new EntityCommandBuffer(Allocator.TempJob);
+        base.OnUpdate();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 
     protected override void Initialize(Entity entity, ReplicatedEntityData spawned)
@@ -22,7 +33,7 @@ public class HandleReplicatedEntityDataSpawn : InitializeComponentDataSystem<Rep
 
         m_entityCollection.Register(EntityManager, spawned.id, entity);
 
-        PostUpdateCommands.SetComponent(entity, spawned);
+        ecb.SetComponent(entity, spawned);
 
         if(ReplicatedEntityModuleServer.m_showInfo.IntValue > 0)
             GameDebug.Log("HandleReplicatedEntityDataDespawn.Initialize entity:" + entity + " type:" + typeId + " id:" + spawned.id);
@@ -34,7 +45,7 @@ public class HandleReplicatedEntityDataSpawn : InitializeComponentDataSystem<Rep
 }
 
 [DisableAutoCreation]
-public class HandleReplicatedEntityDataDespawn : DeinitializeComponentDataSystem<ReplicatedEntityData>
+public partial class HandleReplicatedEntityDataDespawn : DeinitializeComponentDataSystem<ReplicatedEntityData>
 {
     public HandleReplicatedEntityDataDespawn(GameWorld world, NetworkServer network,
         ReplicatedEntityCollection entityCollection) : base(world)
@@ -72,14 +83,14 @@ public class ReplicatedEntityModuleServer
             m_SystemRoot.transform.SetParent(world.SceneRoot.transform);
         }
         
-        m_handleDataSpawn = m_world.GetECSWorld().AddSystem(new HandleReplicatedEntityDataSpawn(m_world, network,
+        m_handleDataSpawn = m_world.GetECSWorld().AddSystemManaged(new HandleReplicatedEntityDataSpawn(m_world, network,
             m_assetRegistry, m_entityCollection));
 
-        m_handleDataDespawn = m_world.GetECSWorld().AddSystem(new HandleReplicatedEntityDataDespawn(m_world, network,
+        m_handleDataDespawn = m_world.GetECSWorld().AddSystemManaged(new HandleReplicatedEntityDataDespawn(m_world, network,
             m_entityCollection));
         
         
-        m_UpdateReplicatedOwnerFlag = m_world.GetECSWorld().AddSystem(new UpdateReplicatedOwnerFlag(m_world));
+        m_UpdateReplicatedOwnerFlag = m_world.GetECSWorld().AddSystemManaged(new UpdateReplicatedOwnerFlag(m_world));
         m_UpdateReplicatedOwnerFlag.SetLocalPlayerId(-1);
         
         // Load all replicated entity resources
@@ -88,11 +99,11 @@ public class ReplicatedEntityModuleServer
     
     public void Shutdown()
     {
-        m_world.GetECSWorld().DestroySystem(m_handleDataSpawn);
+        m_world.GetECSWorld().DestroySystemManaged(m_handleDataSpawn);
         
-        m_world.GetECSWorld().DestroySystem(m_handleDataDespawn);
+        m_world.GetECSWorld().DestroySystemManaged(m_handleDataDespawn);
         
-        m_world.GetECSWorld().DestroySystem(m_UpdateReplicatedOwnerFlag);
+        m_world.GetECSWorld().DestroySystemManaged(m_UpdateReplicatedOwnerFlag);
             
         if(m_SystemRoot != null)
             GameObject.Destroy(m_SystemRoot);

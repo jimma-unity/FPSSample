@@ -44,7 +44,7 @@ public struct SplashDamageRequest: IComponentData
 }
 
 [DisableAutoCreation]
-public class HandleSplashDamageRequests : BaseComponentSystem
+public partial class HandleSplashDamageRequests : BaseComponentSystem
 {
 	EntityQuery RequestGroup;   
 	EntityQuery ColliderGroup;
@@ -85,7 +85,8 @@ public class HandleSplashDamageRequests : BaseComponentSystem
 		var entityArray = new NativeArray<Entity>(hitCollisionEntityArray.Length,Allocator.TempJob);
 		var boundsArray = new NativeArray<sphere>[requstCount];
 		var broadPhaseResultArray = new NativeList<Entity>[requstCount];
-		var broadPhaseHandleArray = new NativeArray<JobHandle>(requstCount, Allocator.Temp);
+		var broadPhaseHandleArray = new NativeArray<JobHandle>(requstCount, Allocator.TempJob);
+		var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
 		// TODO (mogensh) find faster/easier way to copy entityarray to native
 		for (int i = 0; i < hitCollisionEntityArray.Length; i++)
@@ -167,9 +168,11 @@ public class HandleSplashDamageRequests : BaseComponentSystem
 			}
 
 
-			PostUpdateCommands.DestroyEntity(requestEntityArray[i]);
+			ecb.DestroyEntity(requestEntityArray[i]);
 		}
 		
+		ecb.Playback(EntityManager);
+		ecb.Dispose();
 		broadPhaseHandleArray.Dispose();
 		entityArray.Dispose();
 		for (var i = 0; i < requstCount; i++)

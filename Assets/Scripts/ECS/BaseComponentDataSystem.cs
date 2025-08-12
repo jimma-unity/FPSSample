@@ -5,7 +5,7 @@ using Unity.Entities;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-public abstract class BaseComponentSystem : ComponentSystem
+public abstract partial class BaseComponentSystem : SystemBase
 {
     protected BaseComponentSystem(GameWorld world)
     {
@@ -15,7 +15,7 @@ public abstract class BaseComponentSystem : ComponentSystem
     readonly protected GameWorld m_world;
 }
 
- public abstract class BaseComponentSystem<T1> : BaseComponentSystem
+ public abstract partial class BaseComponentSystem<T1> : BaseComponentSystem
  	where T1 : MonoBehaviour
  {
  	EntityQuery Group;
@@ -57,7 +57,7 @@ public abstract class BaseComponentSystem : ComponentSystem
  }
 
 
-public abstract class BaseComponentSystem<T1,T2> : BaseComponentSystem
+public abstract partial class BaseComponentSystem<T1,T2> : BaseComponentSystem
 	where T1 : MonoBehaviour
 	where T2 : MonoBehaviour
 {
@@ -100,7 +100,7 @@ public abstract class BaseComponentSystem<T1,T2> : BaseComponentSystem
 }
 
 
-public abstract class BaseComponentSystem<T1,T2,T3> : BaseComponentSystem
+public abstract partial class BaseComponentSystem<T1,T2,T3> : BaseComponentSystem
 	where T1 : MonoBehaviour
 	where T2 : MonoBehaviour
 	where T3 : MonoBehaviour
@@ -144,8 +144,8 @@ public abstract class BaseComponentSystem<T1,T2,T3> : BaseComponentSystem
 	protected abstract void Update(Entity entity,T1 data1,T2 data2,T3 data3);
 }
 
-public abstract class BaseComponentDataSystem<T1> : BaseComponentSystem
-	where T1 : struct,IComponentData
+public abstract partial class BaseComponentDataSystem<T1> : BaseComponentSystem
+	where T1 : unmanaged,IComponentData
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
@@ -169,7 +169,7 @@ public abstract class BaseComponentDataSystem<T1> : BaseComponentSystem
 	{
 		Profiler.BeginSample(name);
 		
-		var chunks = Group.CreateArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+		var chunks = Group.ToArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
 
@@ -192,9 +192,9 @@ public abstract class BaseComponentDataSystem<T1> : BaseComponentSystem
 	protected abstract void Update(Entity entity,T1 data);
 }
 
-public abstract class BaseComponentDataSystem<T1,T2> : BaseComponentSystem
-	where T1 : struct,IComponentData
-	where T2 : struct,IComponentData
+public abstract partial class BaseComponentDataSystem<T1,T2> : BaseComponentSystem
+	where T1 : unmanaged,IComponentData
+	where T2 : unmanaged,IComponentData
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
@@ -218,7 +218,7 @@ public abstract class BaseComponentDataSystem<T1,T2> : BaseComponentSystem
 	{
 		Profiler.BeginSample(name);
 
-		var chunks = Group.CreateArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+		var chunks = Group.ToArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
 		var type2 = GetComponentTypeHandle<T2>(true);
@@ -244,10 +244,10 @@ public abstract class BaseComponentDataSystem<T1,T2> : BaseComponentSystem
 	protected abstract void Update(Entity entity,T1 data1,T2 data2);
 }
 
-public abstract class BaseComponentDataSystem<T1,T2,T3> : BaseComponentSystem
-	where T1 : struct,IComponentData
-	where T2 : struct,IComponentData
-	where T3 : struct,IComponentData
+public abstract partial class BaseComponentDataSystem<T1,T2,T3> : BaseComponentSystem
+	where T1 : unmanaged,IComponentData
+	where T2 : unmanaged,IComponentData
+	where T3 : unmanaged,IComponentData
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
@@ -271,7 +271,7 @@ public abstract class BaseComponentDataSystem<T1,T2,T3> : BaseComponentSystem
 	{
 		Profiler.BeginSample(name);
 
-		var chunks = Group.CreateArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+		var chunks = Group.ToArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
 		var type2 = GetComponentTypeHandle<T2>(true);
@@ -300,11 +300,11 @@ public abstract class BaseComponentDataSystem<T1,T2,T3> : BaseComponentSystem
 }
 
 
-public abstract class BaseComponentDataSystem<T1,T2,T3,T4> : BaseComponentSystem
-	where T1 : struct,IComponentData
-	where T2 : struct,IComponentData
-	where T3 : struct,IComponentData
-	where T4 : struct,IComponentData
+public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4> : BaseComponentSystem
+	where T1 : unmanaged,IComponentData
+	where T2 : unmanaged,IComponentData
+	where T3 : unmanaged,IComponentData
+	where T4 : unmanaged,IComponentData
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
@@ -328,7 +328,7 @@ public abstract class BaseComponentDataSystem<T1,T2,T3,T4> : BaseComponentSystem
 	{
 		Profiler.BeginSample(name);
 
-		var chunks = Group.CreateArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+		var chunks = Group.ToArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
 		var type2 = GetComponentTypeHandle<T2>(true);
@@ -358,12 +358,12 @@ public abstract class BaseComponentDataSystem<T1,T2,T3,T4> : BaseComponentSystem
 	protected abstract void Update(Entity entity,T1 data1,T2 data2,T3 data3,T4 data4);
 }
 
-public abstract class BaseComponentDataSystem<T1,T2,T3,T4, T5> : BaseComponentSystem
-	where T1 : struct,IComponentData
-	where T2 : struct,IComponentData
-	where T3 : struct,IComponentData
-	where T4 : struct,IComponentData
-	where T5 : struct,IComponentData
+public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4,T5> : BaseComponentSystem
+	where T1 : unmanaged,IComponentData
+	where T2 : unmanaged,IComponentData
+	where T3 : unmanaged,IComponentData
+	where T4 : unmanaged,IComponentData
+	where T5 : unmanaged,IComponentData
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
@@ -387,7 +387,7 @@ public abstract class BaseComponentDataSystem<T1,T2,T3,T4, T5> : BaseComponentSy
 	{
 		Profiler.BeginSample(name);
 
-		var chunks = Group.CreateArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+		var chunks = Group.ToArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
 		var type2 = GetComponentTypeHandle<T2>(true);
@@ -419,8 +419,7 @@ public abstract class BaseComponentDataSystem<T1,T2,T3,T4, T5> : BaseComponentSy
 	protected abstract void Update(Entity entity,T1 data1,T2 data2,T3 data3,T4 data4, T5 data5);
 }
 
-[AlwaysUpdateSystem]
-public abstract class InitializeComponentSystem<T> : BaseComponentSystem
+public abstract partial class InitializeComponentSystem<T> : BaseComponentSystem
 	where T : MonoBehaviour
 {
 	public struct SystemState : IComponentData {}
@@ -441,18 +440,21 @@ public abstract class InitializeComponentSystem<T> : BaseComponentSystem
 		Profiler.BeginSample(name);
 
 		var incomingEntityArray = IncomingGroup.ToEntityArray(Allocator.TempJob);
+		var ecb = new EntityCommandBuffer(Allocator.TempJob);
 		if (incomingEntityArray.Length > 0)
 		{
 			var incomingComponentArray = IncomingGroup.ToComponentArray<T>();
 			for (var i = 0; i < incomingComponentArray.Length; i++)
 			{
 				var entity = incomingEntityArray[i];
-				PostUpdateCommands.AddComponent(entity,new SystemState());
+				ecb.AddComponent(entity,new SystemState());
 
 				Initialize(entity, incomingComponentArray[i]);
 			}
 		}
 		
+		ecb.Playback(EntityManager);
+		ecb.Dispose();
 		incomingEntityArray.Dispose();
 		Profiler.EndSample();
 	}
@@ -460,11 +462,9 @@ public abstract class InitializeComponentSystem<T> : BaseComponentSystem
 	protected abstract void Initialize(Entity entity, T component);
 }
 
-
-[AlwaysUpdateSystem]
-public abstract class InitializeComponentDataSystem<T,K> : BaseComponentSystem
-	where T : struct, IComponentData
-	where K : struct, IComponentData
+public abstract partial class InitializeComponentDataSystem<T,K> : BaseComponentSystem
+	where T : unmanaged, IComponentData
+	where K : unmanaged, IComponentData
 {
 	
 	EntityQuery IncomingGroup;
@@ -484,18 +484,21 @@ public abstract class InitializeComponentDataSystem<T,K> : BaseComponentSystem
 		Profiler.BeginSample(name);
 
 		var incomingEntityArray = IncomingGroup.ToEntityArray(Allocator.TempJob);
+		var ecb = new EntityCommandBuffer(Allocator.TempJob);
 		if (incomingEntityArray.Length > 0)
 		{
 			var incomingComponentDataArray = IncomingGroup.ToComponentDataArray<T>(Allocator.TempJob);
 			for (var i = 0; i < incomingComponentDataArray.Length; i++)
 			{
 				var entity = incomingEntityArray[i];
-				PostUpdateCommands.AddComponent(entity,new K());
+				ecb.AddComponent(entity,new K());
 
 				Initialize(entity, incomingComponentDataArray[i]);
 			}
 			incomingComponentDataArray.Dispose();
 		}
+		ecb.Playback(EntityManager);
+		ecb.Dispose();
 		incomingEntityArray.Dispose();
 		Profiler.EndSample();
 	}
@@ -505,8 +508,7 @@ public abstract class InitializeComponentDataSystem<T,K> : BaseComponentSystem
 
 
 
-[AlwaysUpdateSystem]
-public abstract class DeinitializeComponentSystem<T> : BaseComponentSystem
+public abstract partial class DeinitializeComponentSystem<T> : BaseComponentSystem
 	where T : MonoBehaviour
 {
 	EntityQuery OutgoingGroup;
@@ -539,9 +541,8 @@ public abstract class DeinitializeComponentSystem<T> : BaseComponentSystem
 }
 
 
-[AlwaysUpdateSystem]
-public abstract class DeinitializeComponentDataSystem<T> : BaseComponentSystem
-	where T : struct, IComponentData
+public abstract partial class DeinitializeComponentDataSystem<T> : BaseComponentSystem
+	where T : unmanaged, IComponentData
 {
 	EntityQuery OutgoingGroup;
 	string name;
@@ -574,10 +575,9 @@ public abstract class DeinitializeComponentDataSystem<T> : BaseComponentSystem
 	protected abstract void Deinitialize(Entity entity, T component);
 }
 
-[AlwaysUpdateSystem]
-public abstract class InitializeComponentGroupSystem<T,S> : BaseComponentSystem
+public abstract partial class InitializeComponentGroupSystem<T,S> : BaseComponentSystem
 	where T : MonoBehaviour
-	where S : struct, IComponentData
+	where S : unmanaged, IComponentData
 {
 	EntityQuery IncomingGroup;
 	string name;
@@ -596,16 +596,19 @@ public abstract class InitializeComponentGroupSystem<T,S> : BaseComponentSystem
 		Profiler.BeginSample(name);
 
 		var incomingEntityArray = IncomingGroup.ToEntityArray(Allocator.TempJob);
+		var ecb = new EntityCommandBuffer(Allocator.TempJob);
 		if (incomingEntityArray.Length > 0)
 		{
 			for (var i = 0; i < incomingEntityArray.Length; i++)
 			{
 				var entity = incomingEntityArray[i];
-				PostUpdateCommands.AddComponent(entity,new S());
+				ecb.AddComponent(entity, new S());
 			}
 			Initialize(ref IncomingGroup);
 		}
 		incomingEntityArray.Dispose();
+		ecb.Playback(EntityManager);
+		ecb.Dispose();
 		Profiler.EndSample();
 	}
 
@@ -614,8 +617,7 @@ public abstract class InitializeComponentGroupSystem<T,S> : BaseComponentSystem
 
 
 
-[AlwaysUpdateSystem]
-public abstract class DeinitializeComponentGroupSystem<T> : BaseComponentSystem
+public abstract partial class DeinitializeComponentGroupSystem<T> : BaseComponentSystem
 	where T : MonoBehaviour
 {
 	EntityQuery OutgoingGroup;

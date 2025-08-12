@@ -31,7 +31,7 @@ public class DestructibleProp : MonoBehaviour
 }
 
 [DisableAutoCreation]
-public class UpdateDestructableProps : BaseComponentSystem
+public partial class UpdateDestructableProps : BaseComponentSystem
 {
 	EntityQuery Group;
 	
@@ -50,6 +50,7 @@ public class UpdateDestructableProps : BaseComponentSystem
 		var hitCollArray = Group.ToComponentDataArray<HitCollisionOwnerData>(Allocator.TempJob);
 		var propArray = Group.ToComponentArray<DestructibleProp>();
 		var replicatedDataArray = Group.ToComponentDataArray<DestructablePropReplicatedData>(Allocator.TempJob);
+		var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
 		for (int i = 0; i < entityArray.Length; i++)
 		{
@@ -104,7 +105,7 @@ public class UpdateDestructableProps : BaseComponentSystem
 					}
 
 					var splashCenter = prop.transform.position + prop.splashDamageOffset;
-					SplashDamageRequest.Create(PostUpdateCommands, m_world.worldTime.tick, instigator, splashCenter,
+					SplashDamageRequest.Create(ecb, m_world.worldTime.tick, instigator, splashCenter,
 						collisionMask, prop.splashDamage);
 				}
 				
@@ -112,6 +113,8 @@ public class UpdateDestructableProps : BaseComponentSystem
 			}
 		}
 
+		ecb.Playback(EntityManager);
+		ecb.Dispose();
 		entityArray.Dispose();
 		hitCollArray.Dispose();
 		replicatedDataArray.Dispose();

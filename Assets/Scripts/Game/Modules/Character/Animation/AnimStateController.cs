@@ -91,7 +91,7 @@ public class AnimStateController : MonoBehaviour
 }
 
 [DisableAutoCreation]
-public class HandleAnimStateCtrlSpawn : InitializeComponentSystem<AnimStateController>
+public partial class HandleAnimStateCtrlSpawn : InitializeComponentSystem<AnimStateController>
 {
     public HandleAnimStateCtrlSpawn(GameWorld world)
         : base(world) { }
@@ -106,7 +106,7 @@ public class HandleAnimStateCtrlSpawn : InitializeComponentSystem<AnimStateContr
 }
 
 [DisableAutoCreation]
-public class HandleAnimStateCtrlDespawn : DeinitializeComponentSystem<AnimStateController>
+public partial class HandleAnimStateCtrlDespawn : DeinitializeComponentSystem<AnimStateController>
 {
     public HandleAnimStateCtrlDespawn(GameWorld world)
         : base(world) { }

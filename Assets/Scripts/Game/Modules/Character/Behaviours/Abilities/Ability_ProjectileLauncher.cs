@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -99,7 +100,7 @@ public class Ability_ProjectileLauncher : CharBehaviorFactory
 }
                   
 [DisableAutoCreation]
-class ProjectileLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
+partial class ProjectileLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
     Ability_ProjectileLauncher.PredictedState,Ability_ProjectileLauncher.Settings>
 {
     public ProjectileLauncher_RequestActive(GameWorld world) : base(world)
@@ -123,12 +124,22 @@ class ProjectileLauncher_RequestActive : BaseComponentDataSystem<CharBehaviour,A
 
 
 [DisableAutoCreation]
-class ProjectileLauncher_Update : BaseComponentDataSystem<AbilityControl,Ability_ProjectileLauncher.PredictedState,
+partial class ProjectileLauncher_Update : BaseComponentDataSystem<AbilityControl,Ability_ProjectileLauncher.PredictedState,
     Ability_ProjectileLauncher.Settings>
 {
+    private EntityCommandBuffer ecb;
+    
     public ProjectileLauncher_Update(GameWorld world) : base(world)
     {
         ExtraComponentRequirements = new ComponentType[] { typeof(ServerEntity) } ;
+    }
+    
+    protected override void OnUpdate()
+    {
+        ecb = new EntityCommandBuffer(Allocator.TempJob);
+        base.OnUpdate();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 
     protected override void Update(Entity entity, AbilityControl abilityCtrl, Ability_ProjectileLauncher.PredictedState predictedState, Ability_ProjectileLauncher.Settings state)
@@ -162,7 +173,7 @@ class ProjectileLauncher_Update : BaseComponentDataSystem<AbilityControl,Ability
                             .command;
                         
                         var endPos = eyePos + command.lookDir * state.projectileRange;
-                        ProjectileRequest.Create(PostUpdateCommands, time.tick, time.tick - command.renderTick,
+                        ProjectileRequest.Create(ecb, time.tick, time.tick - command.renderTick,
                             state.projectileAssetGuid, charAbility.character, character.teamId, eyePos, endPos);
 
                         interpolatedState.fireTick = time.tick;

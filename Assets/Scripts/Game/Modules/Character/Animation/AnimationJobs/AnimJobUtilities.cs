@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
-
+using UnityEngine.Animations;
 
 public static class AnimJobUtilities
 {
   public static void SolveTwoBoneIK 
   (
-        UnityEngine.Animations.AnimationStream stream,
-        UnityEngine.Animations.TransformStreamHandle topHandle,
-        UnityEngine.Animations.TransformStreamHandle midHandle,
-        UnityEngine.Animations.TransformStreamHandle lowHandle,
+        AnimationStream stream,
+        TransformStreamHandle topHandle,
+        TransformStreamHandle midHandle,
+        TransformStreamHandle lowHandle,
         Vector3 effectorPosition,
         Quaternion effectorRotation,
         float posWeight,

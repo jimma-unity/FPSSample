@@ -8,7 +8,7 @@ using Unity.Mathematics;
 
 
 [DisableAutoCreation]
-public class HandleTranslateScaleSpawns : InitializeComponentGroupSystem<TranslateScale, HandleTranslateScaleSpawns.Initialized>
+public partial class HandleTranslateScaleSpawns : InitializeComponentGroupSystem<TranslateScale, HandleTranslateScaleSpawns.Initialized>
 {
     EntityQuery Group;
 
@@ -31,7 +31,7 @@ public class HandleTranslateScaleSpawns : InitializeComponentGroupSystem<Transla
 }
 
 [DisableAutoCreation]
-public class HandleTranslateScaleDespawns : DeinitializeComponentGroupSystem<TranslateScale>
+public partial class HandleTranslateScaleDespawns : DeinitializeComponentGroupSystem<TranslateScale>
 {
     EntityQuery Group;
 
@@ -57,8 +57,8 @@ public class TranslateScaleSystem
 {
     public TranslateScaleSystem(GameWorld world)
     {
-        m_HandleTranslateScaleSpawns = world.GetECSWorld().AddSystem(new HandleTranslateScaleSpawns(world));
-        m_HandleTranslateScaleDespawns = world.GetECSWorld().AddSystem(new HandleTranslateScaleDespawns(world));
+        m_HandleTranslateScaleSpawns = world.GetECSWorld().AddSystemManaged(new HandleTranslateScaleSpawns(world));
+        m_HandleTranslateScaleDespawns = world.GetECSWorld().AddSystemManaged(new HandleTranslateScaleDespawns(world));
         m_World = world;
 
         s_SourceJoints = new TransformAccessArray(k_MaxDrivers, 1);
@@ -74,8 +74,8 @@ public class TranslateScaleSystem
         s_SourceJoints.Dispose();
         s_DrivenJoints.Dispose();
         s_TargetData.Dispose();
-        m_World.GetECSWorld().DestroySystem(m_HandleTranslateScaleSpawns);
-        m_World.GetECSWorld().DestroySystem(m_HandleTranslateScaleDespawns);
+        m_World.GetECSWorld().DestroySystemManaged(m_HandleTranslateScaleSpawns);
+        m_World.GetECSWorld().DestroySystemManaged(m_HandleTranslateScaleDespawns);
     }
 
     public void HandleSpawning()

@@ -5,7 +5,7 @@ using Unity.Entities;
 using UnityEngine.Profiling;
 
 [DisableAutoCreation]
-public class HandleServerProjectileRequests : BaseComponentSystem
+public partial class HandleServerProjectileRequests : BaseComponentSystem
 {
 	EntityQuery Group;
 
@@ -32,13 +32,14 @@ public class HandleServerProjectileRequests : BaseComponentSystem
 	{
 		var entityArray = Group.ToEntityArray(Allocator.TempJob);
 		var requestArray = Group.ToComponentDataArray<ProjectileRequest>(Allocator.TempJob);
+		var ecb = new EntityCommandBuffer(Allocator.TempJob);
 		
 		// Copy requests as spawning will invalidate Group 
 		var requests = new ProjectileRequest[requestArray.Length];
 		for (var i = 0; i < requestArray.Length; i++)
 		{
 			requests[i] = requestArray[i];
-			PostUpdateCommands.DestroyEntity(entityArray[i]);
+			ecb.DestroyEntity(entityArray[i]);
 		}
 
 		// Handle requests
@@ -58,10 +59,12 @@ public class HandleServerProjectileRequests : BaseComponentSystem
 			projectileData.SetupFromRequest(request, registryIndex);
 			projectileData.Initialize(projectileRegistry);
 			
-			PostUpdateCommands.SetComponent(projectileEntity, projectileData);
-			PostUpdateCommands.AddComponent(projectileEntity, new UpdateProjectileFlag());
+			ecb.SetComponent(projectileEntity, projectileData);
+			ecb.AddComponent(projectileEntity, new UpdateProjectileFlag());
 		}
 
+		ecb.Playback(EntityManager);
+		ecb.Dispose();
 		entityArray.Dispose();
 		requestArray.Dispose();
 	}

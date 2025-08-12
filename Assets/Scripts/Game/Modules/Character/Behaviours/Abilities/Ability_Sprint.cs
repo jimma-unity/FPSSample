@@ -68,7 +68,7 @@ public class Ability_Sprint : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class Sprint_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
+partial class Sprint_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
 	Ability_Sprint.PredictedState,Ability_Sprint.Settings>
 {
 	public Sprint_RequestActive(GameWorld world) : base(world)
@@ -91,7 +91,7 @@ class Sprint_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityContro
 
 
 [DisableAutoCreation]
-class Sprint_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, Ability_Sprint.PredictedState, Ability_Sprint.Settings>
+partial class Sprint_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, Ability_Sprint.PredictedState, Ability_Sprint.Settings>
 {
 	public Sprint_Update(GameWorld world) : base(world)
 	{

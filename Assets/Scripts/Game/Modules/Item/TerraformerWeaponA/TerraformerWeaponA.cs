@@ -51,11 +51,10 @@ public class TerraformerWeaponA : MonoBehaviour
 
 // System
 [DisableAutoCreation]
-public class UpdateTerraformerWeaponA : BaseComponentSystem<CharacterPresentationSetup,TerraformerWeaponA>
+public partial class UpdateTerraformerWeaponA : BaseComponentSystem<CharacterPresentationSetup,TerraformerWeaponA>
 {
     public UpdateTerraformerWeaponA(GameWorld world) : base(world)
     {
-        //ExtraComponentRequirements = new[] {ComponentType.Exclude<DespawningEntity>(),};
     }
     
     protected override void Update(Entity entity, CharacterPresentationSetup charPresentation, TerraformerWeaponA weapon)
@@ -88,7 +87,7 @@ public class UpdateTerraformerWeaponA : BaseComponentSystem<CharacterPresentatio
 
             if (weapon.hitscanEffect != null)
             {
-                World.GetExistingSystem<HandleHitscanEffectRequests>().Request(weapon.hitscanEffect, 
+                World.GetExistingSystemManaged<HandleHitscanEffectRequests>().Request(weapon.hitscanEffect, 
                     weapon.muzzle.position, autoRifleInterpolatedState.fireEndPos);
             }
 
@@ -97,12 +96,12 @@ public class UpdateTerraformerWeaponA : BaseComponentSystem<CharacterPresentatio
                 var rotation = Quaternion.LookRotation(autoRifleInterpolatedState.impactNormal);
                 if (autoRifleInterpolatedState.impactType == Ability_AutoRifle.ImpactType.Character)
                 {
-                    World.GetExistingSystem<HandleSpatialEffectRequests>().Request(weapon.characterImpactEffect, 
+                    World.GetExistingSystemManaged<HandleSpatialEffectRequests>().Request(weapon.characterImpactEffect, 
                         autoRifleInterpolatedState.fireEndPos, rotation);
                 }
                 else
                 {
-                    World.GetExistingSystem<HandleSpatialEffectRequests>().Request(weapon.environmentImpactEffect, 
+                    World.GetExistingSystemManaged<HandleSpatialEffectRequests>().Request(weapon.environmentImpactEffect, 
                         autoRifleInterpolatedState.fireEndPos, rotation);
                 }
             }
@@ -200,7 +199,7 @@ public class UpdateTerraformerWeaponA : BaseComponentSystem<CharacterPresentatio
 
 
 [DisableAutoCreation]
-public class TerraformerWeaponClientProjectileSpawnHandler : InitializeComponentGroupSystem<ClientProjectile, TerraformerWeaponClientProjectileSpawnHandler.Initialized>
+public partial class TerraformerWeaponClientProjectileSpawnHandler : InitializeComponentGroupSystem<ClientProjectile, TerraformerWeaponClientProjectileSpawnHandler.Initialized>
 {
     public struct Initialized : IComponentData {}
     

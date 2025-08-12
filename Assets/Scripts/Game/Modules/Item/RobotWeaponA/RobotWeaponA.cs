@@ -43,11 +43,10 @@ public class RobotWeaponA : MonoBehaviour
 
 // System
 [DisableAutoCreation]
-public class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA,CharacterPresentationSetup>
+public partial class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA,CharacterPresentationSetup>
 {
     public System_RobotWeaponA(GameWorld world) : base(world)
     {
-        //ExtraComponentRequirements = new[] {ComponentType.Exclude<DespawningEntity>()};
     }
     
     protected override void Update(Entity entity, RobotWeaponA weapon, CharacterPresentationSetup charPresentation)
@@ -145,7 +144,7 @@ public class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA,CharacterPre
 
 
 [DisableAutoCreation]
-public class RobotWeaponClientProjectileSpawnHandler : InitializeComponentGroupSystem<ClientProjectile,RobotWeaponClientProjectileSpawnHandler.Initialzied>
+public partial class RobotWeaponClientProjectileSpawnHandler : InitializeComponentGroupSystem<ClientProjectile,RobotWeaponClientProjectileSpawnHandler.Initialzied>
 {
     public struct Initialzied : IComponentData {}
 

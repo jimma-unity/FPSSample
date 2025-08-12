@@ -24,7 +24,7 @@ public class CharBehavior_Dead : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class Dead_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
+partial class Dead_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
     CharBehavior_Dead.InternalState>
 {
     public Dead_RequestActive(GameWorld world) : base(world)
@@ -52,7 +52,7 @@ class Dead_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
 
 
 [DisableAutoCreation]
-class Dead_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, CharBehavior_Dead.InternalState>
+partial class Dead_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, CharBehavior_Dead.InternalState>
 {
     public Dead_Update(GameWorld world) : base(world)
     {

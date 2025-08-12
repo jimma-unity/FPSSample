@@ -46,7 +46,7 @@ public class DestructiblePropPresentation : MonoBehaviour
 }
 
 [DisableAutoCreation]
-public class DestructiblePropSystemClient : BaseComponentSystem
+public partial class DestructiblePropSystemClient : BaseComponentSystem
 {
     EntityQuery Group;    
     
@@ -103,7 +103,7 @@ public class DestructiblePropSystemClient : BaseComponentSystem
     
                 if (presentation.destructionEffect != null)
                 {
-                    World.GetExistingSystem<HandleSpatialEffectRequests>().Request(presentation.destructionEffect, 
+                    World.GetExistingSystemManaged<HandleSpatialEffectRequests>().Request(presentation.destructionEffect, 
                         presentation.destructionEffectTransform.position, presentation.destructionEffectTransform.rotation);
                 }
             }

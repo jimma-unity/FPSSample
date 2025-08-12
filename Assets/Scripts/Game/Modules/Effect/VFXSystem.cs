@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.VFX;
 
 [DisableAutoCreation]
-public class VFXSystem : ComponentSystem
+public partial class VFXSystem : SystemBase
 {
     static readonly int positionID = Shader.PropertyToID("position");
     static readonly int targetPositionID = Shader.PropertyToID("targetPosition");

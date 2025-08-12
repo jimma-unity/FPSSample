@@ -56,7 +56,7 @@ public struct SpectatorCamSpawnRequest : IComponentData
 }
 
 [DisableAutoCreation]
-public class UpdateSpectatorCam : BaseComponentSystem
+public partial class UpdateSpectatorCam : BaseComponentSystem
 {
     EntityQuery Group;
     
@@ -98,7 +98,7 @@ public class UpdateSpectatorCam : BaseComponentSystem
 
 
 [DisableAutoCreation]
-public class HandleSpectatorCamRequests : BaseComponentSystem
+public partial class HandleSpectatorCamRequests : BaseComponentSystem
 {
     EntityQuery Group;   
 
@@ -124,6 +124,7 @@ public class HandleSpectatorCamRequests : BaseComponentSystem
         }
 
         var entityArray = Group.ToEntityArray(Allocator.TempJob);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         
         // Copy requests as spawning will invalidate Group
@@ -131,7 +132,7 @@ public class HandleSpectatorCamRequests : BaseComponentSystem
         for (var i = 0; i < requestArray.Length; i++)
         {
             spawnRequests[i] = requestArray[i];
-            PostUpdateCommands.DestroyEntity(entityArray[i]);
+            ecb.DestroyEntity(entityArray[i]);
         }
 
         for(var i =0;i<spawnRequests.Length;i++)
@@ -162,6 +163,8 @@ public class HandleSpectatorCamRequests : BaseComponentSystem
             playerState.controlledEntity = entity; 
         }
         
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         entityArray.Dispose();
         requestArray.Dispose();
     }

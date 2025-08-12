@@ -28,13 +28,22 @@ public struct GrenadeSpawnRequest : IComponentData
 }
 
 [DisableAutoCreation]
-public class HandleGrenadeRequest : BaseComponentDataSystem<GrenadeSpawnRequest>
+public partial class HandleGrenadeRequest : BaseComponentDataSystem<GrenadeSpawnRequest>
 {
     private readonly BundledResourceManager m_resourceManager;
+    private EntityCommandBuffer ecb;
 
     public HandleGrenadeRequest(GameWorld world, BundledResourceManager resourceManager) : base(world)
     {
         m_resourceManager = resourceManager;
+    }
+
+    protected override void OnUpdate()
+    {
+        ecb = new EntityCommandBuffer(Allocator.TempJob);
+        base.OnUpdate();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 
     protected override void Update(Entity entity, GrenadeSpawnRequest request)
@@ -49,13 +58,13 @@ public class HandleGrenadeRequest : BaseComponentDataSystem<GrenadeSpawnRequest>
         internalState.position = request.position;
         EntityManager.SetComponentData(grenadeEntity,internalState);
         
-        PostUpdateCommands.DestroyEntity(entity);
+        ecb.DestroyEntity(entity);
     }
 }
 
 
 [DisableAutoCreation]
-public class StartGrenadeMovement : BaseComponentSystem
+public partial class StartGrenadeMovement : BaseComponentSystem
 {
     EntityQuery Group;   
     
@@ -98,7 +107,7 @@ public class StartGrenadeMovement : BaseComponentSystem
             var collisionMask = ~(1U << internalState.teamId);
            
             // Setup new collision query
-            var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
+            var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
             internalState.rayQueryId = queryReciever.RegisterQuery(new RaySphereQueryReciever.Query()
             {
                 hitCollisionTestTick = time.tick,
@@ -120,7 +129,7 @@ public class StartGrenadeMovement : BaseComponentSystem
 }
 
 [DisableAutoCreation]
-public class FinalizeGrenadeMovement : BaseComponentSystem
+public partial class FinalizeGrenadeMovement : BaseComponentSystem
 {
     EntityQuery Group;   
     
@@ -138,12 +147,13 @@ public class FinalizeGrenadeMovement : BaseComponentSystem
         Profiler.BeginSample("FinalizeGrenadeMovement");
         
         var time = m_world.worldTime;
-        var queryReciever = World.GetExistingSystem<RaySphereQueryReciever>();
+        var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
 
         var grenadeEntityArray = Group.ToEntityArray(Allocator.TempJob);
         var settingsArray = Group.ToComponentDataArray<Grenade.Settings>(Allocator.TempJob);
         var internalStateArray = Group.ToComponentDataArray<Grenade.InternalState>(Allocator.TempJob);
         var interpolatedStateArray = Group.ToComponentDataArray<Grenade.InterpolatedState>(Allocator.TempJob);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         for (var i = 0; i < internalStateArray.Length; i++)
         {
@@ -156,7 +166,7 @@ public class FinalizeGrenadeMovement : BaseComponentSystem
                 // and explode effect played
                 
                 if(m_world.worldTime.DurationSinceTick(internalState.explodeTick) > 1.0f)
-                    m_world.RequestDespawn(PostUpdateCommands, entity);
+                    m_world.RequestDespawn(ecb, entity);
                 
                 continue;
             }
@@ -206,7 +216,7 @@ public class FinalizeGrenadeMovement : BaseComponentSystem
                 {
                     var collisionMask = ~(1 << internalState.teamId);
 
-                    SplashDamageRequest.Create(PostUpdateCommands, time.tick, internalState.owner, internalState.position,
+                    SplashDamageRequest.Create(ecb, time.tick, internalState.owner, internalState.position,
                         collisionMask, settings.splashDamage);
                 }
             }
@@ -220,6 +230,8 @@ public class FinalizeGrenadeMovement : BaseComponentSystem
             EntityManager.SetComponentData(entity,interpolatedState);
         }
 
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
         settingsArray.Dispose();
         internalStateArray.Dispose();
         interpolatedStateArray.Dispose();
