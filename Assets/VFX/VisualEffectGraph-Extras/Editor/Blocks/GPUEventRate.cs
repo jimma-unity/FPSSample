@@ -25,7 +25,7 @@ namespace UnityEditor.VFX.Block
         {
             get
             {
-                yield return new VFXAttributeInfo(new VFXAttribute("rateCount", VFXValueType.Float), VFXAttributeMode.ReadWrite);
+                yield return new VFXAttributeInfo(new VFXAttribute("rateCount", VFXValueType.Float, "Description"), VFXAttributeMode.ReadWrite);
                 yield return new VFXAttributeInfo(VFXAttribute.EventCount, VFXAttributeMode.Write);
 
                 if (mode == Mode.OverDistance)

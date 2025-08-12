@@ -49,7 +49,7 @@ class DistortionQuadOutput : VFXAbstractParticleOutput
             yield return new VFXAttributeInfo(VFXAttribute.PivotZ, VFXAttributeMode.Read);
             yield return new VFXAttributeInfo(VFXAttribute.Size, VFXAttributeMode.Read);
 
-            if (uvMode == UVMode.Flipbook || uvMode == UVMode.FlipbookBlend)
+            if (uvMode == UVMode.Flipbook)
                 yield return new VFXAttributeInfo(VFXAttribute.TexIndex, VFXAttributeMode.Read);
         }
     }
