@@ -200,6 +200,7 @@ Material:
     - _DoubleSidedNormalMode: 2
     - _Drag: 1
     - _DstBlend: 1
+    - _DstBlend2: 10
     - _EmissiveColorMode: 1
     - _EmissiveIntensity: 800
     - _EnableBlendModePreserveSpecularLighting: 0
@@ -238,6 +239,7 @@ Material:
     - _PPDMinSamples: 5
     - _PPDPrimitiveLength: 1
     - _PPDPrimitiveWidth: 1
+    - _PerPixelSorting: 0
     - _PreRefractionPass: 0
     - _RefractionMode: 0
     - _RefractionModel: 0
@@ -302,3 +304,4 @@ Material:
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
     - _UnlitColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
