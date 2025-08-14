@@ -237,7 +237,7 @@ public class BuildWindow : EditorWindow
     static string GetBundlePath(BuildTarget buildTarget)
     {
         // On PS4 we copy to "Assets/StreamingAssets" later
-        return GetBuildPath(buildTarget);
+        return GetBuildPath(buildTarget) + "/AutoBuild_Data/";
     }
 
     static bool s_SingleLevelBuilding = false;
@@ -350,7 +350,9 @@ public class BuildWindow : EditorWindow
                     buildOptions |= BuildOptions.ConnectWithProfiler;
             }
 
-            BuildTools.BuildGame(GetBuildPath(buildTarget), GetBuildExeName(buildTarget), buildTarget, buildOptions, "AutoBuild", m_IL2CPP);
+            var buildPath = GetBuildPath(buildTarget);
+            var exeName = GetBuildExeName(buildTarget);
+            BuildTools.BuildGame(buildPath, exeName, buildTarget, buildOptions, "AutoBuild", m_IL2CPP);
 
             if (action == BuildAction.BuildAndRun)
                 RunBuild("");
