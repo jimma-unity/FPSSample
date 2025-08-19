@@ -119,6 +119,8 @@ public class GameWorld
         m_ECSWorld.DestroySystemManaged(m_destroyDespawningSystem);
         s_Worlds.Remove(this);
 
+        World.DefaultGameObjectInjectionWorld.EntityManager.DestroyAndResetAllEntities();
+
         GameObject.Destroy(m_sceneRoot);
     }
 
