@@ -116,7 +116,7 @@ public class GameWorld
             RequestDespawn(entity);
         }
         ProcessDespawns();
-
+        m_ECSWorld.DestroySystemManaged(m_destroyDespawningSystem);
         s_Worlds.Remove(this);
 
         GameObject.Destroy(m_sceneRoot);
