@@ -94,6 +94,12 @@ public class BuildWindow : EditorWindow
 
     const string quickStartDataKey = "QuickStartData";
 
+#if UNITY_EDITOR_WIN
+    const string fileExplorer = "explorer.exe";
+#elif UNITY_EDITOR_OSX
+    const string fileExplorer = "open";
+#endif
+
     private void OnEnable()
     {
         var str = EditorPrefs.GetString(quickStartDataKey, "");
@@ -373,7 +379,7 @@ public class BuildWindow : EditorWindow
             if (Directory.Exists(windowsPath))
             {
                 var p = new System.Diagnostics.Process();
-                p.StartInfo = new System.Diagnostics.ProcessStartInfo("explorer.exe", windowsPath);
+                p.StartInfo = new System.Diagnostics.ProcessStartInfo(fileExplorer, windowsPath);
                 p.Start();
             }
             else
