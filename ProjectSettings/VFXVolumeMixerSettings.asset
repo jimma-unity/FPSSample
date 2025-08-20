@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b17edda3f233da4479682993b676032d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FloatPropertyCount: 3
+  m_FloatPropertyCount: 4
   m_Vector3PropertyCount: 1
   m_ColorPropertyCount: 1
   m_FloatPropertyNames:
   - Wind
   - Heat
   - Dust
-  - Float4
+  - Steam
   - Float5
   - Float6
   - Float7
