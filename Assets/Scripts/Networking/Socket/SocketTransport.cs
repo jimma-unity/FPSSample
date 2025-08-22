@@ -6,19 +6,15 @@ using EventType = Unity.Networking.Transport.NetworkEvent.Type;
 // JAPA - to remove
 public static class NetworkConnectionExtensions
 {
+    private static readonly System.Reflection.PropertyInfo InternalIdProperty =
+        typeof(NetworkConnection).GetProperty(
+            "InternalId",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
     public static int GetInternalId(this NetworkConnection conn)
     {
-        // Get the type
-        var type = typeof(NetworkConnection);
-
-        // Get the property info for InternalId (it's a property, not a field)
-        var prop = type.GetProperty("InternalId", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-
-        if (prop == null)
+        if (InternalIdProperty == null)
             throw new InvalidOperationException("Property 'InternalId' not found.");
-
-        // Get the value
-        return (int)prop.GetValue(conn);
+        return (int)InternalIdProperty.GetValue(conn);
     }
 }
 
