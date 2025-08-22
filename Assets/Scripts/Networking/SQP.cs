@@ -3,10 +3,9 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using Unity.Collections;
 
 using UnityEngine;
-using Unity.Networking.Transport;
-using Unity.Networking.Transport.LowLevel.Unsafe;
 
 /// <summary>
 /// An implementation of the ServerInfo part of the Server Query Protocol
@@ -33,7 +32,7 @@ namespace SQP
     public interface ISQPMessage
     {
         void ToStream(ref DataStreamWriter writer);
-        void FromStream(DataStreamReader reader, ref DataStreamReader.Context ctx);
+        void FromStream(ref DataStreamReader reader);
     }
 
     public struct SQPHeader : ISQPMessage
@@ -43,14 +42,14 @@ namespace SQP
 
         public void ToStream(ref DataStreamWriter writer)
         {
-            writer.Write((byte)Type);
-            writer.WriteNetworkByteOrder((uint)ChallangeId);
+            writer.WriteByte(Type);
+            writer.WriteUIntNetworkByteOrder(ChallangeId);
         }
 
-        public void FromStream(DataStreamReader reader, ref DataStreamReader.Context ctx)
+        public void FromStream(ref DataStreamReader reader)
         {
-            Type = reader.ReadByte(ref ctx);
-            ChallangeId = reader.ReadUIntNetworkByteOrder(ref ctx);
+            Type = reader.ReadByte();
+            ChallangeId = reader.ReadUIntNetworkByteOrder();
         }
     }
 
@@ -64,9 +63,9 @@ namespace SQP
             Header.ToStream(ref writer);
         }
 
-        public void FromStream(DataStreamReader reader, ref DataStreamReader.Context ctx)
+        public void FromStream(ref DataStreamReader reader)
         {
-            Header.FromStream(reader, ref ctx);
+            Header.FromStream(ref reader);
         }
     }
 
@@ -80,9 +79,9 @@ namespace SQP
             Header.ToStream(ref writer);
         }
 
-        public void FromStream(DataStreamReader reader, ref DataStreamReader.Context ctx)
+        public void FromStream(ref DataStreamReader reader)
         {
-            Header.FromStream(reader, ref ctx);
+            Header.FromStream(ref reader);
         }
     }
 
@@ -98,15 +97,15 @@ namespace SQP
             Header.Type = (byte)SQPMessageType.QueryRequest;
 
             Header.ToStream(ref writer);
-            writer.WriteNetworkByteOrder((UInt16)Version);
-            writer.Write((byte)RequestedChunks);
+            writer.WriteUShortNetworkByteOrder(Version);
+            writer.WriteByte(RequestedChunks);
         }
 
-        public void FromStream(DataStreamReader reader, ref DataStreamReader.Context ctx)
+        public void FromStream(ref DataStreamReader reader)
         {
-            Header.FromStream(reader, ref ctx);
-            Version = reader.ReadUShortNetworkByteOrder(ref ctx);
-            RequestedChunks = reader.ReadByte(ref ctx);
+            Header.FromStream(ref reader);
+            Version = reader.ReadUShortNetworkByteOrder();
+            RequestedChunks = reader.ReadByte();
         }
     }
 
@@ -118,30 +117,32 @@ namespace SQP
         public byte LastPacket;
         public ushort Length;
 
-        public DataStreamWriter.DeferredUShortNetworkByteOrder ToStream(ref DataStreamWriter writer)
+        public /*DataStreamWriter.DeferredUShortNetworkByteOrder*/ int ToStream(ref DataStreamWriter writer)
         {
             Header.Type = (byte)SQPMessageType.QueryResponse;
             Header.ToStream(ref writer);
-            writer.WriteNetworkByteOrder((UInt16)Version);
-            writer.Write((byte)CurrentPacket);
-            writer.Write((byte)LastPacket);
-            return writer.WriteNetworkByteOrder((UInt16)Length);
+            writer.WriteUShortNetworkByteOrder(Version);
+            writer.WriteByte(CurrentPacket);
+            writer.WriteByte(LastPacket);
+            var offset = writer.Length;
+            writer.WriteUShortNetworkByteOrder(Length);
+            return offset;
         }
 
-        public void FromStream(DataStreamReader reader, ref DataStreamReader.Context ctx)
+        public void FromStream(ref DataStreamReader reader)
         {
-            Header.FromStream(reader, ref ctx);
-            Version = reader.ReadUShortNetworkByteOrder(ref ctx);
-            CurrentPacket = reader.ReadByte(ref ctx);
-            LastPacket = reader.ReadByte(ref ctx);
-            Length = reader.ReadUShortNetworkByteOrder(ref ctx);
+            Header.FromStream(ref reader);
+            Version = reader.ReadUShortNetworkByteOrder();
+            CurrentPacket = reader.ReadByte();
+            LastPacket = reader.ReadByte();
+            Length = reader.ReadUShortNetworkByteOrder();
         }
     }
 
     public static class DataStreamExtensions
     {
         static byte[] buffer = new byte[byte.MaxValue];
-        unsafe public static void WriteString(this DataStreamWriter writer, string value, Encoding encoding)
+        public static void WriteString(ref this DataStreamWriter writer, string value, Encoding encoding)
         {
             var encoder = encoding.GetEncoder();
 
@@ -152,20 +153,14 @@ namespace SQP
             encoder.Convert(chars, 0, chars.Length, buffer, 0, byte.MaxValue, true, out charsUsed, out bytesUsed, out completed);
             Debug.Assert(bytesUsed <= byte.MaxValue);
 
-            writer.Write((byte)bytesUsed);
-            fixed (byte* buf = buffer)
-            {
-                writer.WriteBytes(buf, bytesUsed);
-            }
+            writer.WriteByte((byte)bytesUsed);
+            writer.WriteBytes(buffer.AsSpan(0, bytesUsed));
         }
 
-        unsafe public static string ReadString(this DataStreamReader reader, ref DataStreamReader.Context ctx, Encoding encoding)
+        public static string ReadString(ref this DataStreamReader reader, Encoding encoding)
         {
-            var length = reader.ReadByte(ref ctx);
-            fixed(byte* buf = buffer)
-            {
-                reader.ReadBytes(ref ctx, buf, length);
-            }
+            var length = reader.ReadByte();
+            reader.ReadBytes(buffer.AsSpan(0, length));
             return encoding.GetString(buffer, 0, length);
         }
     }
@@ -195,29 +190,43 @@ namespace SQP
 
             public void ToStream(ref DataStreamWriter writer)
             {
-                writer.WriteNetworkByteOrder((UInt16)CurrentPlayers);
-                writer.WriteNetworkByteOrder((UInt16)MaxPlayers);
+                writer.WriteUShortNetworkByteOrder(CurrentPlayers);
+                writer.WriteUShortNetworkByteOrder(MaxPlayers);
 
                 writer.WriteString(ServerName, encoding);
                 writer.WriteString(GameType, encoding);
                 writer.WriteString(BuildId, encoding);
                 writer.WriteString(Map, encoding);
 
-                writer.WriteNetworkByteOrder((UInt16)Port);
+                writer.WriteUShortNetworkByteOrder(Port);
             }
 
-            public void FromStream(DataStreamReader reader, ref DataStreamReader.Context ctx)
+            public void FromStream(ref DataStreamReader reader)
             {
-                CurrentPlayers = reader.ReadUShortNetworkByteOrder(ref ctx);
-                MaxPlayers = reader.ReadUShortNetworkByteOrder(ref ctx);
+                CurrentPlayers = reader.ReadUShortNetworkByteOrder();
+                MaxPlayers = reader.ReadUShortNetworkByteOrder();
 
-                ServerName = reader.ReadString(ref ctx, encoding);
-                GameType = reader.ReadString(ref ctx, encoding);
-                BuildId = reader.ReadString(ref ctx, encoding);
-                Map = reader.ReadString(ref ctx, encoding);
+                ServerName = reader.ReadString(encoding);
+                GameType = reader.ReadString(encoding);
+                BuildId = reader.ReadString(encoding);
+                Map = reader.ReadString(encoding);
 
-                Port = reader.ReadUShortNetworkByteOrder(ref ctx);
+                Port = reader.ReadUShortNetworkByteOrder();
             }
+        }
+
+        private static void UpdateUShortNetworkByteOrder(ushort value, int offset, NativeArray<byte> buf)
+        {
+            var subArray = buf.GetSubArray(offset, buf.Length-offset);
+            DataStreamWriter writer = new(subArray);
+            writer.WriteUShortNetworkByteOrder(value);
+        }
+
+        private static void UpdateUIntNetworkByteOrder(uint value, int offset, NativeArray<byte> buf)
+        {
+            var subArray = buf.GetSubArray(offset, buf.Length-offset);
+            DataStreamWriter writer = new(subArray);
+            writer.WriteUIntNetworkByteOrder(value);
         }
 
         public void ToStream(ref DataStreamWriter writer)
@@ -226,26 +235,24 @@ namespace SQP
 
             var start = (ushort)writer.Length;
 
-            var chunkValue = writer.WriteNetworkByteOrder((uint)0);
+            var chunkValue = start;
+            writer.WriteUIntNetworkByteOrder(0);
 
             var chunkStart = writer.Length;
             ServerInfoData.ToStream(ref writer);
             ChunkLen = (uint)(writer.Length - chunkStart);
             QueryHeader.Length = (ushort)(writer.Length - start);
 
-            lengthValue.Update(QueryHeader.Length);
-            chunkValue.Update(ChunkLen);
-
-            var length = (ushort)System.Net.IPAddress.HostToNetworkOrder((short)QueryHeader.Length);
-            var chunkLen = (uint)System.Net.IPAddress.HostToNetworkOrder((int)ChunkLen);
+            UpdateUShortNetworkByteOrder(QueryHeader.Length, lengthValue, writer.AsNativeArray());
+            UpdateUIntNetworkByteOrder(ChunkLen, chunkValue, writer.AsNativeArray());
         }
 
-        public void FromStream(DataStreamReader reader, ref DataStreamReader.Context ctx)
+        public void FromStream(ref DataStreamReader reader)
         {
-            QueryHeader.FromStream(reader, ref ctx);
-            ChunkLen = reader.ReadUIntNetworkByteOrder(ref ctx);
+            QueryHeader.FromStream(ref reader);
+            ChunkLen = reader.ReadUIntNetworkByteOrder();
 
-            ServerInfoData.FromStream(reader, ref ctx);
+            ServerInfoData.FromStream(ref reader);
         }
         static private Encoding encoding = new UTF8Encoding();
     }
@@ -350,11 +357,11 @@ namespace SQP
 
             q.StartTime = NetworkUtils.stopwatch.ElapsedMilliseconds;
 
-            var writer = new DataStreamWriter(m_Buffer.Length, Unity.Collections.Allocator.Temp);
+            var writer = new DataStreamWriter(m_Buffer.Length, Allocator.Temp);
             var req = new ChallangeRequest();
             req.ToStream(ref writer);
 
-            writer.CopyTo(0, writer.Length, ref m_Buffer);
+            NativeArray<byte>.Copy(writer.AsNativeArray(), m_Buffer, writer.Length);
             m_Socket.SendTo(m_Buffer, writer.Length, SocketFlags.None, q.m_Server);
             q.m_State = SQPClientState.WaitingForChallange;
         }
@@ -366,13 +373,12 @@ namespace SQP
             req.Header.ChallangeId = q.ChallangeId;
             req.RequestedChunks = (byte)SQPChunkType.ServerInfo;
 
-            var writer = new DataStreamWriter(m_Buffer.Length, Unity.Collections.Allocator.Temp);
+            var writer = new DataStreamWriter(m_Buffer.Length, Allocator.Temp);
             req.ToStream(ref writer);
 
             q.m_State = SQPClientState.WaitingForResponse;
-            writer.CopyTo(0, writer.Length, ref m_Buffer);
+            NativeArray<byte>.Copy(writer.AsNativeArray(), m_Buffer, writer.Length);
             m_Socket.SendTo(m_Buffer, writer.Length, SocketFlags.None, q.m_Server);
-            writer.Dispose();
         }
 
         public void Update()
@@ -383,13 +389,12 @@ namespace SQP
                 if (read > 0)
                 {
                     // Transfer incoming data in m_Buffer into a DataStreamReader
-                    var writer = new DataStreamWriter(m_Buffer.Length, Unity.Collections.Allocator.Temp);
-                    writer.Write(m_Buffer, read);
-                    var reader = new DataStreamReader(writer, 0, read);
-                    var ctx = default(DataStreamReader.Context);
+                    var writer = new DataStreamWriter(m_Buffer.Length, Allocator.Temp);
+                    writer.WriteBytes(m_Buffer.AsSpan(0, read));
+                    var reader = new DataStreamReader(writer.AsNativeArray());
 
                     var header = new SQPHeader();
-                    header.FromStream(reader, ref ctx);
+                    header.FromStream(ref reader);
 
                     foreach (var q in m_Queries)
                     {
@@ -416,8 +421,8 @@ namespace SQP
                             case SQPClientState.WaitingForResponse:
                                 if ((SQPMessageType)header.Type == SQPMessageType.QueryResponse)
                                 {
-                                    ctx = default(DataStreamReader.Context);
-                                    q.m_ServerInfo.FromStream(reader, ref ctx);
+                                    reader.SeekSet(0);
+                                    q.m_ServerInfo.FromStream(ref reader);
 
                                     // We report the average of two measurements
                                     q.RTT = (q.RTT + (NetworkUtils.stopwatch.ElapsedMilliseconds - q.StartTime)) / 2;
@@ -493,13 +498,12 @@ namespace SQP
                 int read = m_Socket.ReceiveFrom(m_Buffer, m_Buffer.Length, SocketFlags.None, ref endpoint);
                 if (read > 0)
                 {
-                    var bufferWriter = new DataStreamWriter(m_Buffer.Length, Unity.Collections.Allocator.Temp);
-                    bufferWriter.Write(m_Buffer, read);
-                    var reader = new DataStreamReader(bufferWriter, 0, read);
-                    var ctx = default(DataStreamReader.Context);
+                    var bufferWriter = new DataStreamWriter(m_Buffer.Length, Allocator.Temp);
+                    bufferWriter.WriteBytes(m_Buffer.AsSpan(0, read));
+                    var reader = new DataStreamReader(bufferWriter.AsNativeArray());
 
                     var header = new SQPHeader();
-                    header.FromStream(reader, ref ctx);
+                    header.FromStream(ref reader);
 
                     SQPMessageType type = (SQPMessageType)header.Type;
 
@@ -517,7 +521,7 @@ namespace SQP
                                     rsp.Header.ChallangeId = token;
                                     rsp.ToStream(ref writer);
 
-                                    writer.CopyTo(0, writer.Length, ref m_Buffer);
+                                    NativeArray<byte>.Copy(writer.AsNativeArray(), m_Buffer, writer.Length);
                                     m_Socket.SendTo(m_Buffer, writer.Length, SocketFlags.None, endpoint);
 
                                     m_OutstandingTokens.Add(endpoint, token);
@@ -535,18 +539,18 @@ namespace SQP
                                 }
                                 m_OutstandingTokens.Remove(endpoint);
 
-                                ctx = default(DataStreamReader.Context);
+                                reader.SeekSet(0);
                                 var req = new QueryRequest();
-                                req.FromStream(reader, ref ctx);
+                                req.FromStream(ref reader);
 
                                 if ((SQPChunkType)req.RequestedChunks == SQPChunkType.ServerInfo)
                                 {
                                     var rsp = m_ServerInfo;
-                                    var writer = new DataStreamWriter(m_Buffer.Length, Unity.Collections.Allocator.Temp);
+                                    var writer = new DataStreamWriter(m_Buffer.Length, Allocator.Temp);
                                     rsp.QueryHeader.Header.ChallangeId = token;
 
                                     rsp.ToStream(ref writer);
-                                    writer.CopyTo(0, writer.Length, ref m_Buffer);
+                                    NativeArray<byte>.Copy(writer.AsNativeArray(), m_Buffer, writer.Length);
                                     m_Socket.SendTo(m_Buffer, writer.Length, SocketFlags.None, endpoint);
                                 }
                             }

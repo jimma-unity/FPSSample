@@ -1,19 +1,37 @@
-﻿using System.Net;
+using System;
 using Unity.Networking.Transport;
 using Unity.Collections;
-using UdpNetworkDriver = Unity.Networking.Transport.BasicNetworkDriver<Unity.Networking.Transport.IPv4UDPSocket>;
 using EventType = Unity.Networking.Transport.NetworkEvent.Type;
-using NetworkEvent = Unity.Networking.Transport.NetworkEvent;
-using DataStreamReader = Unity.Networking.Transport.DataStreamReader;
-using DataStreamWriter = Unity.Networking.Transport.DataStreamWriter;
+
+// JAPA - to remove
+public static class NetworkConnectionExtensions
+{
+    public static int GetInternalId(this NetworkConnection conn)
+    {
+        // Get the type
+        var type = typeof(NetworkConnection);
+
+        // Get the property info for InternalId (it's a property, not a field)
+        var prop = type.GetProperty("InternalId", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+
+        if (prop == null)
+            throw new InvalidOperationException("Property 'InternalId' not found.");
+
+        // Get the value
+        return (int)prop.GetValue(conn);
+    }
+}
 
 public class SocketTransport : INetworkTransport
 {
     public SocketTransport(int port = 0, int maxConnections = 16)
     {
         m_IdToConnection = new NativeArray<NetworkConnection>(maxConnections, Allocator.Persistent);
-        m_Socket = new UdpNetworkDriver(new NetworkDataStreamParameter { size = 10 * NetworkConfig.maxPackageSize }, new NetworkConfigParameter { disconnectTimeout = ServerGameLoop.serverDisconnectTimeout.IntValue });
-        m_Socket.Bind(new IPEndPoint(IPAddress.Any, port));
+        var settings = new NetworkSettings();
+        settings.WithNetworkConfigParameters(disconnectTimeoutMS: ServerGameLoop.serverDisconnectTimeout.IntValue/*, receiveQueueCapacity: 10 * NetworkConfig.maxPackageSize, sendQueueCapacity: 10 * NetworkConfig.maxPackageSize*/);
+        m_Socket = NetworkDriver.Create(settings);
+        var endpoint = NetworkEndpoint.AnyIpv4.WithPort((ushort)port);
+        m_Socket.Bind(endpoint);
 
         if (port != 0)
             m_Socket.Listen();
@@ -21,9 +39,9 @@ public class SocketTransport : INetworkTransport
 
     public int Connect(string ip, int port)
     {
-        var connection = m_Socket.Connect(new IPEndPoint(IPAddress.Parse(ip), port));
-        m_IdToConnection[connection.InternalId] = connection;
-        return connection.InternalId;
+        var connection = m_Socket.Connect(NetworkEndpoint.Parse(ip, (ushort)port));
+        m_IdToConnection[connection.GetInternalId()] = connection;
+        return connection.GetInternalId();
     }
 
     public void Disconnect(int connection)
@@ -45,13 +63,12 @@ public class SocketTransport : INetworkTransport
         if (connection.IsCreated)
         {
             e.type = TransportEvent.Type.Connect;
-            e.connectionId = connection.InternalId;
-            m_IdToConnection[connection.InternalId] = connection;
+            e.connectionId = connection.GetInternalId();
+            m_IdToConnection[connection.GetInternalId()] = connection;
             return true;
         }
 
         DataStreamReader reader;
-        var context = default(DataStreamReader.Context);
         var ev = m_Socket.PopEvent(out connection, out reader);
 
         if (ev == EventType.Empty)
@@ -61,7 +78,7 @@ public class SocketTransport : INetworkTransport
         if (reader.IsCreated)
         {
             GameDebug.Assert(m_Buffer.Length >= reader.Length);
-            reader.ReadBytesIntoArray(ref context, ref m_Buffer, reader.Length);
+            reader.ReadBytes(new Span<byte>(m_Buffer, 0, reader.Length));
             size = reader.Length;
         }
         
@@ -71,16 +88,16 @@ public class SocketTransport : INetworkTransport
                 e.type = TransportEvent.Type.Data;
                 e.data = m_Buffer;
                 e.dataSize = size;
-                e.connectionId = connection.InternalId;
+                e.connectionId = connection.GetInternalId();
                 break;
             case EventType.Connect:
                 e.type = TransportEvent.Type.Connect;
-                e.connectionId = connection.InternalId;
-                m_IdToConnection[connection.InternalId] = connection;
+                e.connectionId = connection.GetInternalId();
+                m_IdToConnection[connection.GetInternalId()] = connection;
                 break;
             case EventType.Disconnect:
                 e.type = TransportEvent.Type.Disconnect;
-                e.connectionId = connection.InternalId;
+                e.connectionId = connection.GetInternalId();
                 break;
             default:
                 return false;
@@ -91,11 +108,10 @@ public class SocketTransport : INetworkTransport
 
     public void SendData(int connectionId, byte[] data, int sendSize)
     {
-        using (var sendStream = new DataStreamWriter(sendSize, Allocator.Persistent))
-        {
-            sendStream.Write(data, sendSize);
-            m_Socket.Send(m_IdToConnection[connectionId], sendStream);
-        }
+        DataStreamWriter sendStream;
+        m_Socket.BeginSend(m_IdToConnection[connectionId], out sendStream, sendSize);
+        sendStream.WriteBytes(new Span<byte>(data, 0, sendSize));
+        m_Socket.EndSend(sendStream);
     }
 
     public string GetConnectionDescription(int connectionId)
@@ -110,6 +126,6 @@ public class SocketTransport : INetworkTransport
     }
 
     byte[] m_Buffer = new byte[1024 * 8];
-    BasicNetworkDriver<IPv4UDPSocket> m_Socket;
+    NetworkDriver m_Socket;
     NativeArray<NetworkConnection> m_IdToConnection;
 }

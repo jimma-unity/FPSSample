@@ -1,14 +1,11 @@
-﻿using System;
-using System.Threading;
-using System.Net;
+﻿using System.Net;
 using NUnit.Framework;
-
-using System.Net.Sockets;
 
 using UnityEngine;
 using SQP;
 using System.Text;
-using Unity.Networking.Transport;
+using Unity.Collections;
+
 
 namespace TransportTests
 {
@@ -18,19 +15,17 @@ namespace TransportTests
 
         DataStreamReader reader;
         DataStreamWriter writer;
-        DataStreamReader.Context context;
 
         [SetUp]
         public void Setup()
         {
             reader = new DataStreamReader();
-            writer = new DataStreamWriter(m_Buffer.Length, Unity.Collections.Allocator.Temp);
+            writer = new DataStreamWriter(m_Buffer.Length, Allocator.Temp);
         }
 
         [TearDown]
         public void Teardown()
         {
-            writer.Dispose();
         }
 
         [Test]
@@ -39,10 +34,9 @@ namespace TransportTests
             var snd = new ChallangeRequest();
             snd.ToStream(ref writer);
 
-            reader = new DataStreamReader(writer, 0, writer.Length);
-            context = default(DataStreamReader.Context);
+            reader = new DataStreamReader(writer.AsNativeArray());
             var rcv = new ChallangeRequest();
-            rcv.FromStream(reader, ref context);
+            rcv.FromStream(ref reader);
 
             Assert.AreEqual((byte)SQPMessageType.ChallangeRequest, rcv.Header.Type);
         }
@@ -59,9 +53,8 @@ namespace TransportTests
 
             var rcv = new ChallangeResponse();
 
-            reader = new DataStreamReader(writer, 0, writer.Length);
-            context = default(DataStreamReader.Context);
-            rcv.FromStream(reader, ref context);
+            reader = new DataStreamReader(writer.AsNativeArray());
+            rcv.FromStream(ref reader);
 
             Assert.AreEqual((byte)SQPMessageType.ChallangeResponse, rcv.Header.Type);
             Assert.AreEqual(id, (uint)rcv.Header.ChallangeId);
@@ -81,9 +74,8 @@ namespace TransportTests
             snd.ToStream(ref writer);
 
             var rcv = new QueryRequest();
-            reader = new DataStreamReader(writer, 0, writer.Length);
-            context = default(DataStreamReader.Context);
-            rcv.FromStream(reader, ref context);
+            reader = new DataStreamReader(writer.AsNativeArray());
+            rcv.FromStream(ref reader);
 
             Assert.AreEqual((byte)SQPMessageType.QueryRequest, rcv.Header.Type);
             Assert.AreEqual(id, (uint)rcv.Header.ChallangeId);
@@ -108,9 +100,8 @@ namespace TransportTests
             snd.ToStream(ref writer);
 
             var rcv = new QueryResponseHeader();
-            var reader = new DataStreamReader(writer, 0, writer.Length);
-            context = default(DataStreamReader.Context);
-            rcv.FromStream(reader, ref context);
+            var reader = new DataStreamReader(writer.AsNativeArray());
+            rcv.FromStream(ref reader);
 
             Assert.AreEqual((byte)SQPMessageType.QueryResponse, rcv.Header.Type);
             Assert.AreEqual(id, (uint)rcv.Header.ChallangeId);
@@ -131,12 +122,11 @@ namespace TransportTests
             writer.WriteString(sendLong, encoding);
             writer.WriteString(sendUTF, encoding);
 
-            reader = new DataStreamReader(writer, 0, writer.Length);
-            context = default(DataStreamReader.Context);
+            reader = new DataStreamReader(writer.AsNativeArray());
 
-            var recvShort = reader.ReadString(ref context, encoding);
-            var recvLong = reader.ReadString(ref context, encoding);
-            var recvUTF = reader.ReadString(ref context, encoding);
+            var recvShort = reader.ReadString(encoding);
+            var recvLong = reader.ReadString(encoding);
+            var recvUTF = reader.ReadString(encoding);
 
             Assert.AreEqual(sendShort, recvShort);
 
@@ -175,15 +165,18 @@ namespace TransportTests
             snd.ToStream(ref writer);
 
             var rcv = new SQP.ServerInfo();
-            reader = new DataStreamReader(writer, 0, writer.Length);
-            context = default(DataStreamReader.Context);
-            rcv.FromStream(reader, ref context);
+            reader = new DataStreamReader(writer.AsNativeArray());
+            rcv.FromStream(ref reader);
 
             Assert.AreEqual((byte)SQPMessageType.QueryResponse, rcv.QueryHeader.Header.Type);
             Assert.AreEqual((uint)header.Header.ChallangeId, (uint)rcv.QueryHeader.Header.ChallangeId);
             Assert.AreEqual(header.Version, rcv.QueryHeader.Version);
             Assert.AreEqual(header.CurrentPacket, rcv.QueryHeader.CurrentPacket);
             Assert.AreEqual(header.LastPacket, rcv.QueryHeader.LastPacket);
+            Assert.NotZero(snd.QueryHeader.Length);
+            Assert.AreEqual(snd.QueryHeader.Length, rcv.QueryHeader.Length);
+            Assert.NotZero(snd.ChunkLen);
+            Assert.AreEqual(snd.ChunkLen, rcv.ChunkLen);
 
             Assert.AreEqual(current, (ushort)rcv.ServerInfoData.CurrentPlayers);
             Assert.AreEqual(max, (ushort)rcv.ServerInfoData.MaxPlayers);
