@@ -86,6 +86,7 @@ public class ClientGameWorld
         m_ItemModule.Shutdown();
 
         m_GameWorld.GetECSWorld().DestroySystemManaged(m_GameModeSystem);
+        m_GameWorld.GetECSWorld().DestroySystemManaged(m_ClientFrontendUpdate);
         m_GameWorld.GetECSWorld().DestroySystemManaged(m_DestructiblePropSystemClient);
         
         m_GameWorld.GetECSWorld().DestroySystemManaged(m_ApplyGrenadePresentation);
@@ -778,20 +779,18 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
     void LeavePlayingState()
     {
-        m_resourceSystem.Shutdown();
+        m_resourceSystem?.Shutdown();
 
         m_LocalPlayer = null;
         
-        m_clientWorld.Shutdown();
+        m_clientWorld?.Shutdown();
         m_clientWorld = null;
 
         // TODO (petera) replace this with a stack of levels or similar thing. For now we just load the menu no matter what
         //Game.game.levelManager.UnloadLevel();
         //Game.game.levelManager.LoadLevel("level_menu");
-        
-        m_resourceSystem.Shutdown();
 
-        m_GameWorld.Shutdown();
+        m_GameWorld?.Shutdown();
         m_GameWorld = new GameWorld("ClientWorld");
 
         if(Game.game.clientFrontend != null)

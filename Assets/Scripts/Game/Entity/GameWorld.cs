@@ -118,8 +118,9 @@ public class GameWorld
         ProcessDespawns();
         m_ECSWorld.DestroySystemManaged(m_destroyDespawningSystem);
         s_Worlds.Remove(this);
-
-        World.DefaultGameObjectInjectionWorld.EntityManager.DestroyAndResetAllEntities();
+        
+        World.DefaultGameObjectInjectionWorld?.Dispose();
+        World.DefaultGameObjectInjectionWorld = new World("NewWorld");
 
         GameObject.Destroy(m_sceneRoot);
     }
