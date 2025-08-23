@@ -110,6 +110,11 @@ namespace Unity.Entities
             m_World = null;
             m_Entity = Entity.Null;
         }
+        
+        private static readonly MethodInfo SetComponentObjectMethod = typeof(EntityManager).GetMethod(
+            "SetComponentObject",
+            BindingFlags.NonPublic | BindingFlags.Instance
+        );
 
         public static void CopyAllComponentsToEntity(GameObject gameObject, EntityManager entityManager, Entity entity)
         {
@@ -150,15 +155,10 @@ namespace Unity.Entities
                 }
                 else if (com != null)
                 {
-                    MethodInfo setComponentObjectMethod = typeof(EntityManager).GetMethod(
-                        "SetComponentObject",
-                        BindingFlags.NonPublic | BindingFlags.Instance
-                    );
-
-                    if (setComponentObjectMethod == null)
+                    if (SetComponentObjectMethod == null)
                         throw new Exception("SetComponentObject not found!");
-                    
-                    setComponentObjectMethod.Invoke(entityManager, new object[] { entity, componentTypes[i], com});
+
+                    SetComponentObjectMethod.Invoke(entityManager, new object[] { entity, componentTypes[i], com });
                 }
             }
 
