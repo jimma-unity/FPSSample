@@ -144,6 +144,13 @@ public class GameModeAssault : IGameMode
                 }
                 break;
         }
+
+        // Update Scores
+        m_GameModeSystemServer.teams[s_AttackTeam].score = m_NumCaptured;
+        m_GameModeSystemServer.teams[s_DefendTeam].score = 0;
+        
+        m_GameModeSystemServer.gameModeState.teamScore0 = m_GameModeSystemServer.teams[0].score;
+        m_GameModeSystemServer.gameModeState.teamScore1 = m_GameModeSystemServer.teams[1].score;
     }
 
     public void OnPlayerJoin(PlayerState player)
