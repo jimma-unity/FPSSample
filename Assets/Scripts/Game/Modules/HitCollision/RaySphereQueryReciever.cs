@@ -249,9 +249,9 @@ public partial class RaySphereQueryReciever : BaseComponentSystem
 					hitColliderData[i].boundsRadius);
 				queryData.broadPhaseBounds[i] = boundSphere;
 			}
-			
-			queryData.broadTestJob = new BroadPhaseSphereCastJob(hitColliders, hitColliderData, 
-				hitColliderFlags, queryData.broadPhaseBounds, query.ExcludeOwner, Entity.Null, query.mask, 
+
+			queryData.broadTestJob = new BroadPhaseSphereCastJob(hitColliders.AsArray(), hitColliderData.AsArray(), 
+				hitColliderFlags.AsArray(), queryData.broadPhaseBounds, query.ExcludeOwner, Entity.Null, query.mask, 
 				new ray(query.origin, query.direction), query.distance, query.radius);
 			
 			broadphaseHandels[nQuery] = queryData.broadTestJob.Schedule();
