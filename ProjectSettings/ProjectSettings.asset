@@ -164,7 +164,7 @@ PlayerSettings:
   androidMinAspectRatio: 1
   applicationIdentifier:
     Android: com.Company.ProductName
-    Standalone: unity.Unity Technologies.Prototype01
+    Standalone: com.Unity-Technologies.FPSSample
     Tizen: com.Company.ProductName
     iPhone: com.Company.ProductName
     tvOS: com.Company.ProductName
