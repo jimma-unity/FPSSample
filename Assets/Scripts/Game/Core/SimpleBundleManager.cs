@@ -11,6 +11,11 @@ public class SimpleBundleManager
     {
 #if UNITY_PS4
         return Application.streamingAssetsPath + "/" + assetBundleFolder;
+#elif UNITY_STANDALONE_OSX ||  UNITY_EDITOR_OSX
+        if (Application.isEditor)
+            return Application.dataPath + "/../Autobuild/AutoBuild.app/Contents/" + assetBundleFolder;
+        else
+            return Application.dataPath + "/" + assetBundleFolder;
 #else
         if (Application.isEditor)
             return "AutoBuild/" + assetBundleFolder;
