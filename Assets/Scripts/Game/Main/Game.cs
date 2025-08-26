@@ -285,7 +285,7 @@ public class Game : MonoBehaviour
 
         var commandLineArgs = new List<string>(System.Environment.GetCommandLineArgs());
 
-#if UNITY_STANDALONE_LINUX
+#if UNITY_STANDALONE_LINUX || UNITY_SERVER
         m_isHeadless = true;
 #else
         m_isHeadless = commandLineArgs.Contains("-batchmode");
