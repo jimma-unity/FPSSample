@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
@@ -9,6 +10,9 @@ using UnityEngine.Profiling;
 public class AnimStateController : MonoBehaviour 
 {
     public bool fireAnimationEvents;
+    
+    static ProfilerMarker updateMarker = new("AnimStateController.Update");
+    static ProfilerMarker applyMarker = new("AnimStateController.Apply");
 
     public AnimGraphAsset animStateDefinition;
 
@@ -62,26 +66,18 @@ public class AnimStateController : MonoBehaviour
 
     public void UpdatePresentationState(GameTime time, float deltaTime)
     {
-        Profiler.BeginSample("AnimStateController.Update");
-        
-        if (m_animGraphLogic == null)
-            return;
-
-        m_animGraphLogic.UpdateGraphLogic(time, deltaTime);
-        
-        Profiler.EndSample();
+        using (updateMarker.Auto())
+        {
+            m_animGraphLogic?.UpdateGraphLogic(time, deltaTime);
+        }
     }
     
     public void ApplyPresentationState(GameTime time, float deltaTime)   //
     {
-        Profiler.BeginSample("AnimStateController.Apply");
-
-        if (m_animGraph == null)
-            return;
-        
-        m_animGraph.ApplyPresentationState(time, deltaTime);
-        
-        Profiler.EndSample();
+        using (applyMarker.Auto())
+        {
+            m_animGraph?.ApplyPresentationState(time, deltaTime);
+        }
     } 
 
     IAnimGraphInstance m_animGraph;

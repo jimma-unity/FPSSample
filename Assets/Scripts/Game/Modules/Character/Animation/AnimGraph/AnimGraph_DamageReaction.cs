@@ -75,6 +75,7 @@ public class AnimGraph_DamageReaction : AnimGraphAsset
                 if (m_lastReactionTick == -1)
                 {
                     m_lastReactionTick = animState.damageTick;
+                    Profiler.EndSample();
                     return;
                 }
 
