@@ -18,7 +18,8 @@ public class VFXVolumeMixerVectorPropertyBinder : VFXVolumeMixerPropertyBinderBa
 
     public override void UpdateBinding(VisualEffect component)
     {
-        component.SetVector3(VectorParameter, VFXVolumeMixer.GetVectorValueAt(VectorMixerProperty, computedTransform, Layer));
+        if (VFXVolumeMixer.stack != null)
+            component.SetVector3(VectorParameter, VFXVolumeMixer.GetVectorValueAt(VectorMixerProperty, computedTransform, Layer));
     }
 
     public override string ToString()

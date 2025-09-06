@@ -19,7 +19,8 @@ public class VFXVolumeMixerColorPropertyBinder : VFXVolumeMixerPropertyBinderBas
 
     public override void UpdateBinding(VisualEffect component)
     {
-        component.SetVector4(ColorParameter, VFXVolumeMixer.GetColorValueAt(ColorMixerProperty, computedTransform, Layer)); 
+        if (VFXVolumeMixer.stack != null)
+            component.SetVector4(ColorParameter, VFXVolumeMixer.GetColorValueAt(ColorMixerProperty, computedTransform, Layer)); 
     }
 
     public override string ToString()
