@@ -16,7 +16,8 @@ public class VFXVolumeMixerFloatPropertyBinder : VFXVolumeMixerPropertyBinderBas
 
     public override void UpdateBinding(VisualEffect component)
     {
-        component.SetFloat(FloatParameter, VFXVolumeMixer.GetFloatValueAt(FloatMixerProperty, computedTransform, Layer));
+        if (VFXVolumeMixer.stack != null)
+            component.SetFloat(FloatParameter, VFXVolumeMixer.GetFloatValueAt(FloatMixerProperty, computedTransform, Layer));
     }
 
     public override string ToString()

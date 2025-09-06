@@ -33,12 +33,20 @@ public class VFXVolumeMixer : VolumeComponent
     public ColorParameter CustomColorParameter7 = new ColorParameter(Color.white, true, false, true);
     public ColorParameter CustomColorParameter8 = new ColorParameter(Color.white, true, false, true);
 
+    private static bool VolumeManagerIsInitialized()
+    {
+        return VolumeManager.instance != null && VolumeManager.instance.isInitialized;
+    }
+
     public static VolumeStack stack
     {
         get
         {
-            if (s_Stack == null)
-                s_Stack = VolumeManager.instance.CreateStack();
+            if (s_Stack != null && s_Stack.isValid)
+                return s_Stack;
+
+            s_Stack = VolumeManagerIsInitialized() ? s_Stack = VolumeManager.instance.CreateStack() : null;
+
             return s_Stack;
         }
     }
@@ -46,7 +54,9 @@ public class VFXVolumeMixer : VolumeComponent
 
     static void UpdateStack(Transform trigger, LayerMask layerMask)
     {
-        VolumeManager.instance.Update(stack, trigger, layerMask);
+        var s = stack;
+        if (s != null)
+            VolumeManager.instance.Update(s, trigger, layerMask);
     }
 
     public static float GetFloatValueAt(int index, Transform trigger, LayerMask layerMask)
