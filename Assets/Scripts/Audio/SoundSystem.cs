@@ -49,7 +49,7 @@ public class SoundSystem : ISoundSystem
     [ConfigVar(Name = "sound.numemitters", DefaultValue = "48", Description = "Number of sound emitters")]
     public static ConfigVar soundNumEmitters;
 
-    [ConfigVar(Name = "sound.spatialize", DefaultValue = "1", Description = "Use spatializer")]
+    [ConfigVar(Name = "sound.spatialize", DefaultValue = "0", Description = "Use spatializer")]
     public static ConfigVar soundSpatialize;
 
     [ConfigVar(Name = "sound.mute", DefaultValue = "-1", Description = "Is audio enabled. -1 causes default behavior (on when window has focus)", Flags = ConfigVar.Flags.None)]
