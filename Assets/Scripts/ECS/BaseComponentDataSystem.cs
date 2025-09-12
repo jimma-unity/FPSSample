@@ -177,7 +177,7 @@ public abstract partial class BaseComponentDataSystem<T1> : BaseComponentSystem
 		{
 			var chunk = chunks[chunkIndex];
 			var entities = chunk.GetNativeArray(entityType);
-			var data1 = chunk.GetNativeArray(type1);
+			var data1 = chunk.GetNativeArray(ref type1);
 
 			for (int i = 0; i < chunk.Count; i++)
 			{
@@ -227,8 +227,8 @@ public abstract partial class BaseComponentDataSystem<T1,T2> : BaseComponentSyst
 		{
 			var chunk = chunks[chunkIndex];
 			var entities = chunk.GetNativeArray(entityType);
-			var data1 = chunk.GetNativeArray(type1);
-			var data2 = chunk.GetNativeArray(type2);
+			var data1 = chunk.GetNativeArray(ref type1);
+			var data2 = chunk.GetNativeArray(ref type2);
 
 			for (int i = 0; i < chunk.Count; i++)
 			{
@@ -281,9 +281,9 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3> : BaseComponentS
 		{
 			var chunk = chunks[chunkIndex];
 			var entities = chunk.GetNativeArray(entityType);
-			var data1 = chunk.GetNativeArray(type1);
-			var data2 = chunk.GetNativeArray(type2);
-			var data3 = chunk.GetNativeArray(type3);
+			var data1 = chunk.GetNativeArray(ref type1);
+			var data2 = chunk.GetNativeArray(ref type2);
+			var data3 = chunk.GetNativeArray(ref type3);
 
 			for (int i = 0; i < chunk.Count; i++)
 			{
@@ -339,10 +339,10 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4> : BaseCompone
 		{
 			var chunk = chunks[chunkIndex];
 			var entities = chunk.GetNativeArray(entityType);
-			var data1 = chunk.GetNativeArray(type1);
-			var data2 = chunk.GetNativeArray(type2);
-			var data3 = chunk.GetNativeArray(type3);
-			var data4 = chunk.GetNativeArray(type4);
+			var data1 = chunk.GetNativeArray(ref type1);
+			var data2 = chunk.GetNativeArray(ref type2);
+			var data3 = chunk.GetNativeArray(ref type3);
+			var data4 = chunk.GetNativeArray(ref type4);
 
 			for (int i = 0; i < chunk.Count; i++)
 			{
@@ -399,11 +399,11 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4,T5> : BaseComp
 		{
 			var chunk = chunks[chunkIndex];
 			var entities = chunk.GetNativeArray(entityType);
-			var data1 = chunk.GetNativeArray(type1);
-			var data2 = chunk.GetNativeArray(type2);
-			var data3 = chunk.GetNativeArray(type3);
-			var data4 = chunk.GetNativeArray(type4);
-			var data5 = chunk.GetNativeArray(type5);
+			var data1 = chunk.GetNativeArray(ref type1);
+			var data2 = chunk.GetNativeArray(ref type2);
+			var data3 = chunk.GetNativeArray(ref type3);
+			var data4 = chunk.GetNativeArray(ref type4);
+			var data5 = chunk.GetNativeArray(ref type5);
 
 			for (int i = 0; i < chunk.Count; i++)
 			{
