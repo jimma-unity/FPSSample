@@ -32,7 +32,7 @@ public abstract class VFXVolumeMixerPropertyBinderBase : VFXBinderBase
                 case VolumeTrigger.MainCamera:
 #if UNITY_EDITOR
                     if (Application.isEditor && !Application.isPlaying)
-                        return UnityEditor.SceneView.lastActiveSceneView.camera.transform;
+                        return UnityEditor.SceneView.lastActiveSceneView?.camera.transform;
                     else
 #endif
                     {
