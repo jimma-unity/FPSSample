@@ -169,7 +169,7 @@ public abstract partial class BaseComponentDataSystem<T1> : BaseComponentSystem
 	{
 		Profiler.BeginSample(name);
 		
-		var chunks = Group.ToArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+		var chunks = Group.ToArchetypeChunkArray(Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
 
@@ -218,7 +218,7 @@ public abstract partial class BaseComponentDataSystem<T1,T2> : BaseComponentSyst
 	{
 		Profiler.BeginSample(name);
 
-		var chunks = Group.ToArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+		var chunks = Group.ToArchetypeChunkArray(Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
 		var type2 = GetComponentTypeHandle<T2>(true);
@@ -271,7 +271,7 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3> : BaseComponentS
 	{
 		Profiler.BeginSample(name);
 
-		var chunks = Group.ToArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+		var chunks = Group.ToArchetypeChunkArray(Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
 		var type2 = GetComponentTypeHandle<T2>(true);
@@ -328,7 +328,7 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4> : BaseCompone
 	{
 		Profiler.BeginSample(name);
 
-		var chunks = Group.ToArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+		var chunks = Group.ToArchetypeChunkArray(Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
 		var type2 = GetComponentTypeHandle<T2>(true);
@@ -387,7 +387,7 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4,T5> : BaseComp
 	{
 		Profiler.BeginSample(name);
 
-		var chunks = Group.ToArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+		var chunks = Group.ToArchetypeChunkArray(Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
 		var type2 = GetComponentTypeHandle<T2>(true);
