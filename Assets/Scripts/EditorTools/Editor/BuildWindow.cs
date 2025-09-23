@@ -216,33 +216,43 @@ public class BuildWindow : EditorWindow
         }
     }
 
+    private const string KRootName = "Autobuild";
+    private const string KMacOsAppName = KRootName + ".app";
+    private const string KWindowsAppName = KRootName + ".exe";
+
     static string GetBuildPath(BuildTarget buildTarget)
     {
         if (buildTarget == BuildTarget.PS4)
             return "AutoBuildPS4";
         else
-            return "AutoBuild";
+            return KRootName;
     }
 
     static string GetBuildExeName(BuildTarget buildTarget)
     {
         if (buildTarget == BuildTarget.PS4)
             return "AutoBuild";
+        else if (buildTarget == BuildTarget.StandaloneOSX)
+            return KMacOsAppName;
         else
-            return "AutoBuild.exe";
+            return KWindowsAppName;
     }
 
     static string GetBuildExe(BuildTarget buildTarget)
     {
         if (buildTarget == BuildTarget.PS4)
             return "AutoBuild/AutoBuild.bat";
+        else if (buildTarget == BuildTarget.StandaloneOSX)
+            return KMacOsAppName;
         else
-            return "AutoBuild.exe";
+            return KWindowsAppName;
     }
 
     static string GetBundlePath(BuildTarget buildTarget)
     {
         // On PS4 we copy to "Assets/StreamingAssets" later
+        if (buildTarget == BuildTarget.StandaloneOSX)
+            return GetBuildPath(buildTarget) + "/" + GetBuildExeName(buildTarget) + "/Contents/";
         return GetBuildPath(buildTarget) + "/AutoBuild_Data/";
     }
 
@@ -372,19 +382,21 @@ public class BuildWindow : EditorWindow
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        var path = Application.dataPath.BeforeLast("Assets") + GetBuildPath(buildTarget);
-        var windowsPath = path.Replace("/", "\\");
+        var absoleuteBuildPath = Application.dataPath.BeforeLast("Assets") + GetBuildPath(buildTarget);
+        #if UNITY_EDITOR_WIN
+            absoleuteBuildPath.Replace("/", "\\");
+        #endif
         if (GUILayout.Button("Open build folder"))
         {
-            if (Directory.Exists(windowsPath))
+            if (Directory.Exists(absoleuteBuildPath))
             {
                 var p = new System.Diagnostics.Process();
-                p.StartInfo = new System.Diagnostics.ProcessStartInfo(fileExplorer, windowsPath);
+                p.StartInfo = new System.Diagnostics.ProcessStartInfo(fileExplorer, absoleuteBuildPath);
                 p.Start();
             }
             else
             {
-                EditorUtility.DisplayDialog("Folder missing", string.Format("Folder {0} doesn't exist yet", windowsPath), "Ok");
+                EditorUtility.DisplayDialog("Folder missing", string.Format("Folder {0} doesn't exist yet", absoleuteBuildPath), "Ok");
             }
         }
         GUILayout.EndHorizontal();
@@ -587,7 +599,13 @@ public class BuildWindow : EditorWindow
         process.StartInfo.UseShellExecute = args.Contains("-batchmode");
         process.StartInfo.FileName = Application.dataPath + "/../" + buildPath + "/" + buildExe;    // mogensh: for some reason we now need to specify project path
         process.StartInfo.Arguments = args;
+        if (buildTarget == BuildTarget.StandaloneOSX)
+        {
+            process.StartInfo.FileName = "open";
+            process.StartInfo.Arguments = Application.dataPath + "/../" + buildPath + "/" + buildExe + " " + "-n " + "--args " + args;
+        }
         process.StartInfo.WorkingDirectory = buildPath;
+        Debug.Log(process.StartInfo.FileName + process.StartInfo.Arguments);
         process.Start();
     }
 
@@ -619,6 +637,10 @@ public class BuildWindow : EditorWindow
         var buildExe = GetBuildExe(EditorUserBuildSettings.activeBuildTarget);
 
         var processName = Path.GetFileNameWithoutExtension(buildExe);
+        
+        if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneOSX)
+            processName = "FPSSample"; // on macOS the process name is not the name of the app bundle
+        
         var processes = System.Diagnostics.Process.GetProcesses();
         foreach (var process in processes)
         {
