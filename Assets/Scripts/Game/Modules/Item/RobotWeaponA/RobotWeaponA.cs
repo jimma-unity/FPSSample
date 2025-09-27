@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using UnityEngine;
 using Unity.Entities;
 using UnityEngine.VFX;

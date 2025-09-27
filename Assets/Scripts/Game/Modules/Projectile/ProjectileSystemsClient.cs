@@ -1,13 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Security.Cryptography;
 using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEditor.Rendering;
-using UnityEngine.Profiling;
 
 
 // Added to projectiles that are created locally. System attempts to find a mathcing projectile comming from server.
