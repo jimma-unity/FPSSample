@@ -25,3 +25,4 @@
 *.user
 Logs
 UserSettings
+Packages/packages-lock.json
