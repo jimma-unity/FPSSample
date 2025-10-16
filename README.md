@@ -3,10 +3,9 @@
 # FPS Sample
 
 **Update about the state of the project:**
-This project is based on Unity 2018.3 and no longer being actively maintained.
+This project is based on Unity 6000.0 and is currnetly being actively maintained.
 Feel free to continue to use it as a learning resource or simply for
-inspiration. As always, you should upgrade to latest version of Unity
-and packages if you intend to start a project.
+inspiration.
 
 Thanks for checking out this sample!
 
@@ -17,13 +16,12 @@ features in Unity and to be of use for teams who can bootstrap on top of
 this, extract useful bits and tools or simply learn from and get inspired by
 what is in the project.
 
-Visit our [landing page](https://unity.com/fps-sample) for more high
-level information about the project. Or reach out [in the forum](https://forum.unity.com/forums/fps-sample-game.184).
+Reach out [in the forum](https://discussions.unity.com).
 
-The project is using a number of new technologies: We use the new [HD Render
-Pipeline](https://github.com/Unity-Technologies/ScriptableRenderPipeline), meaning 
-all content has been authored for HDRP. We are also using the new
-[network transport layer](https://github.com/Unity-Technologies/multiplayer) as well as the [Entity-Component System](https://unity3d.com/unity/features/job-system-ECS). 
+The project is using a number of technologies: We use the [HD Render
+Pipeline](https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@17.0/manual/index.html), meaning 
+all content has been authored for HDRP. We are also using
+[Unity Transport](https://docs.unity3d.com/Packages/com.unity.transport@2.6/manual/index.html) as well as the [Entity-Component System](https://unity3d.com/unity/features/job-system-ECS). 
 In the case of ECS, we have primarily adopted the "ECS-pattern" and use it in
 hybrid mode with a lot of regular components. As more and more features of
 Unity become available in ECS-aware versions, we will migrate to them.
@@ -32,14 +30,13 @@ Unity become available in ECS-aware versions, we will migrate to them.
 
 Current status at a glance:
 ```
-Unity version: 2018.3.8f1
-Platforms    : Windows (client and server) and Linux (server only)
+Unity version: 6000.0.58f2
+Platforms    : Windows and macOS (client and server) and Linux (server only)
 ```
 
 ## Getting the project
 
 To get the project folder you need to clone the project.
-Note, that 
 
 > __IMPORTANT__: 
 > This project uses Git Large Files Support (LFS). Downloading a zip file using the green button on Github
@@ -66,12 +63,6 @@ few clients to it.
 
 The first time you open the project you need patience! It takes a while
 to import all the assets.
-
-> __NOTE__: Due to a bug in Unity 2018.3, you have to take the following step right after the initial import:
-> 1 Search for `Firstperson_Projection` in the Project search field. Select the 4 shaders, right click and reimport them.
-> 2 If you have script compile errors related to entities, you need to remove and re-install the entities package.
->
-> One day soon we will remove this note and there will be cake.
 
 Once the editor is ready, open the _Project Tools Window_ by
 navigating to ___FPS Sample > Windows > Project tools___.
@@ -110,8 +101,6 @@ compiled.
 Once you have built the bundles, hit __Build game__ in the game section.
 This builds the standalone player. Again, first time will be slow.
 
-> __NOTE__: Due to a limitation in Unity 2018.3, you have to look out for errors like this `Maximum number (256) of shader keywords exceeded, keyword <KEYWORD_NAME> will be ignored.` and similar. If you get these, you can close and open Unity and then try and build again. The errors are relatively harmless but can lead to graphical artifacts as some shaders will have wrong keywords.
-
 ### Using the quick start launcher
 
 When this is done, locate the "Quick start" section at the bottom of the
@@ -130,15 +119,6 @@ connect to the server.
 Congratulations! If you made it this far you should celebrate a bit!
 
 ## Development of FPS Sample, Contributions etc.
-
-As of today, internally development of the project happens on Perforce. We
-push versions of the project to github from there. As we do that we will update
-the [CHANGELOG](CHANGELOG.md) with highlights but the full history is not
-carried over.
-
-For practical reasons we are not able to take larger contributions
-just now. But bugfixes are very welcome! Read the guidelines for
-contributing in [CONTRIBUTING](CONTRIBUTING.md).
 
 ## More information
 
