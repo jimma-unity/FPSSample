@@ -306,6 +306,11 @@ public class BuildTools
         return "Builds/" + target.ToString() + "/" + GetLongBuildName(target, buildName);
     }
 
+    static string GetBundlePath(string buildPath)
+    {
+        return buildPath + "/" + Application.productName + "_data" ;
+    }
+
     static string GetBuildFolderPath(BuildTarget target)
     {
         return "Builds/" + target.ToString();
@@ -489,11 +494,12 @@ public class BuildTools
         var target = BuildTarget.StandaloneWindows64;
         var buildName = GetBuildName();
         var buildPath = GetBuildPath(target, buildName);
+        var bundlePath = GetBundlePath(buildPath);
         string executableName = Application.productName + ".exe";
 
         Directory.CreateDirectory(buildPath);
 
-        BuildBundles(buildPath, target, true, true, true);
+        BuildBundles(bundlePath, target, true, true, true);
         var res = BuildGame(buildPath, executableName, target, BuildOptions.None, buildName, useIL2CPP);
 
         if (!res)
