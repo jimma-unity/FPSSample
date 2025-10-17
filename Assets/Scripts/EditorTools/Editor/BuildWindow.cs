@@ -384,7 +384,7 @@ public class BuildWindow : EditorWindow
         GUILayout.BeginHorizontal();
         var absoleuteBuildPath = Application.dataPath.BeforeLast("Assets") + GetBuildPath(buildTarget);
         #if UNITY_EDITOR_WIN
-            absoleuteBuildPath.Replace("/", "\\");
+            absoleuteBuildPath = absoleuteBuildPath.Replace("/", "\\");
         #endif
         if (GUILayout.Button("Open build folder"))
         {
