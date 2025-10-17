@@ -253,7 +253,7 @@ public class BuildWindow : EditorWindow
         // On PS4 we copy to "Assets/StreamingAssets" later
         if (buildTarget == BuildTarget.StandaloneOSX)
             return GetBuildPath(buildTarget) + "/" + GetBuildExeName(buildTarget) + "/Contents/";
-        return GetBuildPath(buildTarget) + "/AutoBuild_Data/";
+        return GetBuildPath(buildTarget) + "/" + KRootName + "_Data/";
     }
 
     static bool s_SingleLevelBuilding = false;
