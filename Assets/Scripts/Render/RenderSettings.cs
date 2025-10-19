@@ -234,14 +234,14 @@ public static class RenderSettings
         hdCam.customRenderingSettings = true;
 
         var settings = hdCam.renderingPathCustomFrameSettings;
-
-        /*settings.enableSubsurfaceScattering = rSSS.IntValue > 0;
-        settings.enableMotionVectors = rMotionBlur.IntValue > 0;
-        settings.enableObjectMotionVectors = rMotionBlur.IntValue > 0;
-        settings.enableSSAO = rSSAO.IntValue > 0;
-        settings.enableSSR = rSSR.IntValue > 0;
-        settings.enableRoughRefraction = rRoughRefraction.IntValue > 0;
-        settings.enableDistortion = rDistortion.IntValue > 0;*/
+        
+        settings.SetEnabled(FrameSettingsField.SubsurfaceScattering, rSSS.IntValue > 0);
+        settings.SetEnabled(FrameSettingsField.MotionVectors, rMotionBlur.IntValue > 0);
+        settings.SetEnabled(FrameSettingsField.ObjectMotionVectors, rMotionBlur.IntValue > 0);
+        settings.SetEnabled(FrameSettingsField.SSAO, rSSAO.IntValue > 0);
+        settings.SetEnabled(FrameSettingsField.SSR, rSSR.IntValue > 0);
+        settings.SetEnabled(FrameSettingsField.Refraction, rRoughRefraction.IntValue > 0);
+        settings.SetEnabled(FrameSettingsField.Distortion, rDistortion.IntValue > 0);
 
         // Apply the modified settings back to the camera
         hdCam.renderingPathCustomFrameSettings = settings;
@@ -252,25 +252,25 @@ public static class RenderSettings
         if (c == null)
             return;
 
-        var ppl = c.GetComponent<PostProcessLayer>();
-        if (ppl == null)
+        var hdCam = c.GetComponent<HDAdditionalCameraData>();
+        if (hdCam == null)
             return;
 
         if (rAAMode.Value == "off")
-            ppl.antialiasingMode = PostProcessLayer.Antialiasing.None;
+            hdCam.antialiasing = HDAdditionalCameraData.AntialiasingMode.None;
         else if (rAAMode.Value == "fxaa")
-            ppl.antialiasingMode = PostProcessLayer.Antialiasing.FastApproximateAntialiasing;
+            hdCam.antialiasing = HDAdditionalCameraData.AntialiasingMode.FastApproximateAntialiasing;
         else if (rAAMode.Value == "smaa")
         {
-            ppl.antialiasingMode = PostProcessLayer.Antialiasing.SubpixelMorphologicalAntialiasing;
+            hdCam.antialiasing = HDAdditionalCameraData.AntialiasingMode.SubpixelMorphologicalAntiAliasing;
 
-            if (rAAQuality.Value == "low") ppl.subpixelMorphologicalAntialiasing.quality = SubpixelMorphologicalAntialiasing.Quality.Low;
-            else if (rAAQuality.Value == "med") ppl.subpixelMorphologicalAntialiasing.quality = SubpixelMorphologicalAntialiasing.Quality.Medium;
-            else if (rAAQuality.Value == "high") ppl.subpixelMorphologicalAntialiasing.quality = SubpixelMorphologicalAntialiasing.Quality.High;
+            if (rAAQuality.Value == "low") hdCam.SMAAQuality = HDAdditionalCameraData.SMAAQualityLevel.Low;
+            else if (rAAQuality.Value == "med") hdCam.SMAAQuality = HDAdditionalCameraData.SMAAQualityLevel.Medium;
+            else if (rAAQuality.Value == "high") hdCam.SMAAQuality = HDAdditionalCameraData.SMAAQualityLevel.High;
             else GameDebug.Log("Unknown AA quality: " + rAAQuality.Value);
         }
         else if (rAAMode.Value == "taa")
-            ppl.antialiasingMode = PostProcessLayer.Antialiasing.TemporalAntialiasing;
+            hdCam.antialiasing = HDAdditionalCameraData.AntialiasingMode.TemporalAntialiasing;
         else
             GameDebug.Log("Unknown aa mode: " + rAAMode.Value);
 
