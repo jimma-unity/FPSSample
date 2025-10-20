@@ -510,6 +510,40 @@ public class BuildTools
         Debug.Log("Window64 build completed...");
         PostProcessWindows64();
     }
+    
+    [MenuItem("FPS Sample/BuildSystem/macOS/CreateBuildMacOS")]
+    public static void CreateBuildMacOs()
+    {
+        CreateBuildMacOs(false);
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/macOS/CreateBuildMacOS-IL2CPP")]
+    public static void CreateBuildMacOsIL2CPP()
+    {
+        CreateBuildMacOs(true);
+    }
+    static void CreateBuildMacOs(bool useIL2CPP)
+    {
+        Debug.Log("macOS build started. (" + (useIL2CPP ? "IL2CPP" : "Mono") + ")");
+        var target = BuildTarget.StandaloneOSX;
+        var buildName = GetBuildName();
+        var buildPath = GetBuildPath(target, buildName);
+        var bundlePath = GetBundlePath(buildPath);
+        string executableName = Application.productName + ".exe";
+
+        Directory.CreateDirectory(buildPath);
+
+        BuildBundles(bundlePath, target, true, true, true);
+        var res = BuildGame(buildPath, executableName, target, BuildOptions.None, buildName, useIL2CPP);
+
+        if (!res)
+            throw new Exception("BuildPipeline.BuildPlayer failed");
+        if (res.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+            throw new Exception("BuildPipeline.BuildPlayer failed: " + res.ToString());
+
+        Debug.Log("macOS build completed...");
+        PostProcessWindows64();
+    }
 
     [MenuItem("FPS Sample/BuildSystem/PS4/CreateBuildPS4")]
     public static void CreateBuildPS4()
