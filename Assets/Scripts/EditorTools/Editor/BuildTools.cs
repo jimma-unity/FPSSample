@@ -5,7 +5,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using System.Threading;
-using UnityEditor.Build.Pipeline;
 
 public class BuildTools
 {
@@ -37,8 +36,7 @@ public class BuildTools
         Directory.CreateDirectory(buildPath);
 
         // Set all files to be writeable (As Unity 2017.1 sets them to read only)
-        string fullBuildPath = Directory.GetCurrentDirectory() + "/" + buildPath;
-        string[] fileNames = Directory.GetFiles(fullBuildPath, "*.*", SearchOption.AllDirectories);
+        string[] fileNames = Directory.GetFiles(buildPath, "*.*", SearchOption.AllDirectories);
 
         //Contentpipeline compile player scripts
 
@@ -63,19 +61,19 @@ public class BuildTools
             CopyDirectory(bundlePathSrc, bundlePathDst);
         }
 
-        var monoDirs = Directory.GetDirectories(fullBuildPath).Where(s => s.Contains("MonoBleedingEdge"));
-        var il2cppDirs = Directory.GetDirectories(fullBuildPath).Where(s => s.Contains("BackUpThisFolder_ButDontShipItWithYourGame"));
+        var monoDirs = Directory.GetDirectories(buildPath).Where(s => s.Contains("MonoBleedingEdge"));
+        var il2cppDirs = Directory.GetDirectories(buildPath).Where(s => s.Contains("BackUpThisFolder_ButDontShipItWithYourGame"));
         var clearFolder = (il2cpp && monoDirs.Count() > 0) || (!il2cpp && il2cppDirs.Count() > 0);
         if (clearFolder)
         {
             Debug.Log(" deleting old folders ..");
-            foreach(var file in Directory.GetFiles(fullBuildPath))
+            foreach(var file in Directory.GetFiles(buildPath))
                 File.Delete(file);
             foreach(var dir in monoDirs)
                 Directory.Delete(dir,true);
             foreach(var dir in il2cppDirs)
                 Directory.Delete(dir,true);
-            foreach(var dir in Directory.GetDirectories(fullBuildPath).Where(s => s.EndsWith("_Data")))
+            foreach(var dir in Directory.GetDirectories(buildPath).Where(s => s.EndsWith("_Data")))
                 Directory.Delete(dir,true);
         }
 
@@ -301,14 +299,31 @@ public class BuildTools
         return Application.productName + "_" + target.ToString() + "_" + buildName;
     }
 
-    static string GetBuildPath(BuildTarget target, string buildName)
+    static string GetProjectRoot()
     {
-        return "Builds/" + target.ToString() + "/" + GetLongBuildName(target, buildName);
+        return Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
     }
 
-    static string GetBundlePath(string buildPath)
+    static string GetBuildPath(BuildTarget target, string buildName)
     {
-        return buildPath + "/" + Application.productName + "_data" ;
+        return Path.Combine(GetProjectRoot(), "Builds", target.ToString(), GetLongBuildName(target, buildName));
+    }
+
+    static string GetBundlePath(BuildTarget target, string buildPath)
+    {
+        if (target == BuildTarget.StandaloneOSX)
+            return buildPath + "/" + GetAppNameWithExtension(target) + "/Contents/";
+        return buildPath + "/" + Application.productName + "_data";
+    }
+
+    static string GetAppNameWithExtension(BuildTarget target)
+    {
+        if (target == BuildTarget.StandaloneOSX)
+            return Application.productName + ".app";
+        if (target == BuildTarget.StandaloneWindows64)
+            return Application.productName + ".exe";
+        Debug.LogError("Unsupported Platform");
+        return "";
     }
 
     static string GetBuildFolderPath(BuildTarget target)
@@ -403,9 +418,9 @@ public class BuildTools
         var buildName = GetBuildName();
         var zipName = GetLongBuildName(target, buildName) + ".zip";
         var buildPath = GetBuildPath(target, buildName);
-        string executableName = Application.productName + ".exe";
+        string executableName = GetAppNameWithExtension(target);
 
-        if (!Directory.Exists(buildPath) || !File.Exists(buildPath + "/" + Application.productName + ".exe"))
+        if (!Directory.Exists(buildPath) || !File.Exists(buildPath + "/" + executableName))
         {
             Debug.Log("No build here: " + buildPath);
             return;
@@ -494,8 +509,8 @@ public class BuildTools
         var target = BuildTarget.StandaloneWindows64;
         var buildName = GetBuildName();
         var buildPath = GetBuildPath(target, buildName);
-        var bundlePath = GetBundlePath(buildPath);
-        string executableName = Application.productName + ".exe";
+        var bundlePath = GetBundlePath(target, buildPath);
+        string executableName = GetAppNameWithExtension(target);
 
         Directory.CreateDirectory(buildPath);
 
@@ -509,6 +524,75 @@ public class BuildTools
 
         Debug.Log("Window64 build completed...");
         PostProcessWindows64();
+    }
+
+    static void WriteShellScriptAndMakeExecutable(string fullPath, string[] script)
+    {
+        File.WriteAllLines(fullPath, script);
+
+        // chmod +x
+        var chmod = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "/bin/chmod",
+            Arguments = $"+x \"{fullPath}\"",
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+        using var p = System.Diagnostics.Process.Start(chmod);
+        p!.WaitForExit();
+        if (p.ExitCode != 0)
+            Debug.LogError("chmod failed: " + p.StandardError.ReadToEnd());
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/macOS/PostProcess")]
+    public static void PostProcessMacOs()
+    {
+        Debug.Log("macOS build postprocessing...");
+        var target = BuildTarget.StandaloneOSX;
+        var buildName = GetBuildName();
+        //var zipName = GetLongBuildName(target, buildName) + ".zip";
+        var buildPath = GetBuildPath(target, buildName);
+        string executableName = GetAppNameWithExtension(target);
+        var exePath = buildPath + "/" + executableName;
+
+        if (!Directory.Exists(buildPath) || !Directory.Exists(exePath))
+        {
+            Debug.Log("No build here: " + buildPath);
+            return;
+        }
+
+        Debug.Log("Writing config files");
+        // Build server sh
+        var serverSh = new[]
+        {
+            "#!/bin/zsh",
+            "# start game server on level_01",
+            "open " + "./" + executableName + " " + "-n " + "--args " + "-nographics -batchmode -noboot +serve level_01 +game.modename assault"
+        };
+        var serverScriptPath = buildPath + "/server.sh";
+        WriteShellScriptAndMakeExecutable(serverScriptPath, serverSh);
+        Debug.Log("  server.sh");
+
+        // Build client sh
+        var clientSh = new[]
+        {
+            "#!/bin/zsh",
+            "# start game client",
+            "open " + "./" + executableName + " " + "-n "
+        };
+        var clientScriptPath = buildPath + "/client.sh";
+        WriteShellScriptAndMakeExecutable(clientScriptPath, clientSh);
+        Debug.Log("  client.sh");
+
+        // Build boot.cfg
+        var bootCfg = new string[]
+        {
+           "client",
+           "load level_menu"
+        };
+        File.WriteAllLines(buildPath + "/" + Game.k_BootConfigFilename, bootCfg);
+        Debug.Log("  " + Game.k_BootConfigFilename);
     }
     
     [MenuItem("FPS Sample/BuildSystem/macOS/CreateBuildMacOS")]
@@ -528,8 +612,8 @@ public class BuildTools
         var target = BuildTarget.StandaloneOSX;
         var buildName = GetBuildName();
         var buildPath = GetBuildPath(target, buildName);
-        var bundlePath = GetBundlePath(buildPath);
-        string executableName = Application.productName + ".exe";
+        var bundlePath = GetBundlePath(target, buildPath);
+        string executableName = GetAppNameWithExtension(target);
 
         Directory.CreateDirectory(buildPath);
 
@@ -542,7 +626,7 @@ public class BuildTools
             throw new Exception("BuildPipeline.BuildPlayer failed: " + res.ToString());
 
         Debug.Log("macOS build completed...");
-        PostProcessWindows64();
+        PostProcessMacOs();
     }
 
     [MenuItem("FPS Sample/BuildSystem/PS4/CreateBuildPS4")]
