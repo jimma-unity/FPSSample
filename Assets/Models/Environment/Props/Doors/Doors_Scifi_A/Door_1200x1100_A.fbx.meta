@@ -1,110 +1,308 @@
 fileFormatVersion: 2
 guid: d8dffd42f3d22ca40acc980043277269
 ModelImporter:
-  serializedVersion: 23
-  fileIDToRecycleName:
-    100000: //RootNode
-    100002: Geometry_Door_1200x1100_A_Frame_LOD00
-    100004: Geometry_Door_1200x1100_A_Left_LOD00
-    100006: Geometry_Door_1200x1100_A_Right_LOD00
-    100008: Collision_Door_1200x1100_A_Frame
-    100010: Collision_Door_1200x1100_A_Left
-    100012: Collision_Door_1200x1100_A_Right
-    100014: Collision_Geometry_Door_1200x1100_A_Frame
-    100016: Collision_Geometry_Door_1200x1100_A_Left
-    100018: Collision_Geometry_Door_1200x1100_A_Right
-    100020: Geometry_Door_1200x1100_A_Frame_LOD01
-    100022: Geometry_Door_1200x1100_A_Frame_LOD02
-    100024: Geometry_Door_1200x1100_A_Frame_LOD03
-    100026: Geometry_Door_1200x1100_A_Left_LOD01
-    100028: Geometry_Door_1200x1100_A_Left_LOD02
-    100030: Geometry_Door_1200x1100_A_Left_LOD03
-    100032: Geometry_Door_1200x1100_A_Right_LOD01
-    100034: Geometry_Door_1200x1100_A_Right_LOD02
-    100036: Geometry_Door_1200x1100_A_Right_LOD03
-    400000: //RootNode
-    400002: Geometry_Door_1200x1100_A_Frame_LOD00
-    400004: Geometry_Door_1200x1100_A_Left_LOD00
-    400006: Geometry_Door_1200x1100_A_Right_LOD00
-    400008: Collision_Door_1200x1100_A_Frame
-    400010: Collision_Door_1200x1100_A_Left
-    400012: Collision_Door_1200x1100_A_Right
-    400014: Collision_Geometry_Door_1200x1100_A_Frame
-    400016: Collision_Geometry_Door_1200x1100_A_Left
-    400018: Collision_Geometry_Door_1200x1100_A_Right
-    400020: Geometry_Door_1200x1100_A_Frame_LOD01
-    400022: Geometry_Door_1200x1100_A_Frame_LOD02
-    400024: Geometry_Door_1200x1100_A_Frame_LOD03
-    400026: Geometry_Door_1200x1100_A_Left_LOD01
-    400028: Geometry_Door_1200x1100_A_Left_LOD02
-    400030: Geometry_Door_1200x1100_A_Left_LOD03
-    400032: Geometry_Door_1200x1100_A_Right_LOD01
-    400034: Geometry_Door_1200x1100_A_Right_LOD02
-    400036: Geometry_Door_1200x1100_A_Right_LOD03
-    2300000: Geometry_Door_1200x1100_A_Frame_LOD00
-    2300002: Geometry_Door_1200x1100_A_Left_LOD00
-    2300004: Geometry_Door_1200x1100_A_Right_LOD00
-    2300006: Geometry_Door_1200x1100_A_Frame_LOD01
-    2300008: Geometry_Door_1200x1100_A_Frame_LOD02
-    2300010: Geometry_Door_1200x1100_A_Frame_LOD03
-    2300012: Geometry_Door_1200x1100_A_Left_LOD01
-    2300014: Geometry_Door_1200x1100_A_Left_LOD02
-    2300016: Geometry_Door_1200x1100_A_Left_LOD03
-    2300018: Geometry_Door_1200x1100_A_Right_LOD01
-    2300020: Geometry_Door_1200x1100_A_Right_LOD02
-    2300022: Geometry_Door_1200x1100_A_Right_LOD03
-    2300024: Collision_Geometry_Door_1200x1100_A_Frame
-    2300026: Collision_Geometry_Door_1200x1100_A_Left
-    2300028: Collision_Geometry_Door_1200x1100_A_Right
-    3300000: Geometry_Door_1200x1100_A_Frame_LOD00
-    3300002: Geometry_Door_1200x1100_A_Left_LOD00
-    3300004: Geometry_Door_1200x1100_A_Right_LOD00
-    3300006: Collision_Door_1200x1100_A_Frame
-    3300008: Collision_Door_1200x1100_A_Left
-    3300010: Collision_Door_1200x1100_A_Right
-    3300012: Collision_Geometry_Door_1200x1100_A_Frame
-    3300014: Collision_Geometry_Door_1200x1100_A_Left
-    3300016: Collision_Geometry_Door_1200x1100_A_Right
-    3300018: Geometry_Door_1200x1100_A_Frame_LOD01
-    3300020: Geometry_Door_1200x1100_A_Frame_LOD02
-    3300022: Geometry_Door_1200x1100_A_Frame_LOD03
-    3300024: Geometry_Door_1200x1100_A_Left_LOD01
-    3300026: Geometry_Door_1200x1100_A_Left_LOD02
-    3300028: Geometry_Door_1200x1100_A_Left_LOD03
-    3300030: Geometry_Door_1200x1100_A_Right_LOD01
-    3300032: Geometry_Door_1200x1100_A_Right_LOD02
-    3300034: Geometry_Door_1200x1100_A_Right_LOD03
-    4300000: Geometry_Door_1200x1100_A_Frame_LOD00
-    4300002: Geometry_Door_1200x1100_A_Right_LOD00
-    4300004: Geometry_Door_1200x1100_A_Left_LOD00
-    4300006: Collision_Door_1200x1100_A_Frame
-    4300008: Collision_Door_1200x1100_A_Left
-    4300010: Collision_Door_1200x1100_A_Right
-    4300012: Geometry_Door_1200x1100_A_Frame_LOD01
-    4300014: Geometry_Door_1200x1100_A_Frame_LOD02
-    4300016: Geometry_Door_1200x1100_A_Frame_LOD03
-    4300018: Geometry_Door_1200x1100_A_Left_LOD01
-    4300020: Geometry_Door_1200x1100_A_Left_LOD02
-    4300022: Geometry_Door_1200x1100_A_Left_LOD03
-    4300024: Geometry_Door_1200x1100_A_Right_LOD01
-    4300026: Geometry_Door_1200x1100_A_Right_LOD02
-    4300028: Geometry_Door_1200x1100_A_Right_LOD03
-    4300030: Collision_Geometry_Door_1200x1100_A_Frame
-    4300032: Collision_Geometry_Door_1200x1100_A_Left
-    4300034: Collision_Geometry_Door_1200x1100_A_Right
-    6400000: Collision_Door_1200x1100_A_Frame
-    6400002: Collision_Door_1200x1100_A_Left
-    6400004: Collision_Door_1200x1100_A_Right
-    6400006: Collision_Geometry_Door_1200x1100_A_Frame
-    6400008: Collision_Geometry_Door_1200x1100_A_Left
-    6400010: Collision_Geometry_Door_1200x1100_A_Right
-    9500000: //RootNode
-    11400000: //RootNode
-    20500000: //RootNode
-    2186277476908879412: ImportLogs
+  serializedVersion: 22200
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: //RootNode
+  - first:
+      1: 100002
+    second: Geometry_Door_1200x1100_A_Frame_LOD00
+  - first:
+      1: 100004
+    second: Geometry_Door_1200x1100_A_Left_LOD00
+  - first:
+      1: 100006
+    second: Geometry_Door_1200x1100_A_Right_LOD00
+  - first:
+      1: 100008
+    second: Collision_Door_1200x1100_A_Frame
+  - first:
+      1: 100010
+    second: Collision_Door_1200x1100_A_Left
+  - first:
+      1: 100012
+    second: Collision_Door_1200x1100_A_Right
+  - first:
+      1: 100014
+    second: Collision_Geometry_Door_1200x1100_A_Frame
+  - first:
+      1: 100016
+    second: Collision_Geometry_Door_1200x1100_A_Left
+  - first:
+      1: 100018
+    second: Collision_Geometry_Door_1200x1100_A_Right
+  - first:
+      1: 100020
+    second: Geometry_Door_1200x1100_A_Frame_LOD01
+  - first:
+      1: 100022
+    second: Geometry_Door_1200x1100_A_Frame_LOD02
+  - first:
+      1: 100024
+    second: Geometry_Door_1200x1100_A_Frame_LOD03
+  - first:
+      1: 100026
+    second: Geometry_Door_1200x1100_A_Left_LOD01
+  - first:
+      1: 100028
+    second: Geometry_Door_1200x1100_A_Left_LOD02
+  - first:
+      1: 100030
+    second: Geometry_Door_1200x1100_A_Left_LOD03
+  - first:
+      1: 100032
+    second: Geometry_Door_1200x1100_A_Right_LOD01
+  - first:
+      1: 100034
+    second: Geometry_Door_1200x1100_A_Right_LOD02
+  - first:
+      1: 100036
+    second: Geometry_Door_1200x1100_A_Right_LOD03
+  - first:
+      4: 400000
+    second: //RootNode
+  - first:
+      4: 400002
+    second: Geometry_Door_1200x1100_A_Frame_LOD00
+  - first:
+      4: 400004
+    second: Geometry_Door_1200x1100_A_Left_LOD00
+  - first:
+      4: 400006
+    second: Geometry_Door_1200x1100_A_Right_LOD00
+  - first:
+      4: 400008
+    second: Collision_Door_1200x1100_A_Frame
+  - first:
+      4: 400010
+    second: Collision_Door_1200x1100_A_Left
+  - first:
+      4: 400012
+    second: Collision_Door_1200x1100_A_Right
+  - first:
+      4: 400014
+    second: Collision_Geometry_Door_1200x1100_A_Frame
+  - first:
+      4: 400016
+    second: Collision_Geometry_Door_1200x1100_A_Left
+  - first:
+      4: 400018
+    second: Collision_Geometry_Door_1200x1100_A_Right
+  - first:
+      4: 400020
+    second: Geometry_Door_1200x1100_A_Frame_LOD01
+  - first:
+      4: 400022
+    second: Geometry_Door_1200x1100_A_Frame_LOD02
+  - first:
+      4: 400024
+    second: Geometry_Door_1200x1100_A_Frame_LOD03
+  - first:
+      4: 400026
+    second: Geometry_Door_1200x1100_A_Left_LOD01
+  - first:
+      4: 400028
+    second: Geometry_Door_1200x1100_A_Left_LOD02
+  - first:
+      4: 400030
+    second: Geometry_Door_1200x1100_A_Left_LOD03
+  - first:
+      4: 400032
+    second: Geometry_Door_1200x1100_A_Right_LOD01
+  - first:
+      4: 400034
+    second: Geometry_Door_1200x1100_A_Right_LOD02
+  - first:
+      4: 400036
+    second: Geometry_Door_1200x1100_A_Right_LOD03
+  - first:
+      23: 2300000
+    second: Geometry_Door_1200x1100_A_Frame_LOD00
+  - first:
+      23: 2300002
+    second: Geometry_Door_1200x1100_A_Left_LOD00
+  - first:
+      23: 2300004
+    second: Geometry_Door_1200x1100_A_Right_LOD00
+  - first:
+      23: 2300006
+    second: Geometry_Door_1200x1100_A_Frame_LOD01
+  - first:
+      23: 2300008
+    second: Geometry_Door_1200x1100_A_Frame_LOD02
+  - first:
+      23: 2300010
+    second: Geometry_Door_1200x1100_A_Frame_LOD03
+  - first:
+      23: 2300012
+    second: Geometry_Door_1200x1100_A_Left_LOD01
+  - first:
+      23: 2300014
+    second: Geometry_Door_1200x1100_A_Left_LOD02
+  - first:
+      23: 2300016
+    second: Geometry_Door_1200x1100_A_Left_LOD03
+  - first:
+      23: 2300018
+    second: Geometry_Door_1200x1100_A_Right_LOD01
+  - first:
+      23: 2300020
+    second: Geometry_Door_1200x1100_A_Right_LOD02
+  - first:
+      23: 2300022
+    second: Geometry_Door_1200x1100_A_Right_LOD03
+  - first:
+      23: 2300024
+    second: Collision_Geometry_Door_1200x1100_A_Frame
+  - first:
+      23: 2300026
+    second: Collision_Geometry_Door_1200x1100_A_Left
+  - first:
+      23: 2300028
+    second: Collision_Geometry_Door_1200x1100_A_Right
+  - first:
+      33: 3300000
+    second: Geometry_Door_1200x1100_A_Frame_LOD00
+  - first:
+      33: 3300002
+    second: Geometry_Door_1200x1100_A_Left_LOD00
+  - first:
+      33: 3300004
+    second: Geometry_Door_1200x1100_A_Right_LOD00
+  - first:
+      33: 3300006
+    second: Collision_Door_1200x1100_A_Frame
+  - first:
+      33: 3300008
+    second: Collision_Door_1200x1100_A_Left
+  - first:
+      33: 3300010
+    second: Collision_Door_1200x1100_A_Right
+  - first:
+      33: 3300012
+    second: Collision_Geometry_Door_1200x1100_A_Frame
+  - first:
+      33: 3300014
+    second: Collision_Geometry_Door_1200x1100_A_Left
+  - first:
+      33: 3300016
+    second: Collision_Geometry_Door_1200x1100_A_Right
+  - first:
+      33: 3300018
+    second: Geometry_Door_1200x1100_A_Frame_LOD01
+  - first:
+      33: 3300020
+    second: Geometry_Door_1200x1100_A_Frame_LOD02
+  - first:
+      33: 3300022
+    second: Geometry_Door_1200x1100_A_Frame_LOD03
+  - first:
+      33: 3300024
+    second: Geometry_Door_1200x1100_A_Left_LOD01
+  - first:
+      33: 3300026
+    second: Geometry_Door_1200x1100_A_Left_LOD02
+  - first:
+      33: 3300028
+    second: Geometry_Door_1200x1100_A_Left_LOD03
+  - first:
+      33: 3300030
+    second: Geometry_Door_1200x1100_A_Right_LOD01
+  - first:
+      33: 3300032
+    second: Geometry_Door_1200x1100_A_Right_LOD02
+  - first:
+      33: 3300034
+    second: Geometry_Door_1200x1100_A_Right_LOD03
+  - first:
+      43: 4300000
+    second: Geometry_Door_1200x1100_A_Frame_LOD00
+  - first:
+      43: 4300002
+    second: Geometry_Door_1200x1100_A_Right_LOD00
+  - first:
+      43: 4300004
+    second: Geometry_Door_1200x1100_A_Left_LOD00
+  - first:
+      43: 4300006
+    second: Collision_Door_1200x1100_A_Frame
+  - first:
+      43: 4300008
+    second: Collision_Door_1200x1100_A_Left
+  - first:
+      43: 4300010
+    second: Collision_Door_1200x1100_A_Right
+  - first:
+      43: 4300012
+    second: Geometry_Door_1200x1100_A_Frame_LOD01
+  - first:
+      43: 4300014
+    second: Geometry_Door_1200x1100_A_Frame_LOD02
+  - first:
+      43: 4300016
+    second: Geometry_Door_1200x1100_A_Frame_LOD03
+  - first:
+      43: 4300018
+    second: Geometry_Door_1200x1100_A_Left_LOD01
+  - first:
+      43: 4300020
+    second: Geometry_Door_1200x1100_A_Left_LOD02
+  - first:
+      43: 4300022
+    second: Geometry_Door_1200x1100_A_Left_LOD03
+  - first:
+      43: 4300024
+    second: Geometry_Door_1200x1100_A_Right_LOD01
+  - first:
+      43: 4300026
+    second: Geometry_Door_1200x1100_A_Right_LOD02
+  - first:
+      43: 4300028
+    second: Geometry_Door_1200x1100_A_Right_LOD03
+  - first:
+      43: 4300030
+    second: Collision_Geometry_Door_1200x1100_A_Frame
+  - first:
+      43: 4300032
+    second: Collision_Geometry_Door_1200x1100_A_Left
+  - first:
+      43: 4300034
+    second: Collision_Geometry_Door_1200x1100_A_Right
+  - first:
+      64: 6400000
+    second: Collision_Door_1200x1100_A_Frame
+  - first:
+      64: 6400002
+    second: Collision_Door_1200x1100_A_Left
+  - first:
+      64: 6400004
+    second: Collision_Door_1200x1100_A_Right
+  - first:
+      64: 6400006
+    second: Collision_Geometry_Door_1200x1100_A_Frame
+  - first:
+      64: 6400008
+    second: Collision_Geometry_Door_1200x1100_A_Left
+  - first:
+      64: 6400010
+    second: Collision_Geometry_Door_1200x1100_A_Right
+  - first:
+      95: 9500000
+    second: //RootNode
+  - first:
+      114: 11400000
+    second: //RootNode
+  - first:
+      205: 20500000
+    second: //RootNode
+  - first:
+      41386430: 2186277476908879412
+    second: ImportLogs
   externalObjects: {}
   materials:
-    importMaterials: 0
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 1
@@ -113,9 +311,8 @@ ModelImporter:
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -130,7 +327,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 1
+    isReadable: 0
   meshes:
     lODScreenPercentages:
     - 0.25
@@ -140,34 +337,49 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
     importVisibility: 1
     importBlendShapes: 1
     importCameras: 1
     importLights: 1
+    nodeNameCollisionStrategy: 0
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    bakeAxisConversion: 0
     preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
     useFileScale: 1
-    previousCalculatedGlobalScale: 1
-    hasPreviousCalculatedGlobalScale: 0
+    strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
     normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -177,14 +389,19 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
-    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 0
   humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  importBlendShapeDeformPercent: 0
+  remapMaterialsIfMaterialImportModeIsNone: 1
   additionalBone: 0
   userData: 
   assetBundleName: 

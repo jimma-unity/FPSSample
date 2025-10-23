@@ -1,88 +1,242 @@
 fileFormatVersion: 2
 guid: fb2e5f6d8fd17364d8b1be934eccd9ba
 ModelImporter:
-  serializedVersion: 23
-  fileIDToRecycleName:
-    100000: //RootNode
-    100002: Floor_Interior_400_A005
-    100004: Collision_Elevator_Shaft_BottomDoor_400x550_A
-    100006: Geom_Elevator_Shaft_BottomDoor_400x550_A_LOD00
-    100008: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
-    100010: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD00
-    100012: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD000
-    100014: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    100016: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
-    100018: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
-    100020: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
-    100022: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
-    100024: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD01
-    100026: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD02
-    100028: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD03
-    400000: //RootNode
-    400002: Floor_Interior_400_A005
-    400004: Collision_Elevator_Shaft_BottomDoor_400x550_A
-    400006: Geom_Elevator_Shaft_BottomDoor_400x550_A_LOD00
-    400008: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
-    400010: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD00
-    400012: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD000
-    400014: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    400016: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
-    400018: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
-    400020: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
-    400022: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
-    400024: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD01
-    400026: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD02
-    400028: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD03
-    2300000: Floor_Interior_400_A005
-    2300002: Geom_Elevator_Shaft_BottomDoor_400x550_A_LOD00
-    2300004: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD00
-    2300006: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD000
-    2300008: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
-    2300010: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
-    2300012: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
-    2300014: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
-    2300016: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    2300018: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD01
-    2300020: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD02
-    2300022: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD03
-    2300024: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
-    3300000: Floor_Interior_400_A005
-    3300002: Collision_Elevator_Shaft_BottomDoor_400x550_A
-    3300004: Geom_Elevator_Shaft_BottomDoor_400x550_A_LOD00
-    3300006: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
-    3300008: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD00
-    3300010: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD000
-    3300012: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    3300014: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
-    3300016: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
-    3300018: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
-    3300020: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
-    3300022: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD01
-    3300024: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD02
-    3300026: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD03
-    4300000: Floor_Interior_400_A005
-    4300002: Geom_Elevator_Shaft_BottomDoor_400x550_A_LOD00
-    4300004: Collision_Elevator_Shaft_BottomDoor_400x550_A
-    4300006: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD00
-    4300008: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
-    4300010: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD000
-    4300012: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
-    4300014: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
-    4300016: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
-    4300018: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
-    4300020: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    4300022: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD01
-    4300024: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD02
-    4300026: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD03
-    6400000: Floor_Interior_400_A005
-    6400002: Collision_Elevator_Shaft_BottomDoor_400x550_A
-    6400004: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
-    6400006: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    11400000: //RootNode
-    20500000: //RootNode
+  serializedVersion: 22200
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: //RootNode
+  - first:
+      1: 100002
+    second: Floor_Interior_400_A005
+  - first:
+      1: 100004
+    second: Collision_Elevator_Shaft_BottomDoor_400x550_A
+  - first:
+      1: 100006
+    second: Geom_Elevator_Shaft_BottomDoor_400x550_A_LOD00
+  - first:
+      1: 100008
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
+  - first:
+      1: 100010
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD00
+  - first:
+      1: 100012
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD000
+  - first:
+      1: 100014
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      1: 100016
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
+  - first:
+      1: 100018
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
+  - first:
+      1: 100020
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
+  - first:
+      1: 100022
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
+  - first:
+      1: 100024
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD01
+  - first:
+      1: 100026
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD02
+  - first:
+      1: 100028
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD03
+  - first:
+      4: 400000
+    second: //RootNode
+  - first:
+      4: 400002
+    second: Floor_Interior_400_A005
+  - first:
+      4: 400004
+    second: Collision_Elevator_Shaft_BottomDoor_400x550_A
+  - first:
+      4: 400006
+    second: Geom_Elevator_Shaft_BottomDoor_400x550_A_LOD00
+  - first:
+      4: 400008
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
+  - first:
+      4: 400010
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD00
+  - first:
+      4: 400012
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD000
+  - first:
+      4: 400014
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      4: 400016
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
+  - first:
+      4: 400018
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
+  - first:
+      4: 400020
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
+  - first:
+      4: 400022
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
+  - first:
+      4: 400024
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD01
+  - first:
+      4: 400026
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD02
+  - first:
+      4: 400028
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD03
+  - first:
+      23: 2300000
+    second: Floor_Interior_400_A005
+  - first:
+      23: 2300002
+    second: Geom_Elevator_Shaft_BottomDoor_400x550_A_LOD00
+  - first:
+      23: 2300004
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD00
+  - first:
+      23: 2300006
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD000
+  - first:
+      23: 2300008
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
+  - first:
+      23: 2300010
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
+  - first:
+      23: 2300012
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
+  - first:
+      23: 2300014
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
+  - first:
+      23: 2300016
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      23: 2300018
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD01
+  - first:
+      23: 2300020
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD02
+  - first:
+      23: 2300022
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD03
+  - first:
+      23: 2300024
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
+  - first:
+      33: 3300000
+    second: Floor_Interior_400_A005
+  - first:
+      33: 3300002
+    second: Collision_Elevator_Shaft_BottomDoor_400x550_A
+  - first:
+      33: 3300004
+    second: Geom_Elevator_Shaft_BottomDoor_400x550_A_LOD00
+  - first:
+      33: 3300006
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
+  - first:
+      33: 3300008
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD00
+  - first:
+      33: 3300010
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD000
+  - first:
+      33: 3300012
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      33: 3300014
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
+  - first:
+      33: 3300016
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
+  - first:
+      33: 3300018
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
+  - first:
+      33: 3300020
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
+  - first:
+      33: 3300022
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD01
+  - first:
+      33: 3300024
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD02
+  - first:
+      33: 3300026
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD03
+  - first:
+      43: 4300000
+    second: Floor_Interior_400_A005
+  - first:
+      43: 4300002
+    second: Geom_Elevator_Shaft_BottomDoor_400x550_A_LOD00
+  - first:
+      43: 4300004
+    second: Collision_Elevator_Shaft_BottomDoor_400x550_A
+  - first:
+      43: 4300006
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD00
+  - first:
+      43: 4300008
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
+  - first:
+      43: 4300010
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD000
+  - first:
+      43: 4300012
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
+  - first:
+      43: 4300014
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
+  - first:
+      43: 4300016
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
+  - first:
+      43: 4300018
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
+  - first:
+      43: 4300020
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      43: 4300022
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD01
+  - first:
+      43: 4300024
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD02
+  - first:
+      43: 4300026
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A_LOD03
+  - first:
+      64: 6400000
+    second: Floor_Interior_400_A005
+  - first:
+      64: 6400002
+    second: Collision_Elevator_Shaft_BottomDoor_400x550_A
+  - first:
+      64: 6400004
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_BottomDoor_400x550_A
+  - first:
+      64: 6400006
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      114: 11400000
+    second: //RootNode
+  - first:
+      205: 20500000
+    second: //RootNode
   externalObjects: {}
   materials:
-    importMaterials: 0
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 0
@@ -91,9 +245,8 @@ ModelImporter:
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -108,7 +261,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 1
+    isReadable: 0
   meshes:
     lODScreenPercentages:
     - 0.25
@@ -118,34 +271,49 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
     importVisibility: 0
     importBlendShapes: 1
     importCameras: 0
     importLights: 0
+    nodeNameCollisionStrategy: 0
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 1
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    bakeAxisConversion: 0
     preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
     indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
     useFileScale: 1
-    previousCalculatedGlobalScale: 1
-    hasPreviousCalculatedGlobalScale: 0
+    strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
     normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -155,14 +323,19 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
-    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 0
   humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  importBlendShapeDeformPercent: 0
+  remapMaterialsIfMaterialImportModeIsNone: 1
   additionalBone: 0
   userData: 66f6f629f58b8bc4cbe851297b85542f
   assetBundleName: 

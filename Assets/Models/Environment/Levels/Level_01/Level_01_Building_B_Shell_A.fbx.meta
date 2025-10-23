@@ -1,87 +1,239 @@
 fileFormatVersion: 2
 guid: 1bcb2628f7f86ca48a63a2ae23849601
 ModelImporter:
-  serializedVersion: 23
-  fileIDToRecycleName:
-    100000: Geometry_Level_01_Building_B_Shell_A_LOD00
-    100002: //RootNode
-    100004: Level_01_Building_B_Shell_Part_A_LOD00
-    100006: Level_01_Building_B_Shell_Part_B_LOD00
-    100008: Level_01_Building_B_Shell_Part_C_LOD00
-    100010: Collision_Level_01_Building_B_Shell_A
-    100012: Level_01_Building_B_Shell_Part_A_LOD01
-    100014: Level_01_Building_B_Shell_Part_A_LOD02
-    100016: Level_01_Building_B_Shell_Part_A_LOD03
-    100018: Level_01_Building_B_Shell_Part_B_LOD01
-    100020: Level_01_Building_B_Shell_Part_B_LOD02
-    100022: Level_01_Building_B_Shell_Part_B_LOD03
-    100024: Level_01_Building_B_Shell_Part_C_LOD01
-    100026: Level_01_Building_B_Shell_Part_C_LOD02
-    100028: Level_01_Building_B_Shell_Part_C_LOD03
-    400000: Geometry_Level_01_Building_B_Shell_A_LOD00
-    400002: //RootNode
-    400004: Level_01_Building_B_Shell_Part_A_LOD00
-    400006: Level_01_Building_B_Shell_Part_B_LOD00
-    400008: Level_01_Building_B_Shell_Part_C_LOD00
-    400010: Collision_Level_01_Building_B_Shell_A
-    400012: Level_01_Building_B_Shell_Part_A_LOD01
-    400014: Level_01_Building_B_Shell_Part_A_LOD02
-    400016: Level_01_Building_B_Shell_Part_A_LOD03
-    400018: Level_01_Building_B_Shell_Part_B_LOD01
-    400020: Level_01_Building_B_Shell_Part_B_LOD02
-    400022: Level_01_Building_B_Shell_Part_B_LOD03
-    400024: Level_01_Building_B_Shell_Part_C_LOD01
-    400026: Level_01_Building_B_Shell_Part_C_LOD02
-    400028: Level_01_Building_B_Shell_Part_C_LOD03
-    2300000: Geometry_Level_01_Building_B_Shell_A_LOD00
-    2300002: Level_01_Building_B_Shell_Part_A_LOD00
-    2300004: Level_01_Building_B_Shell_Part_B_LOD00
-    2300006: Level_01_Building_B_Shell_Part_C_LOD00
-    2300008: Level_01_Building_B_Shell_Part_A_LOD01
-    2300010: Level_01_Building_B_Shell_Part_A_LOD02
-    2300012: Level_01_Building_B_Shell_Part_A_LOD03
-    2300014: Level_01_Building_B_Shell_Part_B_LOD01
-    2300016: Level_01_Building_B_Shell_Part_B_LOD02
-    2300018: Level_01_Building_B_Shell_Part_B_LOD03
-    2300020: Level_01_Building_B_Shell_Part_C_LOD01
-    2300022: Level_01_Building_B_Shell_Part_C_LOD02
-    2300024: Level_01_Building_B_Shell_Part_C_LOD03
-    2300026: Collision_Level_01_Building_B_Shell_A
-    3300000: Geometry_Level_01_Building_B_Shell_A_LOD00
-    3300002: Level_01_Building_B_Shell_Part_A_LOD00
-    3300004: Level_01_Building_B_Shell_Part_B_LOD00
-    3300006: Level_01_Building_B_Shell_Part_C_LOD00
-    3300008: Collision_Level_01_Building_B_Shell_A
-    3300010: Level_01_Building_B_Shell_Part_A_LOD01
-    3300012: Level_01_Building_B_Shell_Part_A_LOD02
-    3300014: Level_01_Building_B_Shell_Part_A_LOD03
-    3300016: Level_01_Building_B_Shell_Part_B_LOD01
-    3300018: Level_01_Building_B_Shell_Part_B_LOD02
-    3300020: Level_01_Building_B_Shell_Part_B_LOD03
-    3300022: Level_01_Building_B_Shell_Part_C_LOD01
-    3300024: Level_01_Building_B_Shell_Part_C_LOD02
-    3300026: Level_01_Building_B_Shell_Part_C_LOD03
-    4300000: Geometry_Level_01_Building_B_Shell_A_LOD00
-    4300002: Level_01_Building_B_Shell_Part_B_LOD00
-    4300004: Level_01_Building_B_Shell_Part_A_LOD00
-    4300006: Level_01_Building_B_Shell_Part_C_LOD00
-    4300008: Level_01_Building_B_Shell_Part_B_LOD01
-    4300010: Level_01_Building_B_Shell_Part_B_LOD02
-    4300012: Level_01_Building_B_Shell_Part_A_LOD01
-    4300014: Level_01_Building_B_Shell_Part_A_LOD02
-    4300016: Level_01_Building_B_Shell_Part_A_LOD03
-    4300018: Level_01_Building_B_Shell_Part_C_LOD01
-    4300020: Level_01_Building_B_Shell_Part_C_LOD02
-    4300022: Level_01_Building_B_Shell_Part_C_LOD03
-    4300024: Level_01_Building_B_Shell_Part_B_LOD03
-    4300026: Collision_Level_01_Building_B_Shell_A
-    6400000: Collision_Level_01_Building_B_Shell_A
-    11400000: //RootNode
-    20500000: //RootNode
-    2186277476908879412: ImportLogs
+  serializedVersion: 22200
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: Geometry_Level_01_Building_B_Shell_A_LOD00
+  - first:
+      1: 100002
+    second: //RootNode
+  - first:
+      1: 100004
+    second: Level_01_Building_B_Shell_Part_A_LOD00
+  - first:
+      1: 100006
+    second: Level_01_Building_B_Shell_Part_B_LOD00
+  - first:
+      1: 100008
+    second: Level_01_Building_B_Shell_Part_C_LOD00
+  - first:
+      1: 100010
+    second: Collision_Level_01_Building_B_Shell_A
+  - first:
+      1: 100012
+    second: Level_01_Building_B_Shell_Part_A_LOD01
+  - first:
+      1: 100014
+    second: Level_01_Building_B_Shell_Part_A_LOD02
+  - first:
+      1: 100016
+    second: Level_01_Building_B_Shell_Part_A_LOD03
+  - first:
+      1: 100018
+    second: Level_01_Building_B_Shell_Part_B_LOD01
+  - first:
+      1: 100020
+    second: Level_01_Building_B_Shell_Part_B_LOD02
+  - first:
+      1: 100022
+    second: Level_01_Building_B_Shell_Part_B_LOD03
+  - first:
+      1: 100024
+    second: Level_01_Building_B_Shell_Part_C_LOD01
+  - first:
+      1: 100026
+    second: Level_01_Building_B_Shell_Part_C_LOD02
+  - first:
+      1: 100028
+    second: Level_01_Building_B_Shell_Part_C_LOD03
+  - first:
+      4: 400000
+    second: Geometry_Level_01_Building_B_Shell_A_LOD00
+  - first:
+      4: 400002
+    second: //RootNode
+  - first:
+      4: 400004
+    second: Level_01_Building_B_Shell_Part_A_LOD00
+  - first:
+      4: 400006
+    second: Level_01_Building_B_Shell_Part_B_LOD00
+  - first:
+      4: 400008
+    second: Level_01_Building_B_Shell_Part_C_LOD00
+  - first:
+      4: 400010
+    second: Collision_Level_01_Building_B_Shell_A
+  - first:
+      4: 400012
+    second: Level_01_Building_B_Shell_Part_A_LOD01
+  - first:
+      4: 400014
+    second: Level_01_Building_B_Shell_Part_A_LOD02
+  - first:
+      4: 400016
+    second: Level_01_Building_B_Shell_Part_A_LOD03
+  - first:
+      4: 400018
+    second: Level_01_Building_B_Shell_Part_B_LOD01
+  - first:
+      4: 400020
+    second: Level_01_Building_B_Shell_Part_B_LOD02
+  - first:
+      4: 400022
+    second: Level_01_Building_B_Shell_Part_B_LOD03
+  - first:
+      4: 400024
+    second: Level_01_Building_B_Shell_Part_C_LOD01
+  - first:
+      4: 400026
+    second: Level_01_Building_B_Shell_Part_C_LOD02
+  - first:
+      4: 400028
+    second: Level_01_Building_B_Shell_Part_C_LOD03
+  - first:
+      23: 2300000
+    second: Geometry_Level_01_Building_B_Shell_A_LOD00
+  - first:
+      23: 2300002
+    second: Level_01_Building_B_Shell_Part_A_LOD00
+  - first:
+      23: 2300004
+    second: Level_01_Building_B_Shell_Part_B_LOD00
+  - first:
+      23: 2300006
+    second: Level_01_Building_B_Shell_Part_C_LOD00
+  - first:
+      23: 2300008
+    second: Level_01_Building_B_Shell_Part_A_LOD01
+  - first:
+      23: 2300010
+    second: Level_01_Building_B_Shell_Part_A_LOD02
+  - first:
+      23: 2300012
+    second: Level_01_Building_B_Shell_Part_A_LOD03
+  - first:
+      23: 2300014
+    second: Level_01_Building_B_Shell_Part_B_LOD01
+  - first:
+      23: 2300016
+    second: Level_01_Building_B_Shell_Part_B_LOD02
+  - first:
+      23: 2300018
+    second: Level_01_Building_B_Shell_Part_B_LOD03
+  - first:
+      23: 2300020
+    second: Level_01_Building_B_Shell_Part_C_LOD01
+  - first:
+      23: 2300022
+    second: Level_01_Building_B_Shell_Part_C_LOD02
+  - first:
+      23: 2300024
+    second: Level_01_Building_B_Shell_Part_C_LOD03
+  - first:
+      23: 2300026
+    second: Collision_Level_01_Building_B_Shell_A
+  - first:
+      33: 3300000
+    second: Geometry_Level_01_Building_B_Shell_A_LOD00
+  - first:
+      33: 3300002
+    second: Level_01_Building_B_Shell_Part_A_LOD00
+  - first:
+      33: 3300004
+    second: Level_01_Building_B_Shell_Part_B_LOD00
+  - first:
+      33: 3300006
+    second: Level_01_Building_B_Shell_Part_C_LOD00
+  - first:
+      33: 3300008
+    second: Collision_Level_01_Building_B_Shell_A
+  - first:
+      33: 3300010
+    second: Level_01_Building_B_Shell_Part_A_LOD01
+  - first:
+      33: 3300012
+    second: Level_01_Building_B_Shell_Part_A_LOD02
+  - first:
+      33: 3300014
+    second: Level_01_Building_B_Shell_Part_A_LOD03
+  - first:
+      33: 3300016
+    second: Level_01_Building_B_Shell_Part_B_LOD01
+  - first:
+      33: 3300018
+    second: Level_01_Building_B_Shell_Part_B_LOD02
+  - first:
+      33: 3300020
+    second: Level_01_Building_B_Shell_Part_B_LOD03
+  - first:
+      33: 3300022
+    second: Level_01_Building_B_Shell_Part_C_LOD01
+  - first:
+      33: 3300024
+    second: Level_01_Building_B_Shell_Part_C_LOD02
+  - first:
+      33: 3300026
+    second: Level_01_Building_B_Shell_Part_C_LOD03
+  - first:
+      43: 4300000
+    second: Geometry_Level_01_Building_B_Shell_A_LOD00
+  - first:
+      43: 4300002
+    second: Level_01_Building_B_Shell_Part_B_LOD00
+  - first:
+      43: 4300004
+    second: Level_01_Building_B_Shell_Part_A_LOD00
+  - first:
+      43: 4300006
+    second: Level_01_Building_B_Shell_Part_C_LOD00
+  - first:
+      43: 4300008
+    second: Level_01_Building_B_Shell_Part_B_LOD01
+  - first:
+      43: 4300010
+    second: Level_01_Building_B_Shell_Part_B_LOD02
+  - first:
+      43: 4300012
+    second: Level_01_Building_B_Shell_Part_A_LOD01
+  - first:
+      43: 4300014
+    second: Level_01_Building_B_Shell_Part_A_LOD02
+  - first:
+      43: 4300016
+    second: Level_01_Building_B_Shell_Part_A_LOD03
+  - first:
+      43: 4300018
+    second: Level_01_Building_B_Shell_Part_C_LOD01
+  - first:
+      43: 4300020
+    second: Level_01_Building_B_Shell_Part_C_LOD02
+  - first:
+      43: 4300022
+    second: Level_01_Building_B_Shell_Part_C_LOD03
+  - first:
+      43: 4300024
+    second: Level_01_Building_B_Shell_Part_B_LOD03
+  - first:
+      43: 4300026
+    second: Collision_Level_01_Building_B_Shell_A
+  - first:
+      64: 6400000
+    second: Collision_Level_01_Building_B_Shell_A
+  - first:
+      114: 11400000
+    second: //RootNode
+  - first:
+      205: 20500000
+    second: //RootNode
+  - first:
+      41386430: 2186277476908879412
+    second: ImportLogs
   externalObjects: {}
   materials:
-    importMaterials: 0
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 0
@@ -90,9 +242,8 @@ ModelImporter:
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -107,7 +258,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 1
+    isReadable: 0
   meshes:
     lODScreenPercentages:
     - 0.25
@@ -117,34 +268,49 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
     importVisibility: 0
     importBlendShapes: 1
     importCameras: 0
     importLights: 0
+    nodeNameCollisionStrategy: 0
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    bakeAxisConversion: 0
     preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
     indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
     useFileScale: 1
-    previousCalculatedGlobalScale: 1
-    hasPreviousCalculatedGlobalScale: 0
+    strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
     normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -154,14 +320,19 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
-    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 0
   humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  importBlendShapeDeformPercent: 0
+  remapMaterialsIfMaterialImportModeIsNone: 1
   additionalBone: 0
   userData: c7df371ab7f3c8b48bcadcb32b540e97
   assetBundleName: 

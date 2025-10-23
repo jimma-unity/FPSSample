@@ -1,64 +1,170 @@
 fileFormatVersion: 2
 guid: 0a3fc4100be041d488e4d1efb89d840d
 ModelImporter:
-  serializedVersion: 23
-  fileIDToRecycleName:
-    100000: //RootNode
-    100002: Stairs_400x100_A 1
-    100004: Collision_Stairs_400x100_A
-    100006: Geom_Stairs_400x100_A_LOD00
-    100008: Stairs_400x100_A_LOD00
-    100010: Stairs_400x100_A_LOD01
-    100012: Stairs_400x100_A_LOD02
-    100014: Stairs_400x100_A_LOD03
-    100016: Collision_Detail_Stairs_400x100_A
-    100018: Collision_Player_Stairs_400x100_A
-    400000: //RootNode
-    400002: Stairs_400x100_A 1
-    400004: Collision_Stairs_400x100_A
-    400006: Geom_Stairs_400x100_A_LOD00
-    400008: Stairs_400x100_A_LOD00
-    400010: Stairs_400x100_A_LOD01
-    400012: Stairs_400x100_A_LOD02
-    400014: Stairs_400x100_A_LOD03
-    400016: Collision_Detail_Stairs_400x100_A
-    400018: Collision_Player_Stairs_400x100_A
-    2300000: Stairs_400x100_A 1
-    2300002: Geom_Stairs_400x100_A_LOD00
-    2300004: Stairs_400x100_A_LOD00
-    2300006: Stairs_400x100_A_LOD01
-    2300008: Stairs_400x100_A_LOD02
-    2300010: Stairs_400x100_A_LOD03
-    2300012: Collision_Stairs_400x100_A
-    2300014: Collision_Detail_Stairs_400x100_A
-    2300016: Collision_Player_Stairs_400x100_A
-    3300000: Stairs_400x100_A 1
-    3300002: Collision_Stairs_400x100_A
-    3300004: Geom_Stairs_400x100_A_LOD00
-    3300006: Stairs_400x100_A_LOD00
-    3300008: Stairs_400x100_A_LOD01
-    3300010: Stairs_400x100_A_LOD02
-    3300012: Stairs_400x100_A_LOD03
-    3300014: Collision_Detail_Stairs_400x100_A
-    3300016: Collision_Player_Stairs_400x100_A
-    4300000: Stairs_400x100_A
-    4300002: Geom_Stairs_400x100_A_LOD00
-    4300004: Collision_Stairs_400x100_A
-    4300006: Stairs_400x100_A_LOD00
-    4300008: Stairs_400x100_A_LOD01
-    4300010: Stairs_400x100_A_LOD02
-    4300012: Stairs_400x100_A_LOD03
-    4300014: Collision_Player_Stairs_400x100_A
-    4300016: Collision_Detail_Stairs_400x100_A
-    6400000: Stairs_400x100_A 1
-    6400002: Collision_Stairs_400x100_A
-    6400004: Collision_Detail_Stairs_400x100_A
-    6400006: Collision_Player_Stairs_400x100_A
-    11400000: //RootNode
-    20500000: //RootNode
+  serializedVersion: 22200
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: //RootNode
+  - first:
+      1: 100002
+    second: Stairs_400x100_A 1
+  - first:
+      1: 100004
+    second: Collision_Stairs_400x100_A
+  - first:
+      1: 100006
+    second: Geom_Stairs_400x100_A_LOD00
+  - first:
+      1: 100008
+    second: Stairs_400x100_A_LOD00
+  - first:
+      1: 100010
+    second: Stairs_400x100_A_LOD01
+  - first:
+      1: 100012
+    second: Stairs_400x100_A_LOD02
+  - first:
+      1: 100014
+    second: Stairs_400x100_A_LOD03
+  - first:
+      1: 100016
+    second: Collision_Detail_Stairs_400x100_A
+  - first:
+      1: 100018
+    second: Collision_Player_Stairs_400x100_A
+  - first:
+      4: 400000
+    second: //RootNode
+  - first:
+      4: 400002
+    second: Stairs_400x100_A 1
+  - first:
+      4: 400004
+    second: Collision_Stairs_400x100_A
+  - first:
+      4: 400006
+    second: Geom_Stairs_400x100_A_LOD00
+  - first:
+      4: 400008
+    second: Stairs_400x100_A_LOD00
+  - first:
+      4: 400010
+    second: Stairs_400x100_A_LOD01
+  - first:
+      4: 400012
+    second: Stairs_400x100_A_LOD02
+  - first:
+      4: 400014
+    second: Stairs_400x100_A_LOD03
+  - first:
+      4: 400016
+    second: Collision_Detail_Stairs_400x100_A
+  - first:
+      4: 400018
+    second: Collision_Player_Stairs_400x100_A
+  - first:
+      23: 2300000
+    second: Stairs_400x100_A 1
+  - first:
+      23: 2300002
+    second: Geom_Stairs_400x100_A_LOD00
+  - first:
+      23: 2300004
+    second: Stairs_400x100_A_LOD00
+  - first:
+      23: 2300006
+    second: Stairs_400x100_A_LOD01
+  - first:
+      23: 2300008
+    second: Stairs_400x100_A_LOD02
+  - first:
+      23: 2300010
+    second: Stairs_400x100_A_LOD03
+  - first:
+      23: 2300012
+    second: Collision_Stairs_400x100_A
+  - first:
+      23: 2300014
+    second: Collision_Detail_Stairs_400x100_A
+  - first:
+      23: 2300016
+    second: Collision_Player_Stairs_400x100_A
+  - first:
+      33: 3300000
+    second: Stairs_400x100_A 1
+  - first:
+      33: 3300002
+    second: Collision_Stairs_400x100_A
+  - first:
+      33: 3300004
+    second: Geom_Stairs_400x100_A_LOD00
+  - first:
+      33: 3300006
+    second: Stairs_400x100_A_LOD00
+  - first:
+      33: 3300008
+    second: Stairs_400x100_A_LOD01
+  - first:
+      33: 3300010
+    second: Stairs_400x100_A_LOD02
+  - first:
+      33: 3300012
+    second: Stairs_400x100_A_LOD03
+  - first:
+      33: 3300014
+    second: Collision_Detail_Stairs_400x100_A
+  - first:
+      33: 3300016
+    second: Collision_Player_Stairs_400x100_A
+  - first:
+      43: 4300000
+    second: Stairs_400x100_A
+  - first:
+      43: 4300002
+    second: Geom_Stairs_400x100_A_LOD00
+  - first:
+      43: 4300004
+    second: Collision_Stairs_400x100_A
+  - first:
+      43: 4300006
+    second: Stairs_400x100_A_LOD00
+  - first:
+      43: 4300008
+    second: Stairs_400x100_A_LOD01
+  - first:
+      43: 4300010
+    second: Stairs_400x100_A_LOD02
+  - first:
+      43: 4300012
+    second: Stairs_400x100_A_LOD03
+  - first:
+      43: 4300014
+    second: Collision_Player_Stairs_400x100_A
+  - first:
+      43: 4300016
+    second: Collision_Detail_Stairs_400x100_A
+  - first:
+      64: 6400000
+    second: Stairs_400x100_A 1
+  - first:
+      64: 6400002
+    second: Collision_Stairs_400x100_A
+  - first:
+      64: 6400004
+    second: Collision_Detail_Stairs_400x100_A
+  - first:
+      64: 6400006
+    second: Collision_Player_Stairs_400x100_A
+  - first:
+      114: 11400000
+    second: //RootNode
+  - first:
+      205: 20500000
+    second: //RootNode
   externalObjects: {}
   materials:
-    importMaterials: 0
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 0
@@ -67,9 +173,8 @@ ModelImporter:
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -84,7 +189,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 1
+    isReadable: 0
   meshes:
     lODScreenPercentages:
     - 0.25
@@ -95,25 +200,36 @@ ModelImporter:
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
     importVisibility: 0
     importBlendShapes: 1
     importCameras: 0
     importLights: 0
+    nodeNameCollisionStrategy: 0
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    bakeAxisConversion: 0
     preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
     indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
     useFileScale: 1
-    previousCalculatedGlobalScale: 1
-    hasPreviousCalculatedGlobalScale: 0
+    strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
@@ -122,10 +238,10 @@ ModelImporter:
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -135,13 +251,19 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 0
   humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  importBlendShapeDeformPercent: 0
+  remapMaterialsIfMaterialImportModeIsNone: 1
   additionalBone: 0
   userData: 5fd03e06658cf2041a9ad5af29ea7482
   assetBundleName: 

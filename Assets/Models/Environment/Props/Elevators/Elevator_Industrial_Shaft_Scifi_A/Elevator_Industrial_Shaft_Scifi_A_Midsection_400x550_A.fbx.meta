@@ -1,57 +1,149 @@
 fileFormatVersion: 2
 guid: e40080fd1d29aae47809b08b1221d033
 ModelImporter:
-  serializedVersion: 22
-  fileIDToRecycleName:
-    100000: //RootNode
-    100002: Floor_Interior_400_A007
-    100004: Collision_Elevator_Shaft_Midsection_400x550_A
-    100006: Geom_Elevator_Shaft_Midsection_400x550_A_LOD00
-    100008: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    100010: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
-    100012: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
-    100014: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
-    100016: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
-    400000: //RootNode
-    400002: Floor_Interior_400_A007
-    400004: Collision_Elevator_Shaft_Midsection_400x550_A
-    400006: Geom_Elevator_Shaft_Midsection_400x550_A_LOD00
-    400008: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    400010: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
-    400012: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
-    400014: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
-    400016: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
-    2300000: Floor_Interior_400_A007
-    2300002: Geom_Elevator_Shaft_Midsection_400x550_A_LOD00
-    2300004: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
-    2300006: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
-    2300008: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
-    2300010: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
-    2300012: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    3300000: Floor_Interior_400_A007
-    3300002: Collision_Elevator_Shaft_Midsection_400x550_A
-    3300004: Geom_Elevator_Shaft_Midsection_400x550_A_LOD00
-    3300006: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    3300008: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
-    3300010: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
-    3300012: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
-    3300014: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
-    4300000: Floor_Interior_400_A007
-    4300002: Geom_Elevator_Shaft_Midsection_400x550_A_LOD00
-    4300004: Collision_Elevator_Shaft_Midsection_400x550_A
-    4300006: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
-    4300008: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    4300010: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
-    4300012: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
-    4300014: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
-    6400000: Floor_Interior_400_A007
-    6400002: Collision_Elevator_Shaft_Midsection_400x550_A
-    6400004: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
-    11400000: //RootNode
-    20500000: //RootNode
+  serializedVersion: 22200
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: //RootNode
+  - first:
+      1: 100002
+    second: Floor_Interior_400_A007
+  - first:
+      1: 100004
+    second: Collision_Elevator_Shaft_Midsection_400x550_A
+  - first:
+      1: 100006
+    second: Geom_Elevator_Shaft_Midsection_400x550_A_LOD00
+  - first:
+      1: 100008
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      1: 100010
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
+  - first:
+      1: 100012
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
+  - first:
+      1: 100014
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
+  - first:
+      1: 100016
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
+  - first:
+      4: 400000
+    second: //RootNode
+  - first:
+      4: 400002
+    second: Floor_Interior_400_A007
+  - first:
+      4: 400004
+    second: Collision_Elevator_Shaft_Midsection_400x550_A
+  - first:
+      4: 400006
+    second: Geom_Elevator_Shaft_Midsection_400x550_A_LOD00
+  - first:
+      4: 400008
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      4: 400010
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
+  - first:
+      4: 400012
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
+  - first:
+      4: 400014
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
+  - first:
+      4: 400016
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
+  - first:
+      23: 2300000
+    second: Floor_Interior_400_A007
+  - first:
+      23: 2300002
+    second: Geom_Elevator_Shaft_Midsection_400x550_A_LOD00
+  - first:
+      23: 2300004
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
+  - first:
+      23: 2300006
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
+  - first:
+      23: 2300008
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
+  - first:
+      23: 2300010
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
+  - first:
+      23: 2300012
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      33: 3300000
+    second: Floor_Interior_400_A007
+  - first:
+      33: 3300002
+    second: Collision_Elevator_Shaft_Midsection_400x550_A
+  - first:
+      33: 3300004
+    second: Geom_Elevator_Shaft_Midsection_400x550_A_LOD00
+  - first:
+      33: 3300006
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      33: 3300008
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
+  - first:
+      33: 3300010
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
+  - first:
+      33: 3300012
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
+  - first:
+      33: 3300014
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
+  - first:
+      43: 4300000
+    second: Floor_Interior_400_A007
+  - first:
+      43: 4300002
+    second: Geom_Elevator_Shaft_Midsection_400x550_A_LOD00
+  - first:
+      43: 4300004
+    second: Collision_Elevator_Shaft_Midsection_400x550_A
+  - first:
+      43: 4300006
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD00
+  - first:
+      43: 4300008
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      43: 4300010
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD01
+  - first:
+      43: 4300012
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD02
+  - first:
+      43: 4300014
+    second: Geometry_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A_LOD03
+  - first:
+      64: 6400000
+    second: Floor_Interior_400_A007
+  - first:
+      64: 6400002
+    second: Collision_Elevator_Shaft_Midsection_400x550_A
+  - first:
+      64: 6400004
+    second: Collision_Elevator_Industrial_Shaft_Scifi_A_Midsection_400x550_A
+  - first:
+      114: 11400000
+    second: //RootNode
+  - first:
+      205: 20500000
+    second: //RootNode
   externalObjects: {}
   materials:
-    importMaterials: 0
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 0
@@ -60,9 +152,8 @@ ModelImporter:
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -77,7 +168,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 1
+    isReadable: 0
   meshes:
     lODScreenPercentages:
     - 0.25
@@ -87,32 +178,49 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 0
     importVisibility: 0
     importBlendShapes: 1
     importCameras: 0
     importLights: 0
+    nodeNameCollisionStrategy: 0
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 1
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    bakeAxisConversion: 0
     preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
     indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
     useFileScale: 1
+    strictVertexDataChecks: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
     normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
   importAnimation: 1
-  copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -122,14 +230,19 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 1
     rootMotionBoneName: 
-    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 0
   humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  importBlendShapeDeformPercent: 0
+  remapMaterialsIfMaterialImportModeIsNone: 1
   additionalBone: 0
   userData: 4ad09657846ba314ba4bf050d4cb7fd9
   assetBundleName: 
