@@ -144,28 +144,28 @@ public static class RenderSettings
             updateAAFlags = true;
 
         // Post effect flags
-        if (rBloom.ChangeCheck())
-            UnityEngine.Rendering.PostProcessing.Bloom.globalEnable = rBloom.IntValue > 0;
+        //if (rBloom.ChangeCheck())
+           // UnityEngine.Rendering.PostProcessing.Bloom.globalEnable = rBloom.IntValue > 0;
 
-        if (rMotionBlur.ChangeCheck())
+        //if (rMotionBlur.ChangeCheck())
         {
-            UnityEngine.Rendering.PostProcessing.MotionBlur.globalEnable = rMotionBlur.IntValue > 0;
-            updateFrameSettings = true;
+            //UnityEngine.Rendering.PostProcessing.MotionBlur.globalEnable = rMotionBlur.IntValue > 0;
+            //updateFrameSettings = true;
         }
 
-        if (rSSAO.ChangeCheck())
+        //if (rSSAO.ChangeCheck())
         {
-            UnityEngine.Rendering.PostProcessing.AmbientOcclusion.globalEnable = rSSAO.IntValue > 0;
-            updateFrameSettings = true;
+            //UnityEngine.Rendering.PostProcessing.AmbientOcclusion.globalEnable = rSSAO.IntValue > 0;
+            //updateFrameSettings = true;
         }
 
-        if (rGrain.ChangeCheck())
-            Grain.globalEnable = rGrain.IntValue > 0;
+        //if (rGrain.ChangeCheck())
+        //Grain.globalEnable = rGrain.IntValue > 0;
 
-        if (rSSR.ChangeCheck())
+        //if (rSSR.ChangeCheck())
         {
-            ScreenSpaceReflections.globalEnable = rSSR.IntValue > 0;
-            updateFrameSettings = true;
+            //ScreenSpaceReflections.globalEnable = rSSR.IntValue > 0;
+            //updateFrameSettings = true;
         }
 
         if (rSSS.ChangeCheck())
@@ -186,8 +186,8 @@ public static class RenderSettings
             hdasset.renderPipelineSettings.decalSettings.drawDistance = rDecalDist.IntValue;
         }*/
 
-        if (rGamma.ChangeCheck())
-            ColorGrading.globalGamma = Mathf.Clamp(rGamma.FloatValue, 0.1f, 5.0f);
+        //if (rGamma.ChangeCheck())
+            //ColorGrading.globalGamma = Mathf.Clamp(rGamma.FloatValue, 0.1f, 5.0f);
 
         if (updateAAFlags)
             UpdateAAFlags(Game.game.TopCamera());
