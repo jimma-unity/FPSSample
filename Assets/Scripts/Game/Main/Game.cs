@@ -127,6 +127,11 @@ public class Game : MonoBehaviour
                 blocks &= ~b;
         }
 
+        internal static bool IsNotBlocked()
+        {
+            return blocks == Blocker.None;
+        }
+
         internal static float GetAxisRaw(string axis)
         {
             return blocks != Blocker.None ? 0.0f : UnityEngine.Input.GetAxisRaw(axis);

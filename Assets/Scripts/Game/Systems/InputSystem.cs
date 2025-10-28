@@ -8,10 +8,21 @@ public class InputSystem
     static float maxMoveYaw;
     static float maxMoveMagnitude;
 
+    private InputSystem_Actions _actions;
+    private InputSystem_Actions.PlayerActions _playerActions;
+
+    public InputSystem()
+    {
+        _actions = new();
+        _actions.Enable();
+        _playerActions = _actions.Player;
+    }
+
     public void AccumulateInput(ref UserCommand command, float deltaTime)
     {
         // To accumulate move we store the input with max magnitude and uses that
-        Vector2 moveInput = new Vector2(Game.Input.GetAxisRaw("Horizontal"), Game.Input.GetAxisRaw("Vertical"));
+        bool unblocked = Game.Input.IsNotBlocked();
+        Vector2 moveInput = unblocked ? _playerActions.Move.ReadValue<Vector2>() : Vector2.zero;
         float angle = Vector2.Angle(Vector2.up, moveInput);
         if (moveInput.x < 0)
             angle = 360 - angle;
@@ -27,6 +38,7 @@ public class InputSystem
         float invertY = Game.configInvertY.IntValue > 0 ? -1.0f : 1.0f;
 
         Vector2 deltaMousePos = new Vector2(0, 0);
+        //var v = _playerActions.Aim.ReadValue<Vector2>();
         if(deltaTime > 0.0f)
             deltaMousePos += new Vector2(Game.Input.GetAxisRaw("Mouse X"), Game.Input.GetAxisRaw("Mouse Y") * invertY);
         deltaMousePos += deltaTime * (new Vector2(Game.Input.GetAxisRaw("RightStickX") * s_JoystickLookSensitivity.x, - invertY * Game.Input.GetAxisRaw("RightStickY") * s_JoystickLookSensitivity.y));
@@ -40,20 +52,19 @@ public class InputSystem
 
         command.lookPitch += deltaMousePos.y * Game.configMouseSensitivity.FloatValue;
         command.lookPitch = Mathf.Clamp(command.lookPitch, 0, 180);
-
-        command.buttons.Or(UserCommand.Button.Jump,Game.Input.GetKeyDown(KeyCode.Space) || Game.Input.GetKeyDown(KeyCode.Joystick1Button0)); 
-        command.buttons.Or(UserCommand.Button.Boost,Game.Input.GetKey(KeyCode.LeftControl) || Game.Input.GetKey(KeyCode.Joystick1Button4));
-        command.buttons.Or(UserCommand.Button.PrimaryFire, (Game.Input.GetMouseButton(0) && Game.GetMousePointerLock()) || (Game.Input.GetAxisRaw("Trigger") < -0.5f));
-        command.buttons.Or(UserCommand.Button.SecondaryFire, Game.Input.GetMouseButton(1) || Game.Input.GetKey(KeyCode.Joystick1Button5));
-        command.buttons.Or(UserCommand.Button.Ability1, Game.Input.GetKey(KeyCode.LeftShift));
+        command.buttons.Or(UserCommand.Button.Jump, unblocked && _playerActions.Jump.WasPressedThisFrame()); 
+        command.buttons.Or(UserCommand.Button.Boost,unblocked && _playerActions.Boost.IsPressed());
+        command.buttons.Or(UserCommand.Button.PrimaryFire, unblocked && _playerActions.PrimaryFire.IsPressed());
+        command.buttons.Or(UserCommand.Button.SecondaryFire, unblocked && _playerActions.SecondaryFire.WasPressedThisFrame());
+        command.buttons.Or(UserCommand.Button.Ability1, unblocked && _playerActions.Sprint.IsPressed());
         command.buttons.Or(UserCommand.Button.Ability2, Game.Input.GetKey(KeyCode.E));
         command.buttons.Or(UserCommand.Button.Ability3, Game.Input.GetKey(KeyCode.Q));
-        command.buttons.Or(UserCommand.Button.Reload, Game.Input.GetKey(KeyCode.R) || Game.Input.GetKey(KeyCode.Joystick1Button2));
-        command.buttons.Or(UserCommand.Button.Melee, Game.Input.GetKey(KeyCode.V) || Game.Input.GetKey(KeyCode.Joystick1Button1));
+        command.buttons.Or(UserCommand.Button.Reload, unblocked && _playerActions.Reload.WasPressedThisFrame());
+        command.buttons.Or(UserCommand.Button.Melee, unblocked && _playerActions.Melee.WasPressedThisFrame());
         command.buttons.Or(UserCommand.Button.Use, Game.Input.GetKey(KeyCode.E));
 
-        command.emote = Game.Input.GetKeyDown(KeyCode.J) ? CharacterEmote.Victory : CharacterEmote.None;
-        command.emote = Game.Input.GetKeyDown(KeyCode.K) ? CharacterEmote.Defeat : command.emote;
+        command.emote = unblocked && _playerActions.EmoteVictory.WasPressedThisFrame() ? CharacterEmote.Victory : CharacterEmote.None;
+        command.emote = unblocked && _playerActions.EmoteDefeat.WasPressedThisFrame() ? CharacterEmote.Defeat : command.emote;
     }
 
     public void ClearInput(ref UserCommand command)     
