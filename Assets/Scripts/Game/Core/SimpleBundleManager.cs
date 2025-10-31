@@ -9,7 +9,7 @@ public class SimpleBundleManager
 
     public static string GetRuntimeBundlePath()
     {
-#if UNITY_PS5
+#if UNITY_PS5 || UNITY_GAMECORE_XBOXSERIES
         return Application.streamingAssetsPath + "/" + assetBundleFolder;
 #elif UNITY_STANDALONE_OSX ||  UNITY_EDITOR_OSX
         if (Application.isEditor)
