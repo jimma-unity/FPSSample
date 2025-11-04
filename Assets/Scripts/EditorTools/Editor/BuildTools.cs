@@ -225,7 +225,8 @@ public class BuildTools
 
     public static void BuildBundles(string bundlePath, BuildTarget target, bool buildBundledAssets, bool buildBundledLevels, bool force = false, List<LevelInfo> buildOnlyLevels = null)
     {
-        Debug.Log("Scene cooking started");
+        DateTime startTime = DateTime.Now;
+        Debug.Log($"AssetBundle build started - {startTime:yyyy-MM-dd HH:mm:ss.fff}");
 
         var path = bundlePath + "/" + SimpleBundleManager.assetBundleFolder;
 
@@ -244,6 +245,10 @@ public class BuildTools
 
         if (buildBundledAssets)
             BundledResourceBuilder.BuildBundles(path, target, assetBundleOptions);
+
+        DateTime endTime = DateTime.Now;
+        Debug.Log($"AssetBundle build finished - {endTime:yyyy-MM-dd HH:mm:ss.fff}");
+        Debug.Log($"Duration: {endTime - startTime}");
     }
 
     public static void BuildLevelBundles(string path, BuildTarget target, BuildAssetBundleOptions assetBundleOptions, List<LevelInfo> buildOnlyLevels = null)
