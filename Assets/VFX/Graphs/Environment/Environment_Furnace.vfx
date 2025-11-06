@@ -272,7 +272,7 @@ MonoBehaviour:
   m_UIPosition: {x: 0, y: 0}
   m_UICollapsed: 1
   m_UISuperCollapsed: 0
-  title: 
+  title: Close Burn Smoke
   m_Owners:
   - {fileID: 114946465509916290}
   - {fileID: 8926484042661614709}
@@ -1969,7 +1969,7 @@ MonoBehaviour:
   m_UIPosition: {x: 0, y: 0}
   m_UICollapsed: 1
   m_UISuperCollapsed: 0
-  title: 
+  title: Molten Bubbles
   m_Owners:
   - {fileID: 8926484042661614614}
   - {fileID: 8926484042661614654}
@@ -2952,7 +2952,7 @@ MonoBehaviour:
   m_UIPosition: {x: 0, y: 0}
   m_UICollapsed: 1
   m_UISuperCollapsed: 0
-  title: 
+  title: 'Molten Bubble Burst : Sparks'
   m_Owners:
   - {fileID: 8926484042661614734}
   - {fileID: 8926484042661614757}
@@ -6154,7 +6154,7 @@ MonoBehaviour:
   m_UIPosition: {x: 0, y: 0}
   m_UICollapsed: 1
   m_UISuperCollapsed: 0
-  title: 
+  title: Molten bubble Collapse Splash
   m_Owners:
   - {fileID: 8926484042661614959}
   - {fileID: 8926484042661614982}
@@ -9026,7 +9026,7 @@ MonoBehaviour:
   m_UIPosition: {x: 0, y: 0}
   m_UICollapsed: 1
   m_UISuperCollapsed: 0
-  title: 
+  title: Far Smoke and Distortion
   m_Owners:
   - {fileID: 8926484042661615164}
   - {fileID: 8926484042661615207}
@@ -10651,7 +10651,7 @@ MonoBehaviour:
   m_UIPosition: {x: 0, y: 0}
   m_UICollapsed: 1
   m_UISuperCollapsed: 0
-  title: 
+  title: Far Sparks
   m_Owners:
   - {fileID: 8926484042661615301}
   - {fileID: 8926484042661615336}
