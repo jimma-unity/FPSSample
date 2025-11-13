@@ -377,7 +377,11 @@ public class Game : MonoBehaviour
         // Out of the box game behaviour is driven by boot.cfg unless you ask it not to
         if(!commandLineArgs.Contains("-noboot"))
         {
-            Console.EnqueueCommandNoHistory("exec -s " + k_BootConfigFilename);
+            var bootfilePath = k_BootConfigFilename;
+            #if !UNITY_EDITOR
+            bootfilePath = Path.Combine(Application.streamingAssetsPath, bootfilePath);
+            #endif
+            Console.EnqueueCommandNoHistory("exec -s " + bootfilePath);
         }
 
 
