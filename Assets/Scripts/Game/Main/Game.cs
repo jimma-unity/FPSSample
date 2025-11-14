@@ -377,7 +377,7 @@ public class Game : MonoBehaviour
         if(!commandLineArgs.Contains("-noboot"))
         {
             var bootfilePath = k_BootConfigFilename;
-            #if !UNITY_EDITOR
+            #if !UNITY_STANDALONE
             bootfilePath = Path.Combine(Application.streamingAssetsPath, bootfilePath);
             #endif
             Console.EnqueueCommandNoHistory("exec -s " + bootfilePath);
