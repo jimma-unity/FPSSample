@@ -591,7 +591,7 @@ public class BuildTools
         Debug.Log("  client.sh");
 
         // Build boot.cfg
-        var bootCfg = new string[]
+        var bootCfg = new[]
         {
            "client",
            "load level_menu"
@@ -634,22 +634,84 @@ public class BuildTools
         PostProcessMacOs();
     }
 
-    [MenuItem("FPS Sample/BuildSystem/PS4/CreateBuildPS4")]
-    public static void CreateBuildPS4()
+    [MenuItem("FPS Sample/BuildSystem/PS5/CreateBuildPS5")]
+    public static void CreateBuildPS5()
     {
-        var target = BuildTarget.PS4;
+        var target = BuildTarget.PS5;
         var buildName = GetBuildName();
         var buildPath = GetBuildPath(target, buildName);
+        var bundlePath = GetBundlePath(target, buildPath);
         string executableName = Application.productName;
 
         Directory.CreateDirectory(buildPath);
-        BuildBundles(buildPath, target, true, true, true);
+        BuildBundles(bundlePath, target, true, true, true);
         var res = BuildGame(buildPath, executableName, target, BuildOptions.None, buildName, false);
 
         if (!res)
             throw new Exception("BuildPipeline.BuildPlayer failed");
         if (res.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
             throw new Exception("BuildPipeline.BuildPlayer failed: " + res.ToString());
+
+        PostProcessBuildPS5();
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/PS5/PostProcessBuildPS5")]
+    public static void PostProcessBuildPS5()
+    {
+        var target = BuildTarget.PS5;
+        var buildName = GetBuildName();
+        var buildPath = GetBuildPath(target, buildName);
+        var bootcfgPath = buildPath + "/Build/Media/StreamingAssets/" + Game.k_BootConfigFilename;
+        
+        // Build boot.cfg
+        var bootCfg = new[]
+        {
+            "client 10.33.32.73"
+        };
+        
+        File.WriteAllLines(bootcfgPath, bootCfg);
+        Debug.Log("  " + Game.k_BootConfigFilename);
+    }
+    
+    [MenuItem("FPS Sample/BuildSystem/Xbox/CreateBuildXbox")]
+    public static void CreateBuildXbox()
+    {
+        var target = BuildTarget.GameCoreXboxSeries;
+        var buildName = GetBuildName();
+        var buildPath = GetBuildPath(target, buildName);
+        var bundlePath = GetBundlePath(target, buildPath);
+        string executableName = Application.productName;
+
+        Directory.CreateDirectory(buildPath);
+        BuildBundles(bundlePath, target, true, true, true);
+        var res = BuildGame(buildPath, executableName, target, BuildOptions.None, buildName, false);
+
+        if (!res)
+            throw new Exception("BuildPipeline.BuildPlayer failed");
+        if (res.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+            throw new Exception("BuildPipeline.BuildPlayer failed: " + res.ToString());
+
+        PostProcessBuildXbox();
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Xbox/PostProcessBuildXbox")]
+    public static void PostProcessBuildXbox()
+    {
+        var target = BuildTarget.GameCoreXboxSeries;
+        var buildName = GetBuildName();
+        var buildPath = GetBuildPath(target, buildName);
+        var bootcfgPath = GetBundlePath(target, buildPath) + "/" + Game.k_BootConfigFilename;
+        
+        // Build boot.cfg
+        //"client 10.33.32.14"
+        var bootCfg = new[]
+        {
+            "client 10.33.32.14",
+            //"load level_menu"
+        };
+        
+        File.WriteAllLines(bootcfgPath, bootCfg);
+        Debug.Log("  " + "Writing "  + bootcfgPath);
     }
 
     [MenuItem("FPS Sample/BuildSystem/Linux64/PostProcess")]
