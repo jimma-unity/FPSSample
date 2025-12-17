@@ -33,7 +33,7 @@ public class ReplicatedEntityRegistry : RegistryBase
     }
 
     public Entity Create(EntityManager entityManager, BundledResourceManager resourceManager, 
-        GameWorld world, ReplicatedEntity repEntity)
+        GameWorld world, ReplicatedEntity repEntity, Vector3 position, Quaternion rotation)
     {
         var prefab = repEntity.gameObject;
         
@@ -43,7 +43,7 @@ public class ReplicatedEntityRegistry : RegistryBase
             return Entity.Null;
         }
 
-        var gameObjectEntity = world.Spawn<GameObjectEntity>(prefab);
+        var gameObjectEntity = world.Spawn<GameObjectEntity>(prefab, position, rotation);
         gameObjectEntity.name = string.Format("{0}",prefab.name);
         var entity = gameObjectEntity.Entity;
         

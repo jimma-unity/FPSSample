@@ -118,7 +118,7 @@ public partial class HandleCharacterSpawnRequests : BaseComponentSystem
         var heroTypeAsset = heroTypeRegistry.entries[heroIndex];
 
         var replicatedEntityRegistry = resourceSystem.GetResourceRegistry<ReplicatedEntityRegistry>();
-        var charEntity = replicatedEntityRegistry.Create(EntityManager, resourceSystem, m_world, m_settings.character);
+        var charEntity = replicatedEntityRegistry.Create(EntityManager, resourceSystem, m_world, m_settings.character, position, rotation);
 
         var character = EntityManager.GetComponentObject<Character>(charEntity);
         character.teamId = 0;
