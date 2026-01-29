@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿/*using UnityEngine;
 
 public class ParticleCulling : MonoBehaviour
 {
@@ -52,4 +52,4 @@ public class ParticleCulling : MonoBehaviour
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, cullingRadius);
     }
-}
+}*/

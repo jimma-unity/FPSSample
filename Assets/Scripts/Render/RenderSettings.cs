@@ -128,8 +128,8 @@ public static class RenderSettings
         if (showQuality.IntValue > 0)
             DrawQualityOverlay();
 
-        if (rVSync.ChangeCheck())
-            QualitySettings.vSyncCount = rVSync.IntValue;
+        //if (rVSync.ChangeCheck())
+        QualitySettings.vSyncCount = 1;
 
         if (rFullscreen.ChangeCheck())
             Screen.fullScreenMode = (FullScreenMode)rFullscreen.IntValue;
