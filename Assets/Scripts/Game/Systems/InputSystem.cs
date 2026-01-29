@@ -61,7 +61,7 @@ public class InputSystem
         command.buttons.Or(UserCommand.Button.Ability3, Game.Input.GetKey(KeyCode.Q));
         command.buttons.Or(UserCommand.Button.Reload, unblocked && _playerActions.Reload.WasPressedThisFrame());
         command.buttons.Or(UserCommand.Button.Melee, unblocked && _playerActions.Melee.WasPressedThisFrame());
-        command.buttons.Or(UserCommand.Button.Use, Game.Input.GetKey(KeyCode.E));
+        command.buttons.Or(UserCommand.Button.Use, _playerActions.Use.WasPressedThisFrame());
 
         command.emote = unblocked && _playerActions.EmoteVictory.WasPressedThisFrame() ? CharacterEmote.Victory : CharacterEmote.None;
         command.emote = unblocked && _playerActions.EmoteDefeat.WasPressedThisFrame() ? CharacterEmote.Defeat : command.emote;
