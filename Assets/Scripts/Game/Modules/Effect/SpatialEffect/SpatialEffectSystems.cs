@@ -3,7 +3,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-[AlwaysUpdateSystem]
 [DisableAutoCreation]
 public partial class HandleSpatialEffectRequests : BaseComponentSystem 
 {
@@ -15,7 +14,7 @@ public partial class HandleSpatialEffectRequests : BaseComponentSystem
 	}
 
 	
-	List<SpatialEffectRequest> m_requests = new List<SpatialEffectRequest>(32);
+	List<SpatialEffectRequest> m_requests = new (32);
 	
 	public HandleSpatialEffectRequests(GameWorld world) : base(world)
 	{}

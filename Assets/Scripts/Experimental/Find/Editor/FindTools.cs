@@ -31,7 +31,7 @@ public class FindWindow
     static void FindInstancesOfPrefab(string prefabPath)
     {
         var matches = new List<GameObject>();
-        var gameObjects = GameObject.FindObjectsOfType<GameObject>();
+        var gameObjects = Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
 
         foreach (var gameObject in gameObjects)
         {

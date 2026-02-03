@@ -2,7 +2,6 @@
 using Unity.Entities;
 using UnityEngine;
 
-[AlwaysUpdateSystem]
 [DisableAutoCreation]
 public partial class HandleHitscanEffectRequests : BaseComponentSystem 
 {
@@ -13,7 +12,7 @@ public partial class HandleHitscanEffectRequests : BaseComponentSystem
 		public Vector3 endPos;
 	}
 	
-	List<HitscanEffectReques> m_requests = new List<HitscanEffectReques>(32);
+	List<HitscanEffectReques> m_requests = new (32);
 	
 	public void Request(HitscanEffectTypeDefinition effectDef, Vector3 startPos, Vector3 endPos)
 	{

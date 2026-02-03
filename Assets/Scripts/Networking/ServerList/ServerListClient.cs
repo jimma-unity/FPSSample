@@ -90,10 +90,10 @@ public class ServerListClient
 
     private ServerListResponse ProcessRequestReponse()
     {
-        if (m_Request.isNetworkError || m_Request.isHttpError || m_Request.isNetworkError)
+        if (m_Request.result == UnityWebRequest.Result.ConnectionError || m_Request.result == UnityWebRequest.Result.ProtocolError)
         {
             GameDebug.LogError("There was an error calling server list. Error: " + m_WebRequestAsyncOp.webRequest.error);
-            return new ServerListResponse(); // TODO: What is the current methodolgy for handling exceptions and errors?
+            return new ServerListResponse(); // TODO: What is the current methodology for handling exceptions and errors?
         }
         m_WebRequestAsyncOp = null;
 
