@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using System.Threading;
+using UnityEditor.Build;
 
 public class BuildTools
 {
