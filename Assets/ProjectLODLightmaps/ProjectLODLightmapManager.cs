@@ -13,13 +13,13 @@ public class ProjectLODLightmapManager : MonoBehaviour {
     void OnEnable()
     {
         EditorApplication.playModeStateChanged += PlayModeChange;
-        Lightmapping.completed += SetupRenderers;
+        Lightmapping.bakeCompleted += SetupRenderers;
     }
 
     void OnDisable()
     {
         EditorApplication.playModeStateChanged -= PlayModeChange;
-        Lightmapping.completed -= SetupRenderers;
+        Lightmapping.bakeCompleted -= SetupRenderers;
     }
 
     void Start ()

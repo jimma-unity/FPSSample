@@ -8,8 +8,8 @@ public class PlacementTools
 {
     static PlacementTools()
     {
-        SceneView.onSceneGUIDelegate -= OnSceneGUI;
-        SceneView.onSceneGUIDelegate += OnSceneGUI;
+        SceneView.duringSceneGui -= OnSceneGUI;
+        SceneView.duringSceneGui += OnSceneGUI;
     }
     
     static Ray lastMouseRay;
