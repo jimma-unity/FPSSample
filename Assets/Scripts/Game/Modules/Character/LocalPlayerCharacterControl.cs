@@ -3,6 +3,7 @@ using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 using UnityEditor;
+using UnityEngine.InputSystem;
 
 
 [RequireComponent(typeof(LocalPlayer))]
@@ -240,11 +241,13 @@ public partial class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,Loc
             case CameraProfile.ThirdPerson:
             {
 #if UNITY_EDITOR
-                if (Input.GetAxis("Mouse ScrollWheel") > 0)
+                if (Mouse.current == null) return;
+                var scrollY = Mouse.current.scroll.ReadValue().y;
+                if (scrollY > 0)
                 {
                     camDist3P -= 0.2f;
                 }
-                if (Input.GetAxis("Mouse ScrollWheel") < 0)
+                if (scrollY < 0)
                 {
                     camDist3P += 0.2f;
                 }
