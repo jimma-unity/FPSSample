@@ -1,10 +1,10 @@
 #define DEBUG_LOGGING
 using UnityEngine;
+using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using UnityEngine.Rendering.HighDefinition;
 using System;
 using System.Globalization;
-using System.IO;
 using UnityEngine.Rendering.PostProcessing;
 using SQP;
 using UnityEngine.Rendering;
@@ -130,30 +130,29 @@ public class Game : MonoBehaviour
         {
             return blocks == Blocker.None;
         }
-
-        internal static float GetAxisRaw(string axis)
+        internal static bool GetKey(Key key)
         {
-            return blocks != Blocker.None ? 0.0f : UnityEngine.Input.GetAxisRaw(axis);
+            return IsNotBlocked() && Keyboard.current!=null && Keyboard.current[key].IsPressed();
         }
-
-        internal static bool GetKey(KeyCode key)
+        internal static bool GetKeyNoBlock(Key key)
         {
-            return blocks != Blocker.None ? false : UnityEngine.Input.GetKey(key);
+            return Keyboard.current!=null && Keyboard.current[key].IsPressed();
         }
-
-        internal static bool GetKeyDown(KeyCode key)
+        internal static bool GetKeyDown(Key key)
         {
-            return blocks != Blocker.None ? false : UnityEngine.Input.GetKeyDown(key);
+            return IsNotBlocked() && GetKeyDownNoBlock(key);
         }
-
-        internal static bool GetMouseButton(int button)
+        internal static bool GetKeyDownNoBlock(Key key)
         {
-            return blocks != Blocker.None ? false : UnityEngine.Input.GetMouseButton(button);
+            return Keyboard.current!=null && Keyboard.current[key].wasPressedThisFrame;
         }
-
-        internal static bool GetKeyUp(KeyCode key)
+        internal static bool GetKeyUp(Key key)
         {
-            return blocks != Blocker.None ? false : UnityEngine.Input.GetKeyUp(key);
+            return IsNotBlocked() && GetKeyUpNoBlock(key);
+        }
+        internal static bool GetKeyUpNoBlock(Key key)
+        {
+            return Keyboard.current!=null && Keyboard.current[key].wasReleasedThisFrame;
         }
     }
 
@@ -929,10 +928,11 @@ public class Game : MonoBehaviour
         if (lockWhenClicked)
         {
             // Default behaviour when no menus or anything. Catch mouse on click, release on escape.
-            if (UnityEngine.Input.GetMouseButtonUp(0) && !GetMousePointerLock())
+            var lmbUp = Mouse.current != null && Mouse.current.leftButton.wasReleasedThisFrame;
+            if (lmbUp && !GetMousePointerLock())
                 SetMousePointerLock(true);
 
-            if (UnityEngine.Input.GetKeyUp(KeyCode.Escape) && GetMousePointerLock())
+            if (Input.GetKeyUpNoBlock(Key.Escape) && GetMousePointerLock())
                 SetMousePointerLock(false);
         }
         else

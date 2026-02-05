@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using UnityEngine.InputSystem;
 
 public class ChatPanel : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class ChatPanel : MonoBehaviour
     public TMPro.TMP_InputField field;
     public Image[] backgroundImages;
 
-    [NonSerialized] public KeyCode activationKey = KeyCode.Return;
+    [NonSerialized] public Key activationKey = Key.Enter;
 
     void Awake()
     {
@@ -95,7 +96,7 @@ public class ChatPanel : MonoBehaviour
             foreach (var line in m_Lines)
                 line.changeTime = Time.time;
         }
-        else if (m_IsOpen && Input.GetKeyDown(KeyCode.Tab))
+        else if (m_IsOpen && Game.Input.GetKeyDownNoBlock(Key.Tab))
         {
             var text = field.text;
             for (int i = 0, l = messagePrefixes.Length; i < l; ++i)
@@ -135,7 +136,7 @@ public class ChatPanel : MonoBehaviour
     Regex m_EmptyMessageRegex = new Regex(@"^/(\w+)\s+$"); // match 'empty' messages like e.g. "/all "
     void OnEndEdit(string value)
     {
-        if (!Input.GetKey(KeyCode.Return) && !Input.GetKey(KeyCode.KeypadEnter))
+        if (!Game.Input.GetKeyNoBlock(Key.Enter) && !Game.Input.GetKeyNoBlock(Key.NumpadEnter))
             return;
 
         field.DeactivateInputField();

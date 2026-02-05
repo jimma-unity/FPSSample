@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
+using UnityEngine.InputSystem;
 using UnityEngine.Profiling;
 using UnityEngine.Ucg.Matchmaking;
 
@@ -821,12 +822,12 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
             ConfigVar.DirtyFlags &= ~ConfigVar.Flags.ClientInfo;
         }
 
-        if (Game.Input.GetKeyUp(KeyCode.H))
+        if (Game.Input.GetKeyUp(Key.H))
         {
             RemoteConsoleCommand("nextchar");
         }
 
-        if (Game.Input.GetKeyUp(KeyCode.T))
+        if (Game.Input.GetKeyUp(Key.T))
             CmdNextTeam(null);
 
         float frameDuration = m_lastFrameTime != 0 ? (float)(Game.frameTime - m_lastFrameTime) : 0;

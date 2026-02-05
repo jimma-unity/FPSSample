@@ -2,6 +2,7 @@
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine.InputSystem;
 
 
 [DisableAutoCreation]
@@ -299,11 +300,11 @@ public class PreviewGameLoop : Game.IGameLoop
         if (gameTime.tickRate != Game.serverTickRate.IntValue)
             gameTime.tickRate = Game.serverTickRate.IntValue;
 
-        if (Game.Input.GetKeyUp(KeyCode.H) && Game.allowCharChange.IntValue == 1)
+        if (Game.Input.GetKeyUp(Key.H) && Game.allowCharChange.IntValue == 1)
         {
             CmdNextHero(null);
         }
-        if (Game.Input.GetKeyUp(KeyCode.T))
+        if (Game.Input.GetKeyUp(Key.T))
         {
             CmdNextTeam(null);
         }

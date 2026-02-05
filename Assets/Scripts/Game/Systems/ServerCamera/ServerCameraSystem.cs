@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class ServerCameraSystem
@@ -59,7 +60,7 @@ public class ServerCameraSystem
         if (t > m_NextSwitchTime)
             NextCamera();
 
-        if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Game.Input.GetKeyDownNoBlock(Key.RightArrow) || Game.Input.GetKeyDownNoBlock(Key.LeftArrow))
             NextCamera();
     }
 

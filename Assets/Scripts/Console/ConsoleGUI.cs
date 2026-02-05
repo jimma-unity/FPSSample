@@ -1,7 +1,7 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using UnityEngine.UI;
-using System;
 
 public class ConsoleGUI : MonoBehaviour, IConsoleUI
 {
@@ -49,7 +49,7 @@ public class ConsoleGUI : MonoBehaviour, IConsoleUI
 
     public void ConsoleUpdate()
     {
-        if (Input.GetKeyDown(toggle_console_key) || Input.GetKeyDown(KeyCode.Backslash))
+        if (Game.Input.GetKeyDownNoBlock(toggle_console_key) || Game.Input.GetKeyDownNoBlock(Key.Backquote))
             SetOpen(!IsOpen());
 
         if (!IsOpen())
@@ -62,7 +62,7 @@ public class ConsoleGUI : MonoBehaviour, IConsoleUI
         // This is to prevent clicks outside input field from removing focus
         input_field.ActivateInputField();
 
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Game.Input.GetKeyDownNoBlock(Key.Tab))
         {
             if (input_field.caretPosition == input_field.text.Length && input_field.text.Length > 0)
             {
@@ -71,12 +71,12 @@ public class ConsoleGUI : MonoBehaviour, IConsoleUI
                 input_field.caretPosition = res.Length;
             }
         }
-        else if (Input.GetKeyDown(KeyCode.UpArrow))
+        else if (Game.Input.GetKeyDownNoBlock(Key.UpArrow))
         {
             input_field.text = Console.HistoryUp(input_field.text);
             m_WantedCaretPosition = input_field.text.Length;
         }
-        else if (Input.GetKeyDown(KeyCode.DownArrow))
+        else if (Game.Input.GetKeyDownNoBlock(Key.DownArrow))
         {
             input_field.text = Console.HistoryDown();
             input_field.caretPosition = input_field.text.Length;
@@ -98,7 +98,7 @@ public class ConsoleGUI : MonoBehaviour, IConsoleUI
     void OnSubmit(string value)
     {
         // Only react to this if enter was actually pressed. Submit can also happen by mouseclicks.
-        if (!Input.GetKey(KeyCode.Return) && !Input.GetKey(KeyCode.KeypadEnter))
+        if (!Game.Input.GetKey(Key.Enter) && !Game.Input.GetKey(Key.NumpadEnter))
             return;
 
         input_field.text = "";
@@ -118,7 +118,7 @@ public class ConsoleGUI : MonoBehaviour, IConsoleUI
     [SerializeField] InputField input_field;
     [SerializeField] Text text_area;
     [SerializeField] Image text_area_background;
-    [SerializeField] KeyCode toggle_console_key;
+    [SerializeField] Key toggle_console_key;
     [SerializeField] Text buildIdText;
 
 }

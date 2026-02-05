@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ClientFrontend : MonoBehaviour
 {
@@ -88,7 +89,7 @@ public class ClientFrontend : MonoBehaviour
         }
 
         // Toggle menu if not in editor
-        if(!Application.isEditor && Input.GetKeyUp(KeyCode.Escape))
+        if(!Application.isEditor && Game.Input.GetKeyUpNoBlock(Key.Escape))
         {
             if (menuShowing == MenuShowing.None)
             {
@@ -131,7 +132,7 @@ public class ClientFrontend : MonoBehaviour
         var playerState = localPlayer.playerState;
 
         // Scoreboard
-        scoreboardPanel.SetPanelActive(playerState.displayScoreBoard || Game.Input.GetKey(KeyCode.Tab) || m_ShowScorePanel);
+        scoreboardPanel.SetPanelActive(playerState.displayScoreBoard || Game.Input.GetKeyNoBlock(Key.Tab) || m_ShowScorePanel);
 
         // Game score panel
         gameScorePanel.SetPanelActive(playerState.displayGameScore);
