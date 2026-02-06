@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Unity.Entities;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 [DisableAutoCreation]
 public partial class HandlePlayerCameraControlSpawn : InitializeComponentSystem<PlayerCameraSettings>
@@ -88,7 +89,7 @@ public partial class UpdatePlayerCameras : BaseComponentSystem
                 eu += SystemAPI.Time.DeltaTime * (new Vector3(- invertY * Input.GetAxisRaw("RightStickY")*InputSystem.s_JoystickLookSensitivity.y, Input.GetAxisRaw("RightStickX") * InputSystem.s_JoystickLookSensitivity.x, 0));
                 camera.transform.localEulerAngles = eu;
                 m_DetachedMoveSpeed += Input.GetAxisRaw("Mouse ScrollWheel");
-                float verticalMove = (Input.GetKey(KeyCode.R) ? 1.0f : 0.0f) + (Input.GetKey(KeyCode.F) ? -1.0f : 0.0f);
+                float verticalMove = (Game.Input.GetKeyNoBlock(Key.R) ? 1.0f : 0.0f) + (Game.Input.GetKeyNoBlock(Key.F) ? -1.0f : 0.0f);
                 verticalMove += Input.GetAxisRaw("Trigger");
                 camera.transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal"), verticalMove, Input.GetAxisRaw("Vertical")) * SystemAPI.Time.DeltaTime * m_DetachedMoveSpeed);
             }
