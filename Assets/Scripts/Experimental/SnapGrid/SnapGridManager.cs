@@ -13,8 +13,8 @@ public class SnapGridManager
     
     static SnapGridManager()
     {
-        SceneView.onSceneGUIDelegate -= OnSceneGuiDelegate;       
-        SceneView.onSceneGUIDelegate += OnSceneGuiDelegate;       
+        SceneView.duringSceneGui -= OnSceneGuiDelegate;       
+        SceneView.duringSceneGui += OnSceneGuiDelegate;       
     }
 
     private static void OnSceneGuiDelegate(SceneView sceneview)
