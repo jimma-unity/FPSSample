@@ -98,7 +98,7 @@ public class ConsoleGUI : MonoBehaviour, IConsoleUI
     void OnSubmit(string value)
     {
         // Only react to this if enter was actually pressed. Submit can also happen by mouseclicks.
-        if (!Game.Input.GetKey(Key.Enter) && !Game.Input.GetKey(Key.NumpadEnter))
+        if (!Game.Input.GetKeyNoBlock(Key.Enter) && !Game.Input.GetKeyNoBlock(Key.NumpadEnter))
             return;
 
         input_field.text = "";
