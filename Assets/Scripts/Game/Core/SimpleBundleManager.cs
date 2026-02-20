@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System.IO;
 
 public class SimpleBundleManager
 {
@@ -18,7 +19,17 @@ public class SimpleBundleManager
             return Application.dataPath + "/" + assetBundleFolder;
 #else
         if (Application.isEditor)
-            return "AutoBuild/" + assetBundleFolder;
+        {
+            var projectToolsBundlePath = "Autobuild/Autobuild_Data/" + assetBundleFolder;
+            if (Directory.Exists(projectToolsBundlePath))
+                return projectToolsBundlePath;
+
+            var legacyBundlePath = "AutoBuild/" + assetBundleFolder;
+            if (Directory.Exists(legacyBundlePath))
+                return legacyBundlePath;
+
+            return projectToolsBundlePath;
+        }
         else
             return m_runtimeBundlePath.Value;
 #endif

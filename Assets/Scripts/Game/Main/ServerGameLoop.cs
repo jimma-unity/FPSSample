@@ -513,7 +513,8 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         sid.Port = (ushort)NetworkConfig.serverPort.IntValue;
         sid.CurrentPlayers = (ushort)m_Clients.Count;
         sid.GameType = GameModeSystemServer.modeName.Value;
-        sid.Map = Game.game.levelManager.currentLevel.name;
+        var currentLevel = Game.game.levelManager.currentLevel;
+        sid.Map = currentLevel != null ? currentLevel.name : "";
         sid.MaxPlayers = (ushort)serverMaxClients.IntValue;
         sid.ServerName = serverServerName.Value;
 
