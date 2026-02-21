@@ -3,9 +3,8 @@
 # FPS Sample
 
 **Update about the state of the project:**
-This project is based on Unity 6000.0 and is currnetly being actively maintained.
-Feel free to continue to use it as a learning resource or simply for
-inspiration.
+This project is based on Unity 6000.3 and is currently being actively maintained.
+Feel free to continue to use it as a learning resource or simply for inspiration.
 
 Thanks for checking out this sample!
 
@@ -18,8 +17,7 @@ what is in the project.
 
 Reach out [in the forum](https://discussions.unity.com).
 
-The project is using a number of technologies: We use the [HD Render
-Pipeline](https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@17.0/manual/index.html), meaning 
+The project is using a number of technologies: We use the [HD Render Pipeline](https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@17.0/manual/index.html), meaning 
 all content has been authored for HDRP. We are also using
 [Unity Transport](https://docs.unity3d.com/Packages/com.unity.transport@2.6/manual/index.html) as well as the [Entity-Component System](https://unity3d.com/unity/features/job-system-ECS). 
 In the case of ECS, we have primarily adopted the "ECS-pattern" and use it in
@@ -30,7 +28,7 @@ Unity become available in ECS-aware versions, we will migrate to them.
 
 Current status at a glance:
 ```
-Unity version: 6000.0.58f2
+Unity version: 6000.3.9f1
 Platforms    : Windows and macOS (client and server) and Linux (server only)
 ```
 
