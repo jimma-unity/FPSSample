@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 114164319220528714}
   - component: {fileID: 114253926017980336}
   - component: {fileID: 164418660380552940}
+  - component: {fileID: -3413611374035066515}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: MainCamera
@@ -270,3 +271,22 @@ AudioReverbFilter:
   m_LFReference: 250
   m_ReflectionsDelay: 0
   m_ReverbPreset: 0
+--- !u!114 &-3413611374035066515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1367520595019782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52937dbad44b4ff4db4117f0056ae245, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::HDDynamicResolution
+  DefaultTargetFrameRate: 60
+  EvaluationFrameCount: 15
+  ScaleUpDuration: 8
+  ScaleDownDuration: 4
+  ScaleUpStepCount: 5
+  ScaleDownStepCount: 2
+  EnableDebugView: 1
