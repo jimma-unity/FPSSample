@@ -10,15 +10,19 @@
 
 // JAPA ¯\_(ツ)_/¯ - These would ideally ultimately be removed (or at least partially) as it indicates
 // we are accessing types from ECS code that we ideally should not.
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.Animator))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.AudioListener))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.AudioReverbFilter))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.Camera))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.Canvas))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.FlareLayer))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.MeshFilter))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.Rendering.HighDefinition.HDAdditionalCameraData))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.Rendering.PostProcessing.PostProcessLayer))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.RectTransform))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.UI.CanvasScaler))]
-[assembly: RegisterGenericComponentType(typeof(UnityEngine.UI.GraphicRaycaster))]
+
+// Packages
+[assembly: RegisterGenericComponentType(typeof(HDDynamicResolution))]
+
+// Engine
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.Animator))]
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.AudioListener))]
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.AudioReverbFilter))]
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.Camera))]
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.Canvas))]
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.MeshFilter))]
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.Rendering.HighDefinition.HDAdditionalCameraData))]
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.Rendering.PostProcessing.PostProcessLayer))]
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.RectTransform))]
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.UI.CanvasScaler))]
+[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.UI.GraphicRaycaster))]
