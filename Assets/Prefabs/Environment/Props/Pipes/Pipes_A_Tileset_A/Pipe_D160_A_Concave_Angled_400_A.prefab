@@ -171,7 +171,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 20500000, guid: ed9e46a7f3e75f748aec666f1860c2ef, type: 3}
       propertyPath: m_AnimateCrossFading
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 20500000, guid: ed9e46a7f3e75f748aec666f1860c2ef, type: 3}
       propertyPath: m_LODs.Array.data[0].screenRelativeHeight

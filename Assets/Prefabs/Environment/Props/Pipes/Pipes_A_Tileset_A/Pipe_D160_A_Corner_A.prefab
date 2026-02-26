@@ -148,7 +148,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 20500000, guid: 21b41e0254daff34d8c9efce3ca53a64, type: 3}
       propertyPath: m_AnimateCrossFading
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 20500000, guid: 21b41e0254daff34d8c9efce3ca53a64, type: 3}
       propertyPath: m_LocalReferencePoint.y
