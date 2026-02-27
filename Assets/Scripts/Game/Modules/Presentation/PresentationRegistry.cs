@@ -39,6 +39,21 @@ public class PresentationRegistry : RegistryBase
         presentationPrefab = null;
         return false;
     }
+
+    public bool GetPresentationGuid(WeakAssetReference ownerGuid, out WeakAssetReference presentationGuid)
+    {
+        foreach (var entry in m_entries)
+        {
+            if (entry.ownerAssetGuid == ownerGuid)
+            {
+                presentationGuid = entry.presentation;
+                return true;
+            }
+        }
+
+        presentationGuid = default;
+        return false;
+    }
     
     
 #if UNITY_EDITOR

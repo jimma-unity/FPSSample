@@ -838,7 +838,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
             Game.game.clientFrontend.ShowMenu(ClientFrontend.MenuShowing.None);
         }
 
-        Game.game.levelManager.LoadLevel("level_menu");
+        Game.game.levelManager.LoadLevel("level_01");
 
         GameDebug.Log("Left playingstate");
     }

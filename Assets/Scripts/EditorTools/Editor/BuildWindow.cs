@@ -587,7 +587,15 @@ public class BuildWindow : EditorWindow
         }
 
         if (!levelNames.Contains("level_menu"))
-            levelNames.Insert(0, "level_menu");
+            levelNames.Add("level_menu");
+
+        var level01Index = levelNames.IndexOf("level_01");
+        if (level01Index > 0)
+        {
+            var level01 = levelNames[level01Index];
+            levelNames.RemoveAt(level01Index);
+            levelNames.Insert(0, level01);
+        }
 
         return levelNames;
     }

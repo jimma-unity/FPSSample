@@ -75,6 +75,21 @@ public partial class UpdatePresentationOwners : BaseComponentSystem
 
             if (!found)
             {
+                WeakAssetReference presentationGuid;
+                found = m_presentationRegistry.GetPresentationGuid(replicatedData.assetGuid, out presentationGuid);
+                if (!found)
+                    continue;
+
+                var fallbackPresentationEntity = m_resourceManager.CreateEntity(presentationGuid);
+                if (fallbackPresentationEntity == Entity.Null)
+                    continue;
+
+                typeData.currentVariation = typeData.variation;
+                typeData.currentVariationEntity = fallbackPresentationEntity;
+                EntityManager.SetComponentData(entity,typeData);
+
+                var createdPresentation = EntityManager.GetComponentObject<PresentationEntity>(fallbackPresentationEntity);
+                createdPresentation.ownerEntity = entity;
                 continue;
             }
             

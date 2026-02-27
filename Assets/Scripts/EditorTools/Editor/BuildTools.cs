@@ -815,7 +815,7 @@ public class BuildTools
         var bootCfg = new string[]
         {
            "client",
-           "load level_menu"
+              "load level_01"
         };
         File.WriteAllLines(buildPath + "/" + Game.k_BootConfigFilename, bootCfg);
         Debug.Log("  " + Game.k_BootConfigFilename);
@@ -930,7 +930,7 @@ public class BuildTools
         if (File.Exists(srcBoot))
             File.Copy(srcBoot, dstBoot, true);
         else
-            File.WriteAllLines(dstBoot, new[] { "client", "load level_menu" });
+            File.WriteAllLines(dstBoot, new[] { "client", "load level_01" });
 
         if (File.Exists(srcUser))
             File.Copy(srcUser, dstUser, true);
@@ -980,7 +980,7 @@ public class BuildTools
         if (File.Exists(srcBoot))
             File.Copy(srcBoot, dstBoot, true);
         else
-            File.WriteAllLines(dstBoot, new[] { "client", "load level_menu" });
+            File.WriteAllLines(dstBoot, new[] { "client", "load level_01" });
 
         if (File.Exists(srcUser))
             File.Copy(srcUser, dstUser, true);

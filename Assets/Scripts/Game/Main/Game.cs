@@ -402,7 +402,7 @@ public class Game : MonoBehaviour
             {
                 GameDebug.LogWarning("Missing boot config: " + bootfilePath + ". Falling back to default startup commands.");
                 Console.EnqueueCommandNoHistory("client");
-                Console.EnqueueCommandNoHistory("load level_menu");
+                Console.EnqueueCommandNoHistory("load level_01");
             }
         }
 

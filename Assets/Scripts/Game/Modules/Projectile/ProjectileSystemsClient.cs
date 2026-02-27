@@ -507,7 +507,10 @@ public class ClientProjectileFactory
             var entry = projectileRegistry.entries[i];
             GameObject projectilePrefab;
             var resolved = projectileRegistry.TryGetClientProjectilePrefab(i, out projectilePrefab);
-            GameDebug.Assert(resolved && projectilePrefab != null, "Failed to resolve client projectile prefab for registry index " + i);
+            if (!resolved || projectilePrefab == null)
+                projectilePrefab = (GameObject)m_resourceSystem.GetSingleAssetResource(entry.definition.clientProjectilePrefab);
+
+            GameDebug.Assert(projectilePrefab != null, "Failed to resolve client projectile prefab for registry index " + i);
             pool.prefab = projectilePrefab;
             pool.poolIndex = i;            
             Allocate(pool, entry.definition.clientProjectileBufferSize);

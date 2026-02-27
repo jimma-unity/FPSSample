@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -10,6 +11,9 @@ public static class LoadableAssetResolver
     public static bool TryResolve<T>(Loadable<T> loadable, out T asset) where T : Object
     {
         asset = null;
+        if (EqualityComparer<Loadable<T>>.Default.Equals(loadable, default))
+            return false;
+
         if (!TryResolveObject(loadable, out var resolved))
             return false;
 
@@ -21,6 +25,9 @@ public static class LoadableAssetResolver
     {
         asset = null;
         if (loadable == null)
+            return false;
+
+        if (IsMarkedInvalid(loadable))
             return false;
 
         if (TryInvokeInstanceGetter(loadable, out asset))
@@ -36,6 +43,19 @@ public static class LoadableAssetResolver
         }
 
         return false;
+    }
+
+    static bool IsMarkedInvalid(object loadable)
+    {
+        try
+        {
+            var text = loadable.ToString();
+            return !string.IsNullOrEmpty(text) && text.IndexOf("Invalid", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+        catch
+        {
+            return true;
+        }
     }
 
     static bool TryInvokeInstanceGetter(object loadable, out Object asset)
