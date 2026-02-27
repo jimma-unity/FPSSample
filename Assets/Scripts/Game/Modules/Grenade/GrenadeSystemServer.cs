@@ -30,10 +30,10 @@ public struct GrenadeSpawnRequest : IComponentData
 [DisableAutoCreation]
 public partial class HandleGrenadeRequest : BaseComponentDataSystem<GrenadeSpawnRequest>
 {
-    private readonly BundledResourceManager m_resourceManager;
+    private readonly IContentResolver m_resourceManager;
     private EntityCommandBuffer ecb;
 
-    public HandleGrenadeRequest(GameWorld world, BundledResourceManager resourceManager) : base(world)
+    public HandleGrenadeRequest(GameWorld world, IContentResolver resourceManager) : base(world)
     {
         m_resourceManager = resourceManager;
     }

@@ -12,7 +12,7 @@ public class GrenadeEntityFactory : ReplicatedEntityFactory
 {
     public Grenade.Settings settings;
 
-    public override Entity Create(EntityManager entityManager, BundledResourceManager resourceManager, 
+    public override Entity Create(EntityManager entityManager, IContentResolver resourceManager, 
         GameWorld world)
     {
         var entity = entityManager.CreateEntity(typeof(PresentationOwnerData), typeof(ReplicatedEntityData), 

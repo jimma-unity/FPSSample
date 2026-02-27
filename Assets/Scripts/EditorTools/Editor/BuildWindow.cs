@@ -39,6 +39,7 @@ public class BuildWindow : EditorWindow
         public EditorRole editorRole;
         public int clientCount = 1;
         public bool headlessServer = true;
+        public int serverPort = 17913;
         public string defaultArguments = "";
         public List<QuickstartEntry> entries = new List<QuickstartEntry>();
     }
@@ -55,9 +56,13 @@ public class BuildWindow : EditorWindow
         //        public Vector2 windowPos;
         //        public bool useWindowPos;
 
-        public string GetArguments(string levelname, string defaultArguments)
+        public string GetArguments(string levelname, string defaultArguments, int serverPort)
         {
             var arguments = "";
+
+            var safeServerPort = Mathf.Max(1, serverPort);
+            arguments += " +server.port " + safeServerPort;
+            arguments += " +server.sqp_port " + (safeServerPort + 10);
 
             switch (gameLoopMode)
             {
@@ -65,7 +70,7 @@ public class BuildWindow : EditorWindow
                     arguments += " +serve " + levelname;
                     break;
                 case GameLoopMode.Client:
-                    arguments += " +client 127.0.0.1 ";
+                    arguments += " +client 127.0.0.1:" + safeServerPort + " ";
                     break;
                 case GameLoopMode.Preview:
                     arguments += " +preview " + levelname;
@@ -76,6 +81,10 @@ public class BuildWindow : EditorWindow
                 arguments += " -batchmode -nographics";
 
             arguments += " " + defaultArguments;
+
+            if (!arguments.Contains("-noboot"))
+                arguments += " -noboot";
+
             return arguments;
         }
     }
@@ -311,6 +320,7 @@ public class BuildWindow : EditorWindow
         var buildTarget = EditorUserBuildSettings.activeBuildTarget;    // BuildTarget.StandaloneWindows64
         if (buildBundledLevels || buildBundledAssets)
         {
+            StopAll();
             BuildTools.BuildBundles(GetBundlePath(buildTarget), buildTarget, buildBundledAssets, buildBundledLevels, s_ForceBuildBundles, buildOnlyLevels);
             if (buildTarget == BuildTarget.PS4)
             {
@@ -410,24 +420,29 @@ public class BuildWindow : EditorWindow
 
         var defaultGUIBackgrounColor = GUI.backgroundColor;
 
-        if (m_LevelInfos.Count == 0)
+        var levelNames = GetQuickStartLevelNames();
+
+        if (levelNames.Count == 0)
         {
             GUILayout.Label("Quick Start Disabled. No scenes defined");
             return;
         }
 
+        if (m_LevelInfos.Count == 0)
+            EditorGUILayout.HelpBox("No LevelInfo assets found. QuickStart is using SceneListRoot/default level names.", MessageType.Warning);
+
         GUILayout.Label("Quick Start", EditorStyles.boldLabel);
 
         var entryCount = quickstartData.mode != QuickstartMode.Singleplayer ? quickstartData.clientCount + 1 : 1;
-        quickstartData.levelIndex = Math.Min(quickstartData.levelIndex, m_LevelInfos.Count - 1);
-        var levelInfo = m_LevelInfos[quickstartData.levelIndex];
+        quickstartData.levelIndex = Math.Min(quickstartData.levelIndex, levelNames.Count - 1);
+        var selectedLevelName = levelNames[quickstartData.levelIndex];
 
         // Make sure we have enough entries
         var minEntryCount = math.max(entryCount, 2);
         while (minEntryCount > quickstartData.entries.Count())
             quickstartData.entries.Add(new QuickstartEntry());
 
-        var str = m_LevelInfos[quickstartData.levelIndex].name + " - ";
+        var str = selectedLevelName + " - ";
 
         str += "Server";
         if (quickstartData.editorRole == EditorRole.Server)
@@ -455,7 +470,7 @@ public class BuildWindow : EditorWindow
             {
                 for (var i = 0; i < entryCount; i++)
                 {
-                    StartEntry(quickstartData.entries[i], levelInfo.name, quickstartData.defaultArguments);
+                    StartEntry(quickstartData.entries[i], selectedLevelName, quickstartData.defaultArguments);
                 }
             }
             GUI.backgroundColor = defaultGUIBackgrounColor;
@@ -474,8 +489,7 @@ public class BuildWindow : EditorWindow
 
         quickstartData.mode = (QuickstartMode)EditorGUILayout.EnumPopup("Mode", quickstartData.mode);
 
-        var levelNames = m_LevelInfos.Select(item => item.name).ToArray();
-        quickstartData.levelIndex = EditorGUILayout.Popup("Level", quickstartData.levelIndex, levelNames);
+        quickstartData.levelIndex = EditorGUILayout.Popup("Level", quickstartData.levelIndex, levelNames.ToArray());
 
         GUI.enabled = quickstartData.mode != QuickstartMode.Singleplayer;
         quickstartData.clientCount = EditorGUILayout.IntField("Clients", quickstartData.clientCount);
@@ -523,11 +537,13 @@ public class BuildWindow : EditorWindow
 
                     GUILayout.Label(entry.runInEditor ? "Editor" : "S.Alone", GUILayout.Width(50));
 
-                    EditorGUILayout.SelectableLabel(entry.GetArguments(levelInfo.name, quickstartData.defaultArguments), EditorStyles.textField, GUILayout.Height(EditorGUIUtility.singleLineHeight));
+                    EditorGUILayout.SelectableLabel(entry.GetArguments(selectedLevelName, quickstartData.defaultArguments, quickstartData.serverPort), EditorStyles.textField, GUILayout.Height(EditorGUIUtility.singleLineHeight));
                 }
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical();
+            quickstartData.serverPort = EditorGUILayout.IntField("Server port", quickstartData.serverPort);
+            quickstartData.defaultArguments = EditorGUILayout.TextField("Default args", quickstartData.defaultArguments);
         }
 
         if (EditorGUI.EndChangeCheck())
@@ -541,9 +557,44 @@ public class BuildWindow : EditorWindow
         Profiler.EndSample();
     }
 
-    static void StartEntry(QuickstartEntry entry, string levelname, string defaultArguments)
+    List<string> GetQuickStartLevelNames()
     {
-        var args = entry.GetArguments(levelname, defaultArguments);
+        var levelNames = new List<string>();
+
+        if (m_LevelInfos != null)
+        {
+            foreach (var levelInfo in m_LevelInfos)
+            {
+                if (levelInfo == null)
+                    continue;
+
+                if (!string.IsNullOrWhiteSpace(levelInfo.name) && !levelNames.Contains(levelInfo.name))
+                    levelNames.Add(levelInfo.name);
+            }
+        }
+
+        if (levelNames.Count == 0)
+        {
+            var sceneRoot = AssetDatabase.LoadAssetAtPath<SceneListRootAsset>("Assets/Resources/Content/SceneListRoot.asset");
+            if (sceneRoot != null && sceneRoot.scenes != null)
+            {
+                foreach (var entry in sceneRoot.scenes)
+                {
+                    if (!string.IsNullOrWhiteSpace(entry.key) && !levelNames.Contains(entry.key))
+                        levelNames.Add(entry.key);
+                }
+            }
+        }
+
+        if (!levelNames.Contains("level_menu"))
+            levelNames.Insert(0, "level_menu");
+
+        return levelNames;
+    }
+
+    void StartEntry(QuickstartEntry entry, string levelname, string defaultArguments)
+    {
+        var args = entry.GetArguments(levelname, defaultArguments, quickstartData.serverPort);
         if (entry.runInEditor)
             EditorLevelManager.StartGameInEditor(args);
         else

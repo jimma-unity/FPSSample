@@ -9,6 +9,20 @@ using UnityEditor;
 public class CharacterTypeRegistry : RegistryBase
 {
     public List<CharacterTypeDefinition> entries = new List<CharacterTypeDefinition>();
+
+    public bool TryGetClientPrefabs(int index, out GameObject prefab1P, out GameObject prefabClient)
+    {
+        prefab1P = null;
+        prefabClient = null;
+
+        if (index < 0 || index >= entries.Count)
+            return false;
+
+        var definition = entries[index];
+        var oneResolved = LoadableAssetResolver.TryResolve(definition.prefab1PLoadable, out prefab1P);
+        var clientResolved = LoadableAssetResolver.TryResolve(definition.prefabClientLoadable, out prefabClient);
+        return oneResolved || clientResolved;
+    }
     
 #if UNITY_EDITOR
     

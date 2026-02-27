@@ -18,22 +18,25 @@ public class PresentationRegistry : RegistryBase
         public UInt32 type;       
         public UInt16 variation;  
         public WeakAssetReference presentation;
+        public Loadable<GameObject> presentationLoadable;
     }
     
     public List<Entry> m_entries = new List<Entry>();
 
-    public bool GetPresentation(WeakAssetReference ownerGuid, out WeakAssetReference presentationGuid)
+    public bool TryGetPresentationPrefab(WeakAssetReference ownerGuid, out GameObject presentationPrefab)
     {
         foreach (var entry in m_entries)
         {
             if (entry.ownerAssetGuid == ownerGuid)
             {
-                presentationGuid = entry.presentation;
-                return true;
+                if (LoadableAssetResolver.TryResolve(entry.presentationLoadable, out presentationPrefab))
+                    return true;
+
+                break;
             }
         }
 
-        presentationGuid = new WeakAssetReference();
+        presentationPrefab = null;
         return false;
     }
     
@@ -65,7 +68,8 @@ public class PresentationRegistry : RegistryBase
                 platformFlags = presentation.platformFlags,
                 type = presentation.type,      
                 variation = presentation.variation,
-                presentation = new WeakAssetReference(guid)
+                presentation = new WeakAssetReference(guid),
+                presentationLoadable = default
             });
         }
     

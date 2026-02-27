@@ -3,7 +3,7 @@ using Unity.Entities;
 
 public class CharacterBehaviours   
 {
-    public static void CreateHandleSpawnSystems(GameWorld world,SystemCollection systems, BundledResourceManager resourceManager, bool server)
+    public static void CreateHandleSpawnSystems(GameWorld world,SystemCollection systems, IContentResolver resourceManager, bool server)
     {        
         systems.Add(world.GetECSWorld().AddSystemManaged(new HandleCharacterSpawn(world, resourceManager, server))); // TODO (mogensh) needs to be done first as it creates presentation
         systems.Add(world.GetECSWorld().AddSystemManaged(new HandleAnimStateCtrlSpawn(world)));

@@ -71,7 +71,7 @@ public class ReplicatedEntityModuleServer
     [ConfigVar(Name = "server.replicatedsysteminfo", DefaultValue = "0", Description = "Show replicated system info")]
     public static ConfigVar m_showInfo;
     
-    public ReplicatedEntityModuleServer(GameWorld world, BundledResourceManager resourceSystem, NetworkServer network)
+    public ReplicatedEntityModuleServer(GameWorld world, IContentResolver resourceSystem, NetworkServer network)
     {
         m_world = world;
         m_assetRegistry = resourceSystem.GetResourceRegistry<ReplicatedEntityRegistry>();

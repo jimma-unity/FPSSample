@@ -102,7 +102,7 @@ public partial class HandleSpectatorCamRequests : BaseComponentSystem
 {
     EntityQuery Group;   
 
-    public HandleSpectatorCamRequests(GameWorld world, BundledResourceManager resourceManager) : base(world)
+    public HandleSpectatorCamRequests(GameWorld world, IContentResolver resourceManager) : base(world)
     {
         m_ResourceManager = resourceManager;
         m_Settings = Resources.Load<SpectatorCamSettings>("SpectatorCamSettings");
@@ -170,6 +170,6 @@ public partial class HandleSpectatorCamRequests : BaseComponentSystem
     }
 
     readonly SpectatorCamSettings m_Settings;
-    readonly BundledResourceManager m_ResourceManager;
+    readonly IContentResolver m_ResourceManager;
 }
 

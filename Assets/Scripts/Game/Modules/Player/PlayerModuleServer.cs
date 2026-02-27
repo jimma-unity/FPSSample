@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerModuleServer
 {
-    public PlayerModuleServer(GameWorld gameWorld, BundledResourceManager resourceSystem)
+    public PlayerModuleServer(GameWorld gameWorld, IContentResolver resourceSystem)
     {
         m_settings = Resources.Load<PlayerModuleSettings>("PlayerModuleSettings");
         m_resourceSystem = resourceSystem;
@@ -44,6 +44,6 @@ public class PlayerModuleServer
     }
 
     readonly GameWorld m_world;
-    readonly BundledResourceManager m_resourceSystem;
+    readonly IContentResolver m_resourceSystem;
     readonly PlayerModuleSettings m_settings;
 }

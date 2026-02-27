@@ -230,8 +230,11 @@ public static class RenderSettings
         if (hdCam == null)
             return;
 
-        // Enable custom frame settings override (must be enabled for your changes to apply)
-        hdCam.customRenderingSettings = true;
+        // Do not force-enable custom frame settings on runtime cameras.
+        // For standalone this can override HDRP defaults with an incomplete set
+        // of flags and cause black/empty world rendering.
+        if (!hdCam.customRenderingSettings)
+            return;
 
         var settings = hdCam.renderingPathCustomFrameSettings;
         

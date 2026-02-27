@@ -4,7 +4,7 @@ using Unity.Entities;
 
 public class EffectModuleClient      
 {
-    public EffectModuleClient(GameWorld world, BundledResourceManager resourceSystem)
+    public EffectModuleClient(GameWorld world, IContentResolver resourceSystem)
     {
         m_GameWorld = world;
         m_resourceSystem = resourceSystem;
@@ -30,7 +30,7 @@ public class EffectModuleClient
 
     
     readonly GameWorld m_GameWorld;
-    readonly BundledResourceManager m_resourceSystem;
+    readonly IContentResolver m_resourceSystem;
 
     HandleSpatialEffectRequests m_HandleSpatialEffectRequests;
     HandleHitscanEffectRequests m_HandleHitscanEffectRequests;

@@ -18,21 +18,57 @@ public class ReplicatedEntityRegistry : RegistryBase
         public WeakAssetReference guid;
         // Each entry has either a asset reference or factory. Never both
         public WeakAssetReference prefab = new WeakAssetReference();
+        public Loadable<GameObject> prefabLoadable;
         public ReplicatedEntityFactory factory;
+        public Loadable<ScriptableObject> factoryLoadable;
     }
 
     [SerializeField]
     public List<Entry> entries = new List<Entry>();
 
-    public void LoadAllResources(BundledResourceManager resourceManager)
+    public void LoadAllResources(IContentResolver resourceManager)
     {
         for(var i=0;i< entries.Count;i++)
         {
-            resourceManager.GetSingleAssetResource(entries[i].guid);
+            var entry = entries[i];
+            if (entry.factory != null)
+            {
+                if (!LoadableAssetResolver.TryResolve(entry.factoryLoadable, out ScriptableObject _))
+                    resourceManager.GetSingleAssetResource(entry.guid);
+                continue;
+            }
+
+            if (!LoadableAssetResolver.TryResolve(entry.prefabLoadable, out GameObject _))
+                resourceManager.GetSingleAssetResource(entry.guid);
         }
     }
 
-    public Entity Create(EntityManager entityManager, BundledResourceManager resourceManager, 
+    public Entity Create(EntityManager entityManager, IContentResolver resourceManager,
+        GameWorld world, int index, Vector3 position, Quaternion rotation)
+    {
+        if (index < 0 || index >= entries.Count)
+            return Entity.Null;
+
+        var entry = entries[index];
+
+        if (LoadableAssetResolver.TryResolve(entry.factoryLoadable, out ScriptableObject factoryAsset))
+        {
+            var resolvedFactory = factoryAsset as ReplicatedEntityFactory;
+            if (resolvedFactory != null)
+                return resolvedFactory.Create(entityManager, resourceManager, world);
+        }
+
+        if (LoadableAssetResolver.TryResolve(entry.prefabLoadable, out GameObject prefab))
+        {
+            var gameObjectEntity = world.Spawn<GameObjectEntity>(prefab, position, rotation);
+            gameObjectEntity.name = string.Format("{0}", prefab.name);
+            return gameObjectEntity.Entity;
+        }
+
+        return resourceManager.CreateEntity(entry.guid);
+    }
+
+    public Entity Create(EntityManager entityManager, IContentResolver resourceManager, 
         GameWorld world, ReplicatedEntity repEntity, Vector3 position, Quaternion rotation)
     {
         var prefab = repEntity.gameObject;
@@ -103,7 +139,8 @@ public class ReplicatedEntityRegistry : RegistryBase
             entries.Add(new Entry
             {
                 guid = guidData,
-                prefab = new WeakAssetReference(guid)
+                prefab = new WeakAssetReference(guid),
+                prefabLoadable = default
             });
         }
         
@@ -121,7 +158,8 @@ public class ReplicatedEntityRegistry : RegistryBase
             entries.Add(new Entry
             {
                 guid = guidData,
-                factory = factory
+                factory = factory,
+                factoryLoadable = default
             });
         }
         

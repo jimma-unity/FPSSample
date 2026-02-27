@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-public class BundledResourceManager  {      
+public class BundledResourceManager : IContentResolver {      
 
     [ConfigVar(Name = "resources.forcebundles", DefaultValue = "0", Description = "Force use of bundles even in editor")]
     static ConfigVar forceBundles;
@@ -189,6 +189,12 @@ public class BundledResourceManager  {
 
         m_resources.Add(reference, def);
         return def.asset;
+    }
+
+    public bool TryResolveAsset(WeakAssetReference reference, out Object asset)
+    {
+        asset = GetSingleAssetResource(reference);
+        return asset != null;
     }
 
     class SingleResourceBundle

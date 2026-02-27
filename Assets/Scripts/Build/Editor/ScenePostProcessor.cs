@@ -20,7 +20,7 @@ public class ScenePostProcessor
 
         // In editor, we inject the game object to ensure preview mode works
         var info = EditorLevelManager.GetLevelInfoFor(EditorSceneManager.GetSceneAt(0).path);
-        if(!BuildPipeline.isBuildingPlayer && Game.game == null && info != null && info.levelType != LevelInfo.LevelType.Generic)
+        if(!BuildPipeline.isBuildingPlayer && !BuildTools.IsBuildingContent && Game.game == null && info != null && info.levelType != LevelInfo.LevelType.Generic)
         {
             var gamePrefab = AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Game.prefab", typeof(GameObject));
             PrefabUtility.InstantiatePrefab(gamePrefab);

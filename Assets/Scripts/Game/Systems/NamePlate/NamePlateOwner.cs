@@ -104,16 +104,38 @@ public partial class UpdateNamePlates : BaseComponentSystem
 			
             // Dont show nameplate behinds
             var camera = Game.game.TopCamera();// Camera.allCameras[0];
+            if (camera == null || !camera.enabled)
+            {
+                SetActiveIfNeeded(root, false);
+                continue;
+            }
+
+			if (!IsFinite(camera.transform.position) || !IsFinite(camera.transform.forward))
+			{
+				SetActiveIfNeeded(root, false);
+				continue;
+			}
+
 			var platePosWorld = plateOwner.namePlateTransform.position;
-			var screenPos = camera.WorldToScreenPoint(platePosWorld);
-			if (screenPos.z < 0)	
+			if (!IsFinite(platePosWorld))
+			{
+				SetActiveIfNeeded(root, false);
+				continue;
+			}
+			if (!TryProjectToScreen(camera, platePosWorld, out var screenPos))
+			{
+				SetActiveIfNeeded(root,false);
+				continue;
+			}
+
+			if (screenPos.x < 1.0f || screenPos.x > Screen.width - 1.0f || screenPos.y < 1.0f || screenPos.y > Screen.height - 1.0f)
 			{
 				SetActiveIfNeeded(root,false);
 				continue;
 			}
 			
 			// Test occlusion
-			var rayStart = camera.ScreenToWorldPoint(new Vector3(screenPos.x,screenPos.y,0));
+			var rayStart = camera.transform.position + camera.transform.forward * Mathf.Max(0.01f, camera.nearClipPlane);
 			var v = platePosWorld - rayStart;
 			var distance = v.magnitude;
 			const int defaultLayerMask = 1 << 0;
@@ -131,6 +153,7 @@ public partial class UpdateNamePlates : BaseComponentSystem
 				continue;
 			}
 				
+			screenPos.z = 0;
 			plateOwner.namePlate.namePlateRoot.transform.position = screenPos;
 
 			// Update icon
@@ -154,6 +177,37 @@ public partial class UpdateNamePlates : BaseComponentSystem
 			SetActiveIfNeeded(root,true);
 		}
     }
+
+	static bool IsFinite(Vector3 value)
+	{
+		return !float.IsNaN(value.x) && !float.IsNaN(value.y) && !float.IsNaN(value.z)
+		       && !float.IsInfinity(value.x) && !float.IsInfinity(value.y) && !float.IsInfinity(value.z);
+	}
+
+	static bool TryProjectToScreen(Camera camera, Vector3 worldPosition, out Vector3 screenPosition)
+	{
+		screenPosition = default;
+		var viewProjection = camera.projectionMatrix * camera.worldToCameraMatrix;
+		var clipPosition = viewProjection * new Vector4(worldPosition.x, worldPosition.y, worldPosition.z, 1.0f);
+
+		if (Mathf.Abs(clipPosition.w) < 1e-5f)
+			return false;
+
+		var invW = 1.0f / clipPosition.w;
+		var ndcX = clipPosition.x * invW;
+		var ndcY = clipPosition.y * invW;
+		var ndcZ = clipPosition.z * invW;
+
+		if (!float.IsFinite(ndcX) || !float.IsFinite(ndcY) || !float.IsFinite(ndcZ))
+			return false;
+
+		screenPosition = new Vector3(
+			(ndcX * 0.5f + 0.5f) * camera.pixelWidth,
+			(ndcY * 0.5f + 0.5f) * camera.pixelHeight,
+			clipPosition.w);
+
+		return clipPosition.w > 0.0f;
+	}
 
 	// Set settings active on UI Text creates garbage we check for whether active state has changed 
 	void SetActiveIfNeeded(GameObject go, bool active)

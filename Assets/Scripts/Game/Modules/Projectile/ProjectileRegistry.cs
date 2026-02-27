@@ -13,6 +13,7 @@ public class ProjectileRegistry : RegistryBase
     {
         public WeakAssetReference assetGuid;
         public ProjectileTypeDefinition definition;
+        public Loadable<GameObject> clientProjectilePrefabLoadable;
     }
 
     public List<Entry> entries = new List<Entry>();
@@ -26,6 +27,15 @@ public class ProjectileRegistry : RegistryBase
         }
 
         return -1;
+    }
+
+    public bool TryGetClientProjectilePrefab(int index, out GameObject projectilePrefab)
+    {
+        projectilePrefab = null;
+        if (index < 0 || index >= entries.Count)
+            return false;
+
+        return LoadableAssetResolver.TryResolve(entries[index].clientProjectilePrefabLoadable, out projectilePrefab);
     }
     
 #if UNITY_EDITOR
@@ -49,6 +59,7 @@ public class ProjectileRegistry : RegistryBase
             {
                 definition =  definition,
                 assetGuid = definition.guid,
+                clientProjectilePrefabLoadable = definition.clientProjectilePrefabLoadable,
             });
         }
         

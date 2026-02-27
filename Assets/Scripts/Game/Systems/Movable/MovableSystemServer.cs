@@ -7,7 +7,7 @@ public class MovableSystemServer
 {
     int spawnNum;
 
-    public MovableSystemServer(GameWorld world, BundledResourceManager bundledResourceManager)
+    public MovableSystemServer(GameWorld world, IContentResolver bundledResourceManager)
     {
         m_GameWorld = world;
         m_BundledResourceManager = bundledResourceManager;
@@ -56,5 +56,5 @@ public class MovableSystemServer
     private List<Movable> m_Movables = new List<Movable>();
 
     private GameWorld m_GameWorld;
-    private BundledResourceManager m_BundledResourceManager;
+    private IContentResolver m_BundledResourceManager;
 }

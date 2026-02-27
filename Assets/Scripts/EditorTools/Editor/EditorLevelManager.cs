@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,6 +9,10 @@ using UnityEditor.SceneManagement;
 [InitializeOnLoad]
 public class EditorLevelManager
 {
+    const string CustomStartupCommandCountKey = "CustomStartupCommandCount";
+    const string CustomStartupCommandTimeKey = "CustomStartupCommandTimestampUtcTicks";
+    const long CustomStartupCommandMaxAgeTicks = TimeSpan.TicksPerSecond * 30;
+
     static EditorLevelManager()
     {
         EditorSceneManager.sceneOpened += OnSceneOpened;
@@ -31,7 +36,7 @@ public class EditorLevelManager
         {
             var layerPath = Path.Combine(dir, name + "_" + LevelManager.layerNames[i] + ".unity");
             if (File.Exists(layerPath))
-                layerPaths.Add(layerPath.ToLower());
+                layerPaths.Add(layerPath.Replace("\\", "/"));
         }
 
         return layerPaths.ToArray();
@@ -47,15 +52,32 @@ public class EditorLevelManager
         }
 
         // Store command in playerprefs that will be consumed when playmode starts
-        var count = PlayerPrefs.GetInt("CustomStartupCommandCount",0);
+        var count = PlayerPrefs.GetInt(CustomStartupCommandCountKey,0);
         PlayerPrefs.SetString(string.Format("CustomStartupCommand{0}",count), args);
         count++;
-        PlayerPrefs.SetInt("CustomStartupCommandCount", count);
+        PlayerPrefs.SetInt(CustomStartupCommandCountKey, count);
+        PlayerPrefs.SetString(CustomStartupCommandTimeKey, DateTime.UtcNow.Ticks.ToString());
         EditorApplication.isPlaying = true;
+    }
+
+    static void ClearStartupCommands()
+    {
+        var startCommandCount = PlayerPrefs.GetInt(CustomStartupCommandCountKey, 0);
+        for (int i = 0; i < startCommandCount; i++)
+        {
+            var key = string.Format("CustomStartupCommand{0}", i);
+            PlayerPrefs.DeleteKey(key);
+        }
+
+        PlayerPrefs.SetInt(CustomStartupCommandCountKey, 0);
+        PlayerPrefs.DeleteKey(CustomStartupCommandTimeKey);
     }
 
     static void OnSceneOpened(Scene scene, OpenSceneMode mode)
     {
+        if (EditorApplication.isPlaying)
+            return;
+
         if (mode == OpenSceneMode.Single)
         {
             var path = scene.path;    // Native call and string allocation
@@ -63,7 +85,21 @@ public class EditorLevelManager
             {
                 var layers = GetLevelLayers(path);
                 foreach (var layer in layers)
-                    EditorSceneManager.OpenScene(layer, OpenSceneMode.Additive);
+                {
+                    var alreadyLoaded = false;
+                    for (var i = 0; i < SceneManager.sceneCount; i++)
+                    {
+                        var loaded = SceneManager.GetSceneAt(i);
+                        if (string.Equals(loaded.path, layer, StringComparison.OrdinalIgnoreCase))
+                        {
+                            alreadyLoaded = true;
+                            break;
+                        }
+                    }
+
+                    if (!alreadyLoaded)
+                        EditorSceneManager.OpenScene(layer, OpenSceneMode.Additive);
+                }
             }
         }
     }
@@ -77,8 +113,12 @@ public class EditorLevelManager
     {
         if (mode == PlayModeStateChange.EnteredPlayMode)
         {
-            var startCommandCount = PlayerPrefs.GetInt("CustomStartupCommandCount", 0);
-            if(startCommandCount > 0)
+            var startCommandCount = PlayerPrefs.GetInt(CustomStartupCommandCountKey, 0);
+            long queuedAtTicks;
+            var hasQueuedTime = long.TryParse(PlayerPrefs.GetString(CustomStartupCommandTimeKey, "0"), out queuedAtTicks);
+            var hasFreshQueuedCommands = hasQueuedTime && (DateTime.UtcNow.Ticks - queuedAtTicks) >= 0 && (DateTime.UtcNow.Ticks - queuedAtTicks) <= CustomStartupCommandMaxAgeTicks;
+
+            if(startCommandCount > 0 && hasFreshQueuedCommands)
             {
                 if (Game.game == null)
                     SceneManager.LoadScene(0);
@@ -88,13 +128,14 @@ public class EditorLevelManager
                     var key = string.Format("CustomStartupCommand{0}", i);
                     var args = PlayerPrefs.GetString(key, "");
                     Console.ProcessCommandLineArguments(args.Split(' '));
-                    PlayerPrefs.DeleteKey(key);
                 }
-
-                PlayerPrefs.SetInt("CustomStartupCommandCount", 0);
+                ClearStartupCommands();
             }
             else
             {
+                if (startCommandCount > 0)
+                    ClearStartupCommands();
+
                 // User pressed editor start button
                 var info = GetLevelInfoFor(EditorSceneManager.GetSceneAt(0).path);
                 if (info != null)

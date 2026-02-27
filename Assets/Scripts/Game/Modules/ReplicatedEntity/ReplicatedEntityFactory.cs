@@ -9,7 +9,7 @@ public abstract class ReplicatedEntityFactory : ScriptableObject
     [HideInInspector]
     public WeakAssetReference guid;
     
-    public abstract Entity Create(EntityManager entityManager, BundledResourceManager resourceManager, 
+    public abstract Entity Create(EntityManager entityManager, IContentResolver resourceManager, 
         GameWorld world);
 
 

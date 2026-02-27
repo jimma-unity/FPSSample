@@ -196,6 +196,9 @@ public class Game : MonoBehaviour
 
     [ConfigVar(Name = "net.dropevents", DefaultValue = "0", Description = "Drops a fraction of all packages containing events!!")]
     public static ConfigVar netDropEvents;
+
+    [ConfigVar(Name = "content.resolverbackend", DefaultValue = "1", Description = "Content resolver backend (0=Legacy, 1=LoadableIndexed)")]
+    public static ConfigVar contentResolverBackend;
     
     static readonly string k_UserConfigFilename = "user.cfg";
     public static readonly string k_BootConfigFilename = "boot.cfg";
@@ -343,6 +346,10 @@ public class Game : MonoBehaviour
 
         ConfigVar.Init();
 
+    #if !UNITY_EDITOR
+        Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.ScriptOnly);
+    #endif
+
         // Support -port and -query_port as per Multiplay standard
         var serverPort = ArgumentForOption(commandLineArgs, "-port");
         if (serverPort != null)
@@ -372,14 +379,31 @@ public class Game : MonoBehaviour
             RenderSettings.Init();
         }
 
-        // Out of the box game behaviour is driven by boot.cfg unless you ask it not to
-        if(!commandLineArgs.Contains("-noboot"))
+        // Out of the box game behaviour is driven by boot.cfg unless you ask it not to.
+        // In editor we skip boot.cfg by default so pressing Play respects the currently opened scene.
+        var runBootConfig = !commandLineArgs.Contains("-noboot");
+    #if UNITY_EDITOR
+        if (Application.isEditor && !commandLineArgs.Contains("-bootineditor"))
+            runBootConfig = false;
+    #endif
+
+        if(runBootConfig)
         {
             var bootfilePath = k_BootConfigFilename;
             #if !UNITY_STANDALONE
             bootfilePath = Path.Combine(Application.streamingAssetsPath, bootfilePath);
             #endif
-            Console.EnqueueCommandNoHistory("exec -s " + bootfilePath);
+
+            if (System.IO.File.Exists(bootfilePath))
+            {
+                Console.EnqueueCommandNoHistory("exec -s " + bootfilePath);
+            }
+            else
+            {
+                GameDebug.LogWarning("Missing boot config: " + bootfilePath + ". Falling back to default startup commands.");
+                Console.EnqueueCommandNoHistory("client");
+                Console.EnqueueCommandNoHistory("load level_menu");
+            }
         }
 
 
@@ -507,6 +531,7 @@ public class Game : MonoBehaviour
     }
 
     bool pipeSetup = false;
+    bool m_BootCameraGameplayFallbackApplied;
     public void Update()
     {
         if (!m_isHeadless)
@@ -539,6 +564,33 @@ public class Game : MonoBehaviour
             m_ExposureReleaseCount--;
             if (m_ExposureReleaseCount == 0)
                 BlackFade(false);
+        }
+
+        if (!m_isHeadless
+            && levelManager != null
+            && levelManager.IsCurrentLevelLoaded()
+            && GetGameLoop<ClientGameLoop>() != null
+            && TopCamera() == bootCamera)
+        {
+            if (!m_BootCameraGameplayFallbackApplied)
+            {
+                m_BootCameraGameplayFallbackApplied = true;
+                bootCamera.enabled = true;
+                bootCamera.cullingMask = ~0;
+                if (bootCamera.clearFlags == CameraClearFlags.Nothing)
+                    bootCamera.clearFlags = CameraClearFlags.Skybox;
+                BlackFade(false);
+                GameDebug.LogWarning("Camera fallback: boot camera became active during gameplay; forcing world rendering on boot camera.");
+            }
+        }
+        else
+        {
+            if (m_BootCameraGameplayFallbackApplied && TopCamera() != bootCamera && bootCamera != null && bootCamera.enabled)
+            {
+                SetCameraEnabled(bootCamera, false);
+                GameDebug.Log("Camera fallback: disabling boot camera after gameplay camera takeover.");
+            }
+            m_BootCameraGameplayFallbackApplied = false;
         }
 
         // Verify if camera was somehow destroyed and pop it
@@ -673,11 +725,13 @@ public class Game : MonoBehaviour
 
     void OnApplicationQuit()
     {
+        RuntimeContentDirectoryRegistration.ForceShutdownUnregister("Game.OnApplicationQuit");
+        ShutdownGameLoops();
 #if !UNITY_EDITOR && UNITY_STANDALONE_WIN
         GameDebug.Log("Farewell, cruel world...");
-        System.Diagnostics.Process.GetCurrentProcess().Kill();
+        if (!Application.isBatchMode)
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
 #endif
-        ShutdownGameLoops();
     }
 
     float m_NextCpuProfileTime = 0;
@@ -810,6 +864,7 @@ public class Game : MonoBehaviour
 
     void CmdQuit(string[] args)
     {
+        RuntimeContentDirectoryRegistration.ForceShutdownUnregister("Game.CmdQuit");
 #if UNITY_EDITOR
         EditorApplication.isPlaying = false;
 #else

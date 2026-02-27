@@ -9,7 +9,7 @@ public class ProjectileModuleServer
     [ConfigVar(Name = "projectile.drawserverdebug", DefaultValue = "0", Description = "Show projectilesystem debug")]
     public static ConfigVar drawDebug;
     
-    public ProjectileModuleServer(GameWorld gameWorld, BundledResourceManager resourceSystem)
+    public ProjectileModuleServer(GameWorld gameWorld, IContentResolver resourceSystem)
     {
         m_GameWorld = gameWorld;
 

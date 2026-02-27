@@ -7,7 +7,7 @@ using UnityEngine.Profiling;
 public class CharacterModulePreview : CharacterModuleShared
 {
 
-    public CharacterModulePreview(GameWorld world, BundledResourceManager resourceSystem): base(world)
+    public CharacterModulePreview(GameWorld world, IContentResolver resourceSystem): base(world)
     {
         // Handle spawn requests
         m_HandleCharacterSpawnRequests = m_world.GetECSWorld().AddSystemManaged(new HandleCharacterSpawnRequests(m_world, resourceSystem, false));
@@ -50,8 +50,14 @@ public class CharacterModulePreview : CharacterModuleShared
         var charRegistry = resourceSystem.GetResourceRegistry<CharacterTypeRegistry>();
         for (var i = 0; i < charRegistry.entries.Count; i++)
         {
-            resourceSystem.GetSingleAssetResource(charRegistry.entries[i].prefab1P);
-            resourceSystem.GetSingleAssetResource(charRegistry.entries[i].prefabClient);
+            GameObject prefab1P;
+            GameObject prefabClient;
+            charRegistry.TryGetClientPrefabs(i, out prefab1P, out prefabClient);
+
+            if (prefab1P == null)
+                resourceSystem.GetSingleAssetResource(charRegistry.entries[i].prefab1P);
+            if (prefabClient == null)
+                resourceSystem.GetSingleAssetResource(charRegistry.entries[i].prefabClient);
         }
 
         Console.AddCommand("thirdperson", CmdToggleThirdperson, "Toggle third person mode", this.GetHashCode());

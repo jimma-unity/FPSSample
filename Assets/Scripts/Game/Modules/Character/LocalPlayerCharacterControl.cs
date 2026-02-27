@@ -39,7 +39,7 @@ public partial class UpdateCharacter1PSpawn : BaseComponentSystem
 {   
     EntityQuery Group;
     
-    public UpdateCharacter1PSpawn(GameWorld world, BundledResourceManager resourceManager) : base(world)
+    public UpdateCharacter1PSpawn(GameWorld world, IContentResolver resourceManager) : base(world)
     {
         m_ResourceManager = resourceManager;
     }
@@ -135,7 +135,7 @@ public partial class UpdateCharacter1PSpawn : BaseComponentSystem
         }
     }
 
-    BundledResourceManager m_ResourceManager;
+    IContentResolver m_ResourceManager;
 }
 
 
@@ -145,6 +145,8 @@ public partial class UpdateCharacter1PSpawn : BaseComponentSystem
 public partial class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,LocalPlayerCharacterControl,PlayerCameraSettings>
 {
     private const float k_default3PDisst = 2.5f;
+    private const float k_MaxCameraDistance = 200000.0f;
+    private const float k_MaxPredictedInterpolatedDivergence = 300.0f;
     private float camDist3P = k_default3PDisst; 
     
     public UpdateCharacterCamera(GameWorld world) : base(world) {}
@@ -161,12 +163,14 @@ public partial class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,Loc
         if (localPlayer.controlledEntity == Entity.Null || !EntityManager.HasComponent<Character>(localPlayer.controlledEntity))
         {
             controlledEntity = Entity.Null;
+            cameraSettings.isEnabled = false;
             return;
         }
             
         if (characterControl.firstPerson.char1P == Entity.Null)
         {
             controlledEntity = Entity.Null;
+            cameraSettings.isEnabled = false;
             return;
         }
 
@@ -201,6 +205,36 @@ public partial class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,Loc
         // Update camera settings
         var userCommand = EntityManager.GetComponentData<UserCommandComponentData>(localPlayer.controlledEntity);
         var lookRotation = userCommand.command.lookRotation;
+
+        var predictedPosition = charPredictedState.position;
+        var interpolatedPosition = animState.position;
+        var moveQuery = EntityManager.GetComponentObject<CharacterMoveQuery>(localPlayer.controlledEntity);
+        var controllerPosition = moveQuery != null && moveQuery.charController != null
+            ? moveQuery.charController.transform.position
+            : Vector3.zero;
+        var useInterpolatedPosition = false;
+        var useControllerPosition = false;
+        if (!IsFinite(predictedPosition) || predictedPosition.sqrMagnitude > (k_MaxCameraDistance * k_MaxCameraDistance))
+        {
+            useInterpolatedPosition = IsFinite(interpolatedPosition);
+            useControllerPosition = !useInterpolatedPosition && IsFinite(controllerPosition);
+        }
+        else if (IsFinite(interpolatedPosition))
+        {
+            var divergence = Vector3.Distance(predictedPosition, interpolatedPosition);
+            if (divergence > k_MaxPredictedInterpolatedDivergence)
+                useInterpolatedPosition = true;
+        }
+
+        var cameraBasePosition = useControllerPosition ? controllerPosition : (useInterpolatedPosition ? interpolatedPosition : predictedPosition);
+        if (useInterpolatedPosition && UnityEngine.Time.frameCount % 120 == 0)
+        {
+            GameDebug.LogWarning("UpdateCharacterCamera: using interpolated position for camera base. predicted=" + predictedPosition + ", interpolated=" + interpolatedPosition);
+        }
+        else if (useControllerPosition && UnityEngine.Time.frameCount % 120 == 0)
+        {
+            GameDebug.LogWarning("UpdateCharacterCamera: using controller position for camera base. predicted=" + predictedPosition + ", interpolated=" + interpolatedPosition + ", controller=" + controllerPosition);
+        }
         
         cameraSettings.isEnabled = true;
 
@@ -216,7 +250,7 @@ public partial class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,Loc
         {
             case CameraProfile.FirstPerson:
             {
-                var eyePos = charPredictedState.position + Vector3.up*character.eyeHeight;
+                var eyePos = cameraBasePosition + Vector3.up*character.eyeHeight;
                 
                 // Set camera position and adjust 1P char. As 1P char is scaled down we need to "up-scale" camera
                 // animation to world space. We dont want to upscale cam transform relative to 1PChar so we adjust
@@ -254,7 +288,7 @@ public partial class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,Loc
 #endif                    
                 
                 
-                var eyePos = charPredictedState.position + Vector3.up*character.eyeHeight;
+                var eyePos = cameraBasePosition + Vector3.up*character.eyeHeight;
                 cameraSettings.position = eyePos; 
                 cameraSettings.rotation = lookRotation;
 
@@ -264,6 +298,40 @@ public partial class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,Loc
                 cameraSettings.position += lookRotation*Vector3.right*0.5f + lookRotation*Vector3.up*0.5f;
                 break;
             }
+        }
+
+        var invalidPosition = !IsFinite(cameraSettings.position) || cameraSettings.position.sqrMagnitude > (k_MaxCameraDistance * k_MaxCameraDistance);
+        var invalidRotation = !IsFinite(cameraSettings.rotation);
+        if (invalidPosition || invalidRotation)
+        {
+            var rawPosition = cameraSettings.position;
+            var rawRotation = cameraSettings.rotation;
+            if (hasLastValidCameraPose)
+            {
+                if (invalidPosition)
+                    cameraSettings.position = lastValidCameraPosition;
+                if (invalidRotation)
+                    cameraSettings.rotation = lastValidCameraRotation;
+            }
+            else
+            {
+                if (invalidPosition)
+                    cameraSettings.position = Vector3.zero;
+                if (invalidRotation)
+                    cameraSettings.rotation = Quaternion.identity;
+            }
+
+            if (UnityEngine.Time.frameCount % 120 == 0)
+            {
+                GameDebug.LogWarning("UpdateCharacterCamera pose sanitize: invalid camera pose detected. rawPosition=" + rawPosition + ", rawRotation=" + rawRotation + ", using fallbackPosition=" + cameraSettings.position + ", fallbackRotation=" + cameraSettings.rotation);
+            }
+        }
+
+        if (IsFinite(cameraSettings.position) && cameraSettings.position.sqrMagnitude <= (k_MaxCameraDistance * k_MaxCameraDistance) && IsFinite(cameraSettings.rotation))
+        {
+            lastValidCameraPosition = cameraSettings.position;
+            lastValidCameraRotation = cameraSettings.rotation;
+            hasLastValidCameraPose = true;
         }
         
         
@@ -276,4 +344,17 @@ public partial class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,Loc
 
     bool forceThirdPerson;
     Entity controlledEntity;
+    bool hasLastValidCameraPose;
+    Vector3 lastValidCameraPosition;
+    Quaternion lastValidCameraRotation;
+
+    static bool IsFinite(Vector3 value)
+    {
+        return float.IsFinite(value.x) && float.IsFinite(value.y) && float.IsFinite(value.z);
+    }
+
+    static bool IsFinite(Quaternion value)
+    {
+        return float.IsFinite(value.x) && float.IsFinite(value.y) && float.IsFinite(value.z) && float.IsFinite(value.w);
+    }
 }

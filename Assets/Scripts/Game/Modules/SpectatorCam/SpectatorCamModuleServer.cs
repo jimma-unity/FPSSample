@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SpectatorCamModuleServer 
 {
-    public SpectatorCamModuleServer(GameWorld world, BundledResourceManager resourceManager)
+    public SpectatorCamModuleServer(GameWorld world, IContentResolver resourceManager)
     {
         m_world = world;
         m_HandleSpectatorCamRequests =  world.GetECSWorld().AddSystemManaged(new HandleSpectatorCamRequests(world, resourceManager));

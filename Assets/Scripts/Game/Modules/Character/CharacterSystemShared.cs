@@ -12,7 +12,7 @@ public partial class HandleCharacterSpawn : InitializeComponentGroupSystem<Chara
     
     List<Character> characters = new List<Character>();
     bool server;
-    public HandleCharacterSpawn(GameWorld gameWorld, BundledResourceManager resourceManager, bool server) : base(gameWorld)
+    public HandleCharacterSpawn(GameWorld gameWorld, IContentResolver resourceManager, bool server) : base(gameWorld)
     {
         m_resourceManager = resourceManager;
         this.server = server;
@@ -51,8 +51,12 @@ public partial class HandleCharacterSpawn : InitializeComponentGroupSystem<Chara
             var characterTypeAsset = heroTypeAsset.character;
             
             // Create main presentation
-            var charPrefabGUID = server ? characterTypeAsset.prefabServer : characterTypeAsset.prefabClient;
-            var charPrefab = m_resourceManager.GetSingleAssetResource(charPrefabGUID) as GameObject;
+            GameObject charPrefab;
+            if (!heroTypeRegistry.TryGetCharacterPrefab(characterRepAll.heroTypeIndex, server, out charPrefab) || charPrefab == null)
+            {
+                var charPrefabGUID = server ? characterTypeAsset.prefabServer : characterTypeAsset.prefabClient;
+                charPrefab = m_resourceManager.GetSingleAssetResource(charPrefabGUID) as GameObject;
+            }
             var presentationGOE = m_world.Spawn<GameObjectEntity>(charPrefab);
             var charPresentationEntity = presentationGOE.Entity;
 
@@ -107,14 +111,18 @@ public partial class HandleCharacterSpawn : InitializeComponentGroupSystem<Chara
 
             
             // Create items
-            foreach (var itemEntry in heroTypeAsset.items)
+            for (var itemIndex = 0; itemIndex < heroTypeAsset.items.Length; itemIndex++)
             {
+                var itemEntry = heroTypeAsset.items[itemIndex];
                 var itemPrefabGuid = server ? itemEntry.itemType.prefabServer : itemEntry.itemType.prefabClient;
 
                 if (!itemPrefabGuid.IsSet())
                     continue;
-                
-                var itemPrefab = m_resourceManager.GetSingleAssetResource(itemPrefabGuid) as GameObject;
+
+                GameObject itemPrefab;
+                if (!heroTypeRegistry.TryGetItemPrefab(characterRepAll.heroTypeIndex, itemIndex, server, out itemPrefab) || itemPrefab == null)
+                    itemPrefab = m_resourceManager.GetSingleAssetResource(itemPrefabGuid) as GameObject;
+
                 var itemGOE = m_world.Spawn<GameObjectEntity>(itemPrefab);
 
                 var itemCharPresentation = EntityManager.GetComponentObject<CharacterPresentationSetup>(itemGOE.Entity);
@@ -126,7 +134,7 @@ public partial class HandleCharacterSpawn : InitializeComponentGroupSystem<Chara
     }
 
 
-    BundledResourceManager m_resourceManager;
+    IContentResolver m_resourceManager;
 
 }
 

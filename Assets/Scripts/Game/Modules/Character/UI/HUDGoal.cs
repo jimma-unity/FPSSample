@@ -16,6 +16,37 @@ public class HUDGoal : MonoBehaviour
         goalIndicator.SetActive(false);
     }
 
+    static bool IsFinite(Vector3 value)
+    {
+        return !float.IsNaN(value.x) && !float.IsNaN(value.y) && !float.IsNaN(value.z)
+               && !float.IsInfinity(value.x) && !float.IsInfinity(value.y) && !float.IsInfinity(value.z);
+    }
+
+    static bool TryProjectToScreen(Camera camera, Vector3 worldPosition, out Vector3 screenPosition)
+    {
+        screenPosition = default;
+        var viewProjection = camera.projectionMatrix * camera.worldToCameraMatrix;
+        var clipPosition = viewProjection * new Vector4(worldPosition.x, worldPosition.y, worldPosition.z, 1.0f);
+
+        if (Mathf.Abs(clipPosition.w) < 1e-5f)
+            return false;
+
+        var invW = 1.0f / clipPosition.w;
+        var ndcX = clipPosition.x * invW;
+        var ndcY = clipPosition.y * invW;
+        var ndcZ = clipPosition.z * invW;
+
+        if (!float.IsFinite(ndcX) || !float.IsFinite(ndcY) || !float.IsFinite(ndcZ))
+            return false;
+
+        screenPosition = new Vector3(
+            (ndcX * 0.5f + 0.5f) * camera.pixelWidth,
+            (ndcY * 0.5f + 0.5f) * camera.pixelHeight,
+            clipPosition.w);
+
+        return clipPosition.w > 0.0f;
+    }
+
     public void FrameUpdate(LocalPlayer localPlayer)
     {
         if(!localPlayer.playerState.displayGoal)
@@ -25,9 +56,31 @@ public class HUDGoal : MonoBehaviour
         }
         goalIndicator.SetActive(true);
         var goalPosition = localPlayer.playerState.goalPosition;
+        if (!IsFinite(goalPosition))
+        {
+            goalIndicator.SetActive(false);
+            return;
+        }
 
         var c = Game.game.TopCamera();
-        var sp = c.WorldToScreenPoint(goalPosition);
+        if (c == null || !c.enabled)
+        {
+            goalIndicator.SetActive(false);
+            return;
+        }
+
+        if (!IsFinite(c.transform.position) || !IsFinite(c.transform.forward) || !IsFinite(c.transform.right))
+        {
+            goalIndicator.SetActive(false);
+            return;
+        }
+
+        if (!TryProjectToScreen(c, goalPosition, out var sp))
+        {
+            goalIndicator.SetActive(false);
+            return;
+        }
+
         sp.z = 0;
         sp.x = sp.x / Screen.width - 0.5f;
         sp.y = sp.y / Screen.height - 0.5f;
@@ -68,6 +121,12 @@ public class HUDGoal : MonoBehaviour
 
         sp.x = (sp.x + 0.5f ) * Screen.width;
         sp.y = (sp.y + 0.5f ) * Screen.height;
+
+        if (sp.x < 1.0f || sp.x > Screen.width - 1.0f || sp.y < 1.0f || sp.y > Screen.height - 1.0f)
+        {
+            goalIndicator.SetActive(false);
+            return;
+        }
 
         goalIndicator.transform.position = sp;
         var la = goalArrow.transform.localEulerAngles;

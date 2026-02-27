@@ -25,6 +25,7 @@ public partial class HandlePlayerCameraControlSpawn : InitializeComponentSystem<
 public partial class UpdatePlayerCameras : BaseComponentSystem
 {
     public EntityQuery Group;
+    const float k_MaxCameraDistance = 200000.0f;
 
     public UpdatePlayerCameras(GameWorld world) : base(world) { }
 
@@ -65,8 +66,29 @@ public partial class UpdatePlayerCameras : BaseComponentSystem
             if (debugCameraDetach.IntValue == 0)
             {
                 // Normal movement
-                camera.transform.position = settings.position;
-                camera.transform.rotation = settings.rotation;
+                var desiredPosition = settings.position;
+                var desiredRotation = settings.rotation;
+                var rawPosition = desiredPosition;
+
+                var invalidPosition = !IsFinite(desiredPosition) || desiredPosition.sqrMagnitude > (k_MaxCameraDistance * k_MaxCameraDistance);
+                if (invalidPosition)
+                {
+                    desiredPosition = camera.transform.position;
+                    settings.position = desiredPosition;
+                    if (UnityEngine.Time.frameCount % 120 == 0)
+                    GameDebug.LogWarning("PlayerCamera pose guard: rejected invalid camera position " + rawPosition + " and kept previous transform position.");
+                }
+
+                if (!IsFinite(desiredRotation))
+                {
+                    desiredRotation = camera.transform.rotation;
+                    settings.rotation = desiredRotation;
+                    if (UnityEngine.Time.frameCount % 120 == 0)
+                        GameDebug.LogWarning("PlayerCamera pose guard: rejected invalid camera rotation and kept previous transform rotation.");
+                }
+
+                camera.transform.position = desiredPosition;
+                camera.transform.rotation = desiredRotation;
             }
             else if(debugCameraDetach.IntValue == 1)
             {
@@ -127,4 +149,14 @@ public partial class UpdatePlayerCameras : BaseComponentSystem
     public static ConfigVar debugCameraDetach;
 
     float m_DetachedMoveSpeed = 4.0f;
+
+    static bool IsFinite(Vector3 value)
+    {
+        return float.IsFinite(value.x) && float.IsFinite(value.y) && float.IsFinite(value.z);
+    }
+
+    static bool IsFinite(Quaternion value)
+    {
+        return float.IsFinite(value.x) && float.IsFinite(value.y) && float.IsFinite(value.z) && float.IsFinite(value.w);
+    }
 }

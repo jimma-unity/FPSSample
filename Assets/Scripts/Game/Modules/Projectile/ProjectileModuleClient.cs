@@ -16,7 +16,7 @@ public class ProjectileModuleClient
     public static ConfigVar drawDebug;
     
     
-    public ProjectileModuleClient(GameWorld world, BundledResourceManager resourceSystem)
+    public ProjectileModuleClient(GameWorld world, IContentResolver resourceSystem)
     {
         m_world = world;
         

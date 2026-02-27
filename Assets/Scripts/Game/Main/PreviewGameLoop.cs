@@ -133,10 +133,14 @@ public class PreviewGameLoop : Game.IGameLoop
         Console.AddCommand("nextteam", CmdNextTeam, "Select next character", GetHashCode());
         Console.AddCommand("spectator", CmdSpectatorCam, "Select spectator cam", GetHashCode());
         Console.AddCommand("respawn", CmdRespawn, "Force a respawn. Optional argument defines now many seconds untill respawn", this.GetHashCode());
+        Console.AddCommand("contentdirs", CmdContentDirectories, "List registered content directories", this.GetHashCode());
         
         Console.SetOpen(false);
 
         m_GameWorld = new GameWorld("World[PreviewGameLoop]");
+
+        m_contentDirectoryRegistration = new RuntimeContentDirectoryRegistration();
+        m_contentDirectoryRegistration.RegisterDefaultContentDirectories("PreviewGameLoop");
         
         if (args.Length > 0)
         {
@@ -156,6 +160,9 @@ public class PreviewGameLoop : Game.IGameLoop
     {
         GameDebug.Log("PreviewGameState shutdown");
         Console.RemoveCommandsWithTag(this.GetHashCode());
+
+        m_contentDirectoryRegistration?.UnregisterAll("PreviewGameLoop");
+        m_contentDirectoryRegistration = null;
 
         m_StateMachine.Shutdown();
 
@@ -181,7 +188,9 @@ public class PreviewGameLoop : Game.IGameLoop
     {
         m_GameWorld.RegisterSceneEntities();
 
-        m_resourceSystem = new BundledResourceManager(m_GameWorld,"BundledResources/Client");
+        var resolverBackend = ContentResolverFactory.ResolveConfiguredBackend();
+        GameDebug.Log("PreviewGameLoop: Content resolver backend: " + resolverBackend);
+        m_resourceSystem = ContentResolverFactory.Create(m_GameWorld, RuntimeContentDirectoryRegistration.ClientRegistryName, resolverBackend);
 
         // Create serializers so we get errors in preview build
         var dataComponentSerializers = new DataComponentSerializers();
@@ -247,6 +256,8 @@ public class PreviewGameLoop : Game.IGameLoop
 
     void LeaveActiveState()
     {
+        m_contentDirectoryRegistration?.UnregisterAll("PreviewGameLoop");
+
         m_CharacterModule.Shutdown();
         m_ProjectileModule.Shutdown();
         m_ragdollModule.Shutdown();
@@ -498,6 +509,19 @@ public class PreviewGameLoop : Game.IGameLoop
         healthState.health = 0;
         m_GameWorld.GetEntityManager().SetComponentData(m_Player.controlledEntity, healthState);
     }
+
+    void CmdContentDirectories(string[] args)
+    {
+        if (m_contentDirectoryRegistration == null)
+        {
+            Console.Write("Content directory registration not initialized");
+            return;
+        }
+
+        Console.Write("Registered content directories: " + m_contentDirectoryRegistration.RegisteredCount);
+        foreach (var path in m_contentDirectoryRegistration.GetRegisteredPaths())
+            Console.Write(" - " + path);
+    }
     
 
     void CmdNextTeam(string[] args)
@@ -517,7 +541,8 @@ public class PreviewGameLoop : Game.IGameLoop
     }
     StateMachine<PreviewState> m_StateMachine;
 
-    BundledResourceManager m_resourceSystem;
+    IContentResolver m_resourceSystem;
+    RuntimeContentDirectoryRegistration m_contentDirectoryRegistration;
 
     GameWorld m_GameWorld;
     CharacterModulePreview m_CharacterModule;

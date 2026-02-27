@@ -9,6 +9,151 @@ using UnityEditor.Build;
 
 public class BuildTools
 {
+    const string ContentDirectoryMigrationModePrefKey = "FPSSample.Build.ContentDirectoryMigrationMode";
+
+    static void EnsureDirectoryClean(string rootPath)
+    {
+        if (!Directory.Exists(rootPath))
+            return;
+
+        EnsureDirectoryWritable(rootPath);
+
+        foreach (var filePath in Directory.GetFiles(rootPath, "*", SearchOption.AllDirectories))
+        {
+            TryDeleteFile(filePath);
+        }
+
+        var directories = Directory.GetDirectories(rootPath, "*", SearchOption.AllDirectories)
+            .OrderByDescending(path => path.Length)
+            .ToArray();
+        foreach (var dirPath in directories)
+        {
+            TryDeleteDirectory(dirPath);
+        }
+    }
+
+    static void TryDeleteFile(string filePath)
+    {
+        const int maxAttempts = 3;
+        Exception last = null;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                if (!File.Exists(filePath))
+                    return;
+
+                var attributes = File.GetAttributes(filePath);
+                if ((attributes & FileAttributes.ReadOnly) != 0)
+                    File.SetAttributes(filePath, attributes & ~FileAttributes.ReadOnly);
+
+                File.Delete(filePath);
+                return;
+            }
+            catch (Exception ex)
+            {
+                last = ex;
+                Thread.Sleep(50);
+            }
+        }
+
+        throw new IOException("Failed to delete build output file: " + filePath + ". The file may be locked by a running client/server process. Close QuickStart-launched processes and retry.", last);
+    }
+
+    static void TryDeleteDirectory(string dirPath)
+    {
+        const int maxAttempts = 3;
+        Exception last = null;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                if (!Directory.Exists(dirPath))
+                    return;
+
+                Directory.Delete(dirPath, false);
+                return;
+            }
+            catch (Exception ex)
+            {
+                last = ex;
+                Thread.Sleep(50);
+            }
+        }
+
+        throw new IOException("Failed to delete build output directory: " + dirPath + ". The directory may be locked by a running client/server process. Close QuickStart-launched processes and retry.", last);
+    }
+
+    static void StopRunningBuildExecutable(string buildPath, string exeName)
+    {
+        if (string.IsNullOrWhiteSpace(buildPath) || string.IsNullOrWhiteSpace(exeName))
+            return;
+
+        var expectedExePath = Path.GetFullPath(Path.Combine(buildPath, exeName));
+        var processName = Path.GetFileNameWithoutExtension(exeName);
+        if (string.IsNullOrWhiteSpace(processName))
+            return;
+
+        foreach (var process in System.Diagnostics.Process.GetProcessesByName(processName))
+        {
+            try
+            {
+                string processPath;
+                try
+                {
+                    processPath = process.MainModule?.FileName;
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(processPath))
+                    continue;
+
+                var normalizedProcessPath = Path.GetFullPath(processPath);
+                if (!string.Equals(normalizedProcessPath, expectedExePath, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                Debug.Log("Stopping running build process locking output: pid=" + process.Id + " path=" + normalizedProcessPath);
+                process.Kill();
+                process.WaitForExit(5000);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("Failed to stop running build process: " + ex.Message);
+            }
+        }
+    }
+
+    enum ContentDirectoryMigrationMode
+    {
+        FallbackPreferred = 0,
+        StrictOnly = 1
+    }
+
+    static void EnsureDirectoryWritable(string rootPath)
+    {
+        if (!Directory.Exists(rootPath))
+            return;
+
+        foreach (var filePath in Directory.GetFiles(rootPath, "*", SearchOption.AllDirectories))
+        {
+            try
+            {
+                var attributes = File.GetAttributes(filePath);
+                if ((attributes & FileAttributes.ReadOnly) != 0)
+                    File.SetAttributes(filePath, attributes & ~FileAttributes.ReadOnly);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("Could not clear read-only on " + filePath + ": " + e.Message);
+            }
+        }
+    }
+
+    public static bool IsBuildingContent { get; private set; }
+
     public static void CopyDirectory(string SourcePath, string DestinationPath)
     {
         //Create all of the directories
@@ -25,11 +170,38 @@ public class BuildTools
     public static UnityEditor.Build.Reporting.BuildReport BuildGame(string buildPath, string exeName, BuildTarget target,
         BuildOptions opts, string buildId, bool il2cpp)
     {
-        var levels = new string[]
+        var levels = new List<string>
         {
             "Assets/Scenes/bootstrapper.unity",
             "Assets/Scenes/empty.unity"
         };
+
+        var sceneRoot = AssetDatabase.LoadAssetAtPath<SceneListRootAsset>("Assets/Resources/Content/SceneListRoot.asset");
+        if (sceneRoot != null && sceneRoot.scenes != null)
+        {
+            foreach (var sceneEntry in sceneRoot.scenes)
+            {
+                if (!string.IsNullOrEmpty(sceneEntry.mainScenePath) && !levels.Contains(sceneEntry.mainScenePath))
+                    levels.Add(sceneEntry.mainScenePath);
+
+                if (sceneEntry.additiveScenePaths == null)
+                    continue;
+
+                foreach (var additivePath in sceneEntry.additiveScenePaths)
+                {
+                    if (!string.IsNullOrEmpty(additivePath) && !levels.Contains(additivePath))
+                        levels.Add(additivePath);
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("BuildGame: SceneListRoot asset not found at Assets/Resources/Content/SceneListRoot.asset; only bootstrap scenes will be included in player build.");
+        }
+
+        Debug.Log("BuildGame: Including " + levels.Count + " scenes in player build.");
+        foreach (var level in levels)
+            Debug.Log("  Scene: " + level);
 
         var exePathName = buildPath + "/" + exeName;
 
@@ -109,7 +281,7 @@ public class BuildTools
         Debug.Log("Done.");
         
         Environment.SetEnvironmentVariable("BUILD_ID", buildId, EnvironmentVariableTarget.Process);
-        var result = BuildPipeline.BuildPlayer(levels, exePathName, target, opts);
+        var result = BuildPipeline.BuildPlayer(levels.ToArray(), exePathName, target, opts);
         Environment.SetEnvironmentVariable("BUILD_ID", "", EnvironmentVariableTarget.Process);
 
         if (target == BuildTarget.PS4)
@@ -229,27 +401,152 @@ public class BuildTools
         DateTime startTime = DateTime.Now;
         Debug.Log($"AssetBundle build started - {startTime:yyyy-MM-dd HH:mm:ss.fff}");
 
-        var path = bundlePath + "/" + SimpleBundleManager.assetBundleFolder;
-
-        if (!Directory.Exists(path))
-            Directory.CreateDirectory(path);
-
-        BuildAssetBundleOptions assetBundleOptions = BuildAssetBundleOptions.UncompressedAssetBundle;
-        if (force)
+        IsBuildingContent = true;
+        try
         {
-            Debug.Log("Forcing rebuild");
-            assetBundleOptions |= BuildAssetBundleOptions.ForceRebuildAssetBundle;
+            var path = bundlePath + "/" + SimpleBundleManager.assetBundleFolder;
+
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+            EnsureDirectoryWritable(path);
+
+            if (force)
+            {
+                Debug.Log("Cleaning existing bundle output directory: " + path);
+                EnsureDirectoryClean(path);
+            }
+
+            BuildAssetBundleOptions assetBundleOptions = BuildAssetBundleOptions.UncompressedAssetBundle;
+            if (force)
+            {
+                Debug.Log("Forcing rebuild");
+                assetBundleOptions |= BuildAssetBundleOptions.ForceRebuildAssetBundle;
+            }
+
+            if (buildBundledLevels)
+                BuildLevelBundles(path, target, assetBundleOptions, buildOnlyLevels);
+
+            if (buildBundledAssets)
+                BundledResourceBuilder.BuildBundles(path, target, assetBundleOptions);
+        }
+        finally
+        {
+            IsBuildingContent = false;
+            DateTime endTime = DateTime.Now;
+            Debug.Log($"AssetBundle build finished - {endTime:yyyy-MM-dd HH:mm:ss.fff}");
+            Debug.Log($"Duration: {endTime - startTime}");
+        }
+    }
+
+    public static void BuildContentDirectories(BuildTarget target, string outputPath, params string[] roots)
+    {
+        BuildContentDirectoriesInternal(target, outputPath, true, roots);
+    }
+
+    public static void BuildContentDirectoriesStrict(BuildTarget target, string outputPath, params string[] roots)
+    {
+        BuildContentDirectoriesInternal(target, outputPath, false, roots);
+    }
+
+    static void BuildContentDirectoriesInternal(BuildTarget target, string outputPath, bool allowLegacyFallback, params string[] roots)
+    {
+        var rootAssetPaths = new List<string>();
+        if (roots != null)
+        {
+            foreach (var root in roots)
+            {
+                if (string.IsNullOrWhiteSpace(root))
+                    continue;
+
+                var normalized = root.Replace('\\', '/').Trim();
+                rootAssetPaths.Add(normalized);
+            }
         }
 
-        if (buildBundledLevels)
-            BuildLevelBundles(path, target, assetBundleOptions, buildOnlyLevels);
+        if (rootAssetPaths.Count == 0)
+        {
+            var defaultCandidates = new[]
+            {
+                "Assets/ContentRoots/ClientContentRoot.asset",
+                "Assets/ContentRoots/ServerContentRoot.asset",
+                "Assets/Resources/Content/SceneListRoot.asset"
+            };
 
-        if (buildBundledAssets)
-            BundledResourceBuilder.BuildBundles(path, target, assetBundleOptions);
+            foreach (var path in defaultCandidates)
+            {
+                if (File.Exists(path))
+                    rootAssetPaths.Add(path);
+            }
+        }
 
-        DateTime endTime = DateTime.Now;
-        Debug.Log($"AssetBundle build finished - {endTime:yyyy-MM-dd HH:mm:ss.fff}");
-        Debug.Log($"Duration: {endTime - startTime}");
+        if (rootAssetPaths.Count == 0)
+            throw new Exception("BuildContentDirectories: no valid rootAssetPaths specified or discovered.");
+
+        Directory.CreateDirectory(outputPath);
+
+        var hasKnownImportWorkerIncompatibleRoots = rootAssetPaths.Any(path =>
+            path.EndsWith("SceneListRoot.asset", StringComparison.OrdinalIgnoreCase) ||
+            path.EndsWith("ContentRoot.asset", StringComparison.OrdinalIgnoreCase) ||
+            path.EndsWith("ClientContentRoot.asset", StringComparison.OrdinalIgnoreCase) ||
+            path.EndsWith("ServerContentRoot.asset", StringComparison.OrdinalIgnoreCase));
+
+        if (allowLegacyFallback && hasKnownImportWorkerIncompatibleRoots)
+        {
+            Debug.LogWarning("BuildContentDirectories route: fallback=BuildBundles, reason=KnownUnityEntitiesImportWorkerLimitation, outputPath=" + outputPath);
+            BuildBundles(outputPath, target, true, true, true);
+            return;
+        }
+
+        if (!allowLegacyFallback && hasKnownImportWorkerIncompatibleRoots)
+        {
+            Debug.Log("BuildContentDirectories route: strict=BuildPipeline.BuildContentDirectory, outputPath=" + outputPath + ", roots=" + string.Join(", ", rootAssetPaths));
+        }
+
+        var buildParameters = new BuildContentDirectoryParameters
+        {
+            rootAssetPaths = rootAssetPaths.ToArray(),
+            outputPath = outputPath,
+            targetPlatform = target,
+            options = BuildContentOptions.CleanBuildCache | BuildContentOptions.DetailedBuildReport
+        };
+
+        var originalWorkerCount = AssetDatabase.DesiredWorkerCount;
+        var requestedWorkerCount = allowLegacyFallback ? 1 : 0;
+        var autoRefreshDisabled = false;
+        try
+        {
+            AssetDatabase.DisallowAutoRefresh();
+            autoRefreshDisabled = true;
+
+            AssetDatabase.DesiredWorkerCount = requestedWorkerCount;
+            AssetDatabase.ForceToDesiredWorkerCount();
+
+            var report = BuildPipeline.BuildContentDirectory(buildParameters);
+            if (report == null)
+                throw new Exception("BuildPipeline.BuildContentDirectory returned null report.");
+            if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+                throw new Exception("BuildPipeline.BuildContentDirectory failed: " + report.summary.result);
+        }
+        catch (ArgumentException ex) when (ex.Message != null && ex.Message.IndexOf("Importing dependent assets on an import workers is currently not supported", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            if (!allowLegacyFallback)
+                throw;
+
+            Debug.LogWarning("BuildContentDirectories route: fallback=BuildBundles, reason=ImportWorkerException, outputPath=" + outputPath + ", error=" + ex.Message);
+            BuildBundles(outputPath, target, true, true, true);
+        }
+        finally
+        {
+            if (autoRefreshDisabled)
+                AssetDatabase.AllowAutoRefresh();
+
+            AssetDatabase.DesiredWorkerCount = originalWorkerCount;
+            AssetDatabase.ForceToDesiredWorkerCount();
+        }
+
+        Debug.Log("BuildContentDirectories route: primary=BuildPipeline.BuildContentDirectory, outputPath=" + outputPath + ", roots=" + string.Join(", ", rootAssetPaths));
+        Debug.Log("BuildContentDirectories completed: outputPath=" + outputPath + ", roots=" + string.Join(", ", rootAssetPaths));
     }
 
     public static void BuildLevelBundles(string path, BuildTarget target, BuildAssetBundleOptions assetBundleOptions, List<LevelInfo> buildOnlyLevels = null)
@@ -337,6 +634,59 @@ public class BuildTools
         return "Builds/" + target.ToString();
     }
 
+    static ContentDirectoryMigrationMode GetContentDirectoryMigrationMode()
+    {
+        var value = EditorPrefs.GetInt(ContentDirectoryMigrationModePrefKey, (int)ContentDirectoryMigrationMode.FallbackPreferred);
+        return Enum.IsDefined(typeof(ContentDirectoryMigrationMode), value)
+            ? (ContentDirectoryMigrationMode)value
+            : ContentDirectoryMigrationMode.FallbackPreferred;
+    }
+
+    static void SetContentDirectoryMigrationMode(ContentDirectoryMigrationMode mode)
+    {
+        EditorPrefs.SetInt(ContentDirectoryMigrationModePrefKey, (int)mode);
+        Debug.Log("ContentDirectories migration mode set to: " + mode);
+    }
+
+    static void BuildContentDirectoriesForMigrationMode(BuildTarget target, string outputPath, params string[] roots)
+    {
+        var mode = GetContentDirectoryMigrationMode();
+        Debug.Log("BuildContentDirectories migration mode active: " + mode);
+
+        if (mode == ContentDirectoryMigrationMode.StrictOnly)
+            BuildContentDirectoriesStrict(target, outputPath, roots);
+        else
+            BuildContentDirectories(target, outputPath, roots);
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/ContentDirectories/MigrationMode/FallbackPreferred (Stable)")]
+    public static void SetContentDirectoryMigrationModeFallbackPreferred()
+    {
+        SetContentDirectoryMigrationMode(ContentDirectoryMigrationMode.FallbackPreferred);
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/ContentDirectories/MigrationMode/FallbackPreferred (Stable)", true)]
+    public static bool ValidateContentDirectoryMigrationModeFallbackPreferred()
+    {
+        Menu.SetChecked("FPS Sample/BuildSystem/ContentDirectories/MigrationMode/FallbackPreferred (Stable)",
+            GetContentDirectoryMigrationMode() == ContentDirectoryMigrationMode.FallbackPreferred);
+        return true;
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/ContentDirectories/MigrationMode/StrictOnly (Validation)")]
+    public static void SetContentDirectoryMigrationModeStrictOnly()
+    {
+        SetContentDirectoryMigrationMode(ContentDirectoryMigrationMode.StrictOnly);
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/ContentDirectories/MigrationMode/StrictOnly (Validation)", true)]
+    public static bool ValidateContentDirectoryMigrationModeStrictOnly()
+    {
+        Menu.SetChecked("FPS Sample/BuildSystem/ContentDirectories/MigrationMode/StrictOnly (Validation)",
+            GetContentDirectoryMigrationMode() == ContentDirectoryMigrationMode.StrictOnly);
+        return true;
+    }
+
     [MenuItem("Assets/ResirializeAssets")]
     public static void ReserializeProject()
     {
@@ -374,6 +724,21 @@ public class BuildTools
         {
             Debug.LogWarning("No build folder found here: " + buildPath);
         }
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/BuildContentDirectories")]
+    public static void BuildContentDirectoriesWindows64()
+    {
+        var target = BuildTarget.StandaloneWindows64;
+        var buildName = GetBuildName();
+        var buildPath = GetBuildPath(target, buildName);
+        var outputPath = GetBundlePath(target, buildPath);
+
+        Directory.CreateDirectory(buildPath);
+        BuildContentDirectories(target, outputPath,
+            "Assets/ContentRoots/ClientContentRoot.asset",
+            "Assets/ContentRoots/ServerContentRoot.asset",
+            "Assets/Resources/Content/SceneListRoot.asset");
     }
 
     [MenuItem("FPS Sample/BuildSystem/Win64/Deploy")]
@@ -530,6 +895,106 @@ public class BuildTools
 
         Debug.Log("Window64 build completed...");
         PostProcessWindows64();
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/CreateAutoBuildLike")]
+    public static void CreateAutoBuildLikeWindows64()
+    {
+        Debug.Log("Window64 Autobuild-like build started.");
+
+        var target = BuildTarget.StandaloneWindows64;
+        var buildPath = Path.Combine(GetProjectRoot(), "Autobuild");
+        var exeName = "Autobuild.exe";
+        var dataPath = Path.Combine(buildPath, "Autobuild_Data");
+
+        StopRunningBuildExecutable(buildPath, exeName);
+
+        Directory.CreateDirectory(buildPath);
+        BuildContentDirectoriesForMigrationMode(target, dataPath,
+            "Assets/ContentRoots/ClientContentRoot.asset",
+            "Assets/ContentRoots/ServerContentRoot.asset",
+            "Assets/Resources/Content/SceneListRoot.asset");
+
+        var res = BuildGame(buildPath, exeName, target, BuildOptions.None, "AutoBuild", false);
+        if (!res)
+            throw new Exception("BuildPipeline.BuildPlayer failed");
+        if (res.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+            throw new Exception("BuildPipeline.BuildPlayer failed: " + res.summary.result);
+
+        var configDir = Path.Combine(GetProjectRoot(), "Configs");
+        var srcBoot = Path.Combine(configDir, "boot.cfg");
+        var srcUser = Path.Combine(configDir, "user.cfg");
+        var dstBoot = Path.Combine(buildPath, Game.k_BootConfigFilename);
+        var dstUser = Path.Combine(buildPath, "user.cfg");
+
+        if (File.Exists(srcBoot))
+            File.Copy(srcBoot, dstBoot, true);
+        else
+            File.WriteAllLines(dstBoot, new[] { "client", "load level_menu" });
+
+        if (File.Exists(srcUser))
+            File.Copy(srcUser, dstUser, true);
+        else
+            File.WriteAllLines(dstUser, Array.Empty<string>());
+
+        var serverBat = new[]
+        {
+            "REM start game server on level_01",
+            exeName + " -nographics -batchmode -noboot +serve level_01 +game.modename assault"
+        };
+        File.WriteAllLines(Path.Combine(buildPath, "server.bat"), serverBat);
+
+        Debug.Log("Window64 Autobuild-like build completed at: " + buildPath);
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/CreateAutoBuildLike-ContentDirectoriesOnly")]
+    public static void CreateAutoBuildLikeWindows64ContentDirectoriesOnly()
+    {
+        Debug.Log("Window64 Autobuild-like strict content-directory build started.");
+
+        var target = BuildTarget.StandaloneWindows64;
+        var buildPath = Path.Combine(GetProjectRoot(), "Autobuild");
+        var exeName = "Autobuild.exe";
+        var dataPath = Path.Combine(buildPath, "Autobuild_Data");
+
+        StopRunningBuildExecutable(buildPath, exeName);
+
+        Directory.CreateDirectory(buildPath);
+        BuildContentDirectoriesStrict(target, dataPath,
+            "Assets/ContentRoots/ClientContentRoot.asset",
+            "Assets/ContentRoots/ServerContentRoot.asset",
+            "Assets/Resources/Content/SceneListRoot.asset");
+
+        var res = BuildGame(buildPath, exeName, target, BuildOptions.None, "AutoBuild", false);
+        if (!res)
+            throw new Exception("BuildPipeline.BuildPlayer failed");
+        if (res.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+            throw new Exception("BuildPipeline.BuildPlayer failed: " + res.summary.result);
+
+        var configDir = Path.Combine(GetProjectRoot(), "Configs");
+        var srcBoot = Path.Combine(configDir, "boot.cfg");
+        var srcUser = Path.Combine(configDir, "user.cfg");
+        var dstBoot = Path.Combine(buildPath, Game.k_BootConfigFilename);
+        var dstUser = Path.Combine(buildPath, "user.cfg");
+
+        if (File.Exists(srcBoot))
+            File.Copy(srcBoot, dstBoot, true);
+        else
+            File.WriteAllLines(dstBoot, new[] { "client", "load level_menu" });
+
+        if (File.Exists(srcUser))
+            File.Copy(srcUser, dstUser, true);
+        else
+            File.WriteAllLines(dstUser, Array.Empty<string>());
+
+        var serverBat = new[]
+        {
+            "REM start game server on level_01",
+            exeName + " -nographics -batchmode -noboot +serve level_01 +game.modename assault"
+        };
+        File.WriteAllLines(Path.Combine(buildPath, "server.bat"), serverBat);
+
+        Debug.Log("Window64 Autobuild-like strict content-directory build completed at: " + buildPath);
     }
 
     static void WriteShellScriptAndMakeExecutable(string fullPath, string[] script)

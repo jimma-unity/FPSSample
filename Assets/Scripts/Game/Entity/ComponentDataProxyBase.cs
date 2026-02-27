@@ -40,7 +40,7 @@ namespace Unity.Entities
 
         protected virtual void OnDisable()
         {
-            if (!gameObject.activeInHierarchy) // GameObjectEntity will handle removal when Entity is destroyed
+            if (!IsGameObjectActiveInHierarchy()) // GameObjectEntity will handle removal when Entity is destroyed
                 return;
             EntityManager entityManager;
             Entity entity;
@@ -52,10 +52,10 @@ namespace Unity.Entities
         {
             entityManager = default;
             entity = Entity.Null;
-            // gameObject is not initialized yet in native when OnBeforeSerialized() is called via SmartReset()
-            if (gameObject == null)
+
+            if (!TryGetGameObjectEntity(out var gameObjectEntity))
                 return false;
-            var gameObjectEntity = GetComponent<GameObjectEntity>();
+
             if (gameObjectEntity == null)
                 return false;
             var world = gameObjectEntity.World;
@@ -92,12 +92,63 @@ namespace Unity.Entities
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            EntityManager entityManager;
-            Entity entity;
-            if (CanSynchronizeWithEntityManager(out entityManager, out entity))
-                UpdateSerializedData(entityManager, entity);
+            try
+            {
+                EntityManager entityManager;
+                Entity entity;
+                if (CanSynchronizeWithEntityManager(out entityManager, out entity))
+                    UpdateSerializedData(entityManager, entity);
+            }
+            catch (NullReferenceException)
+            {
+                // Unity can invoke serialization callbacks while native component backing is in flux.
+                // Skip synchronization in this transient state.
+            }
+            catch (MissingReferenceException)
+            {
+                // Object was destroyed or invalidated during serialization.
+            }
         }
 
         void ISerializationCallbackReceiver.OnAfterDeserialize() {}
+
+        bool TryGetGameObjectEntity(out GameObjectEntity gameObjectEntity)
+        {
+            gameObjectEntity = null;
+
+            try
+            {
+                // gameObject is not initialized yet in native when OnBeforeSerialize() is called via SmartReset()
+                if (gameObject == null)
+                    return false;
+
+                gameObjectEntity = GetComponent<GameObjectEntity>();
+                return gameObjectEntity != null;
+            }
+            catch (NullReferenceException)
+            {
+                return false;
+            }
+            catch (MissingReferenceException)
+            {
+                return false;
+            }
+        }
+
+        bool IsGameObjectActiveInHierarchy()
+        {
+            try
+            {
+                return gameObject != null && gameObject.activeInHierarchy;
+            }
+            catch (NullReferenceException)
+            {
+                return false;
+            }
+            catch (MissingReferenceException)
+            {
+                return false;
+            }
+        }
     }
 }

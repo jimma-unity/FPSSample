@@ -28,9 +28,9 @@ public partial class UpdatePresentationOwners : BaseComponentSystem
 {
     EntityQuery Group;
     readonly PresentationRegistry m_presentationRegistry;
-    readonly BundledResourceManager m_resourceManager;
+    readonly IContentResolver m_resourceManager;
     
-    public UpdatePresentationOwners(GameWorld world, BundledResourceManager resourceManager) : base(world)
+    public UpdatePresentationOwners(GameWorld world, IContentResolver resourceManager) : base(world)
     {
         m_presentationRegistry = resourceManager.GetResourceRegistry<PresentationRegistry>();
         m_resourceManager = resourceManager;
@@ -70,8 +70,8 @@ public partial class UpdatePresentationOwners : BaseComponentSystem
 
             var replicatedData = EntityManager.GetComponentData<ReplicatedEntityData>(entity);
 
-            WeakAssetReference presentationGuid;
-            var found = m_presentationRegistry.GetPresentation(replicatedData.assetGuid, out presentationGuid);
+            GameObject presentationPrefab;
+            var found = m_presentationRegistry.TryGetPresentationPrefab(replicatedData.assetGuid, out presentationPrefab);
 
             if (!found)
             {
@@ -90,7 +90,7 @@ public partial class UpdatePresentationOwners : BaseComponentSystem
             
             //var presentation = registryEntry.factory.CreateVariation(EntityManager, m_resourceManager, m_world, entity, 0);
 
-            var presentation = m_resourceManager.CreateEntity(presentationGuid);
+            var presentation = m_world.Spawn<GameObjectEntity>(presentationPrefab).Entity;
             GameDebug.Assert(presentation != Entity.Null, "failed to create presentation");
                 
             

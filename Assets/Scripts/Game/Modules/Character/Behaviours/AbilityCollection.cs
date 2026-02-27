@@ -42,7 +42,7 @@ public class AbilityCollection : ReplicatedEntityFactory
     public AbilitySetup[] abilities = new AbilitySetup[0];
     
     static List<Entity> entities = new List<Entity>(16);
-    public override Entity Create(EntityManager entityManager, BundledResourceManager resourceManager, 
+    public override Entity Create(EntityManager entityManager, IContentResolver resourceManager, 
         GameWorld world)
     {
         entities.Clear();

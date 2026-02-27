@@ -28,12 +28,12 @@ public partial class HandleClientProjectileRequests : BaseComponentSystem
 {
     EntityQuery RequestGroup;
     readonly GameObject m_SystemRoot;
-    readonly BundledResourceManager m_resourceSystem;
+    readonly IContentResolver m_resourceSystem;
     readonly ProjectileModuleSettings m_settings;
     ClientProjectileFactory m_clientProjectileFactory;
     List<ProjectileRequest> requestBuffer = new List<ProjectileRequest>(16);
 
-    public HandleClientProjectileRequests(GameWorld world, BundledResourceManager resourceSystem, GameObject systemRoot, 
+    public HandleClientProjectileRequests(GameWorld world, IContentResolver resourceSystem, GameObject systemRoot, 
         ClientProjectileFactory clientProjectileFactory) : base(world)
     {
         m_resourceSystem = resourceSystem;
@@ -239,7 +239,7 @@ public partial class UpdateClientProjectilesNonPredicted : BaseComponentSystem<C
 public partial class HandleProjectileSpawn : BaseComponentSystem
 {
     readonly GameObject m_SystemRoot;
-    readonly BundledResourceManager m_resourceSystem;
+    readonly IContentResolver m_resourceSystem;
 
     EntityQuery PredictedProjectileGroup;
     EntityQuery IncommingProjectileGroup;
@@ -248,7 +248,7 @@ public partial class HandleProjectileSpawn : BaseComponentSystem
     private List<Entity> addClientProjArray = new List<Entity>(32);
     private EntityCommandBuffer ecb;
 
-    public HandleProjectileSpawn(GameWorld world, GameObject systemRoot, BundledResourceManager resourceSystem, ClientProjectileFactory projectileFactory) : base(world)
+    public HandleProjectileSpawn(GameWorld world, GameObject systemRoot, IContentResolver resourceSystem, ClientProjectileFactory projectileFactory) : base(world)
     {
         m_SystemRoot = systemRoot;
         m_resourceSystem = resourceSystem;
@@ -490,7 +490,7 @@ public class ClientProjectileFactory
 
     private Pool[] pools;
     
-    public ClientProjectileFactory(GameWorld world, EntityManager entityManager, GameObject systemRoot, BundledResourceManager resourceSystem)
+    public ClientProjectileFactory(GameWorld world, EntityManager entityManager, GameObject systemRoot, IContentResolver resourceSystem)
     {
         m_world = world;
         m_entityManager = entityManager;
@@ -505,7 +505,10 @@ public class ClientProjectileFactory
             var pool = new Pool();
             
             var entry = projectileRegistry.entries[i];
-            pool.prefab = (GameObject)m_resourceSystem.GetSingleAssetResource(entry.definition.clientProjectilePrefab);
+            GameObject projectilePrefab;
+            var resolved = projectileRegistry.TryGetClientProjectilePrefab(i, out projectilePrefab);
+            GameDebug.Assert(resolved && projectilePrefab != null, "Failed to resolve client projectile prefab for registry index " + i);
+            pool.prefab = projectilePrefab;
             pool.poolIndex = i;            
             Allocate(pool, entry.definition.clientProjectileBufferSize);
             pools[i] = pool;
@@ -515,7 +518,7 @@ public class ClientProjectileFactory
     GameWorld m_world;
     EntityManager m_entityManager;
     GameObject m_systemRoot;
-    BundledResourceManager m_resourceSystem;
+    IContentResolver m_resourceSystem;
     
     int Reserve(Pool pool)
     {

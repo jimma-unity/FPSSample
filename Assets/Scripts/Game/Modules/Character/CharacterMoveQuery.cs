@@ -23,6 +23,8 @@ public class CharacterMoveQuery : MonoBehaviour
     [NonSerialized] public float3 moveQueryEnd;
     [NonSerialized] public float3 moveQueryResult;
     [NonSerialized] public bool isGrounded;
+    [NonSerialized] public bool hasLastValidPosition;
+    [NonSerialized] public float3 lastValidPosition;
 
     [NonSerialized] public CharacterController charController;
     [NonSerialized] public Settings settings;
@@ -34,6 +36,8 @@ public class CharacterMoveQuery : MonoBehaviour
         var go = new GameObject("MoveColl_" + name,typeof(CharacterController), typeof(HitCollision));
         charController = go.GetComponent<CharacterController>();
         charController.transform.position = transform.position;
+        hasLastValidPosition = true;
+        lastValidPosition = transform.position;
         charController.slopeLimit = settings.slopeLimit;
         charController.stepOffset = settings.stepOffset;
         charController.skinWidth = settings.skinWidth;
@@ -58,6 +62,7 @@ public class CharacterMoveQuery : MonoBehaviour
 partial class HandleMovementQueries : BaseComponentSystem
 {
     EntityQuery Group;
+    const float k_MaxWorldDistance = 20000.0f;
 	
     public HandleMovementQueries(GameWorld world) : base(world) {}
 	
@@ -78,10 +83,32 @@ partial class HandleMovementQueries : BaseComponentSystem
             var query = queryArray[i];
 
             var charController = query.charController;
+            var controllerPosition = (float3)charController.transform.position;
+
+            if (IsFinite(controllerPosition) && math.lengthsq(controllerPosition) <= k_MaxWorldDistance * k_MaxWorldDistance)
+            {
+                query.hasLastValidPosition = true;
+                query.lastValidPosition = controllerPosition;
+            }
 
             if (charController.gameObject.layer != query.collisionLayer)
                 charController.gameObject.layer = query.collisionLayer;
             
+            var controllerOutOfBounds = !IsFinite(controllerPosition) || math.lengthsq(controllerPosition) > k_MaxWorldDistance * k_MaxWorldDistance;
+            var queryOutOfBounds = !IsFinite(query.moveQueryStart) || !IsFinite(query.moveQueryEnd) || math.lengthsq(query.moveQueryStart) > k_MaxWorldDistance * k_MaxWorldDistance || math.lengthsq(query.moveQueryEnd) > k_MaxWorldDistance * k_MaxWorldDistance;
+            if (queryOutOfBounds || controllerOutOfBounds)
+            {
+                var recoveryPosition = query.hasLastValidPosition ? query.lastValidPosition : float3.zero;
+                charController.transform.position = recoveryPosition;
+                query.moveQueryStart = recoveryPosition;
+                query.moveQueryEnd = query.moveQueryStart;
+                query.moveQueryResult = query.moveQueryStart;
+                query.isGrounded = charController.isGrounded;
+                if (UnityEngine.Time.frameCount % 120 == 0)
+                    GameDebug.LogWarning("CharacterMoveQuery sanitize: recovered invalid movement state. queryOutOfBounds=" + queryOutOfBounds + ", controllerOutOfBounds=" + controllerOutOfBounds + ", startLenSq=" + math.lengthsq(query.moveQueryStart) + ", endLenSq=" + math.lengthsq(query.moveQueryEnd) + ", controllerLenSq=" + math.lengthsq(controllerPosition) + ", start=" + query.moveQueryStart + ", end=" + query.moveQueryEnd + ", controller=" + controllerPosition + ", recovery=" + recoveryPosition);
+                continue;
+            }
+
             float3 currentControllerPos = charController.transform.position;
             if (math.distance(currentControllerPos, query.moveQueryStart) > 0.01f)
             {
@@ -96,5 +123,10 @@ partial class HandleMovementQueries : BaseComponentSystem
         }
         
         Profiler.EndSample();
+    }
+
+    static bool IsFinite(float3 value)
+    {
+        return math.isfinite(value.x) && math.isfinite(value.y) && math.isfinite(value.z);
     }
 }

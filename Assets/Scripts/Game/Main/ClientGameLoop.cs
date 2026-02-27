@@ -29,7 +29,7 @@ public class ClientGameWorld
     }
     
 
-    public ClientGameWorld(GameWorld world, NetworkClient networkClient, NetworkStatisticsClient networkStatistics, BundledResourceManager resourceSystem)
+    public ClientGameWorld(GameWorld world, NetworkClient networkClient, NetworkStatisticsClient networkStatistics, IContentResolver resourceSystem)
     {
         m_NetworkClient = networkClient;          
         m_NetworkStatistics = networkStatistics;
@@ -373,7 +373,13 @@ public class ClientGameWorld
         //  The time passed in here is used to calculate the amount of rotation from stick position
         //  The command stores final view direction
         bool chatOpen = Game.game.clientFrontend != null && Game.game.clientFrontend.chatPanel.isOpen;
-        bool userInputEnabled = Game.GetMousePointerLock() && !chatOpen;
+        bool menuOpen = Game.game.clientFrontend != null && Game.game.clientFrontend.menuShowing != ClientFrontend.MenuShowing.None;
+        bool hasPointerLock = Game.GetMousePointerLock();
+        bool userInputEnabled = !chatOpen && !menuOpen && (hasPointerLock || (!Application.isEditor && Application.isFocused));
+
+        if (userInputEnabled && !hasPointerLock && !Application.isEditor && Application.isFocused)
+            Game.RequestMousePointerLock();
+
         m_PlayerModule.SampleInput(userInputEnabled, Time.deltaTime, m_RenderTime.tick);
 
 
@@ -531,6 +537,9 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         Game.game.levelManager.UnloadLevel();
 #endif
         m_GameWorld = new GameWorld("ClientWorld");
+
+        m_contentDirectoryRegistration = new RuntimeContentDirectoryRegistration();
+        m_contentDirectoryRegistration.RegisterDefaultContentDirectories("ClientGameLoop");
         
         m_NetworkTransport = new SocketTransport();
         m_NetworkClient = new NetworkClient(m_NetworkTransport);
@@ -555,6 +564,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         Console.AddCommand("nextteam", CmdNextTeam, "Select next character", this.GetHashCode());
         Console.AddCommand("spectator", CmdSpectator, "Select spectator cam", this.GetHashCode());
         Console.AddCommand("matchmake", CmdMatchmake, "matchmake <hostname[:port]/{projectid}>: Find and join a server", this.GetHashCode());
+        Console.AddCommand("contentdirs", CmdContentDirectories, "List registered content directories", this.GetHashCode());
         
         if (args.Length > 0)
         {
@@ -574,6 +584,9 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         GameDebug.Log("ClientGameLoop shutdown");
         Console.RemoveCommandsWithTag(this.GetHashCode());
 
+        m_contentDirectoryRegistration?.UnregisterAll("ClientGameLoop");
+        m_contentDirectoryRegistration = null;
+
         m_StateMachine.Shutdown();
 
         m_NetworkClient.Shutdown();
@@ -585,6 +598,20 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     public ClientGameWorld GetClientGameWorld()
     {
         return m_clientWorld;
+    }
+
+    public bool CanToggleIngameMenu()
+    {
+        if (m_ClientState != ClientState.Playing)
+            return false;
+
+        if (m_PlayingVisualRecoveryFrames > 0)
+            return false;
+
+        if (m_LocalPlayer == null || m_LocalPlayer.playerState == null)
+            return false;
+
+        return m_LocalPlayer.playerState.controlledEntity != Entity.Null;
     }
     
     public void OnConnect(int clientId) { }
@@ -766,7 +793,9 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
         m_GameWorld.RegisterSceneEntities();
         
-        m_resourceSystem = new BundledResourceManager(m_GameWorld,"BundledResources/Client");
+        var resolverBackend = ContentResolverFactory.ResolveConfiguredBackend();
+        GameDebug.Log("ClientGameLoop: Content resolver backend: " + resolverBackend);
+        m_resourceSystem = ContentResolverFactory.Create(m_GameWorld, RuntimeContentDirectoryRegistration.ClientRegistryName, resolverBackend);
 
         m_clientWorld = new ClientGameWorld(m_GameWorld, m_NetworkClient, m_NetworkStatistics, m_resourceSystem);
         m_clientWorld.PredictionEnabled = m_predictionEnabled;
@@ -775,11 +804,20 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         
         m_NetworkClient.QueueEvent((ushort)GameNetworkEvents.EventType.PlayerReady, true, (ref NetworkWriter data) => {});
 
+        m_PlayingVisualRecoveryFrames = 60;
+        m_PlayingVisualRecoveryLogged = false;
+        EnsurePlayingVisualState();
+
         m_ClientState = ClientState.Playing;
     }
 
     void LeavePlayingState()
     {
+        m_contentDirectoryRegistration?.UnregisterAll("ClientGameLoop");
+
+        m_PlayingVisualRecoveryFrames = 0;
+        m_PlayingVisualRecoveryLogged = false;
+
         m_resourceSystem?.Shutdown();
 
         m_LocalPlayer = null;
@@ -815,6 +853,13 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
             return;
         }
 
+        EnsureGameplayCameraOwnership();
+        EnsureTopCameraRenderable();
+        EnsureRuntimeLightingFallback();
+        EnsurePlayingVisualState();
+        Game.game.BlackFade(false);
+        LogPlayingCameraStatus();
+
         // (re)send client info if any of the configvars that contain clientinfo has changed
         if ((ConfigVar.DirtyFlags & ConfigVar.Flags.ClientInfo) == ConfigVar.Flags.ClientInfo)
         {
@@ -837,6 +882,294 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         m_performGameWorldLateUpdate = true;
     }
 
+    void EnsureTopCameraRenderable()
+    {
+        var topCamera = Game.game.TopCamera();
+        if (topCamera == null)
+            return;
+
+        var changed = false;
+        var topIsPlayerCamera = topCamera.GetComponent<PlayerCamera>() != null;
+        if (!topCamera.enabled)
+        {
+            topCamera.enabled = true;
+            changed = true;
+        }
+
+        if (topCamera.cullingMask == 0)
+        {
+            topCamera.cullingMask = ~0;
+            changed = true;
+        }
+
+        if (topCamera.clearFlags == CameraClearFlags.Nothing)
+        {
+            topCamera.clearFlags = CameraClearFlags.Skybox;
+            changed = true;
+        }
+
+        if (topIsPlayerCamera && topCamera.clearFlags == CameraClearFlags.Depth)
+        {
+            topCamera.clearFlags = CameraClearFlags.Skybox;
+            changed = true;
+        }
+
+        if (topIsPlayerCamera && topCamera.cullingMask != ~0)
+        {
+            topCamera.cullingMask = ~0;
+            changed = true;
+        }
+
+        if (topIsPlayerCamera && topCamera.useOcclusionCulling)
+        {
+            topCamera.useOcclusionCulling = false;
+            changed = true;
+        }
+
+        if (topCamera.targetTexture != null)
+        {
+            topCamera.targetTexture = null;
+            changed = true;
+        }
+
+        if (!topCamera.allowHDR)
+        {
+            topCamera.allowHDR = true;
+            changed = true;
+        }
+
+        if (!float.IsFinite(topCamera.nearClipPlane) || topCamera.nearClipPlane <= 0.0001f)
+        {
+            topCamera.nearClipPlane = 0.03f;
+            changed = true;
+        }
+
+        if (!float.IsFinite(topCamera.farClipPlane) || topCamera.farClipPlane <= topCamera.nearClipPlane + 1.0f)
+        {
+            topCamera.farClipPlane = 1000.0f;
+            changed = true;
+        }
+
+        if (!float.IsFinite(topCamera.fieldOfView) || topCamera.fieldOfView < 20.0f || topCamera.fieldOfView > 130.0f)
+        {
+            topCamera.fieldOfView = Mathf.Clamp(Game.configFov.FloatValue, 30.0f, 120.0f);
+            changed = true;
+        }
+
+        if (topIsPlayerCamera)
+        {
+            var hdCamera = topCamera.GetComponent<UnityEngine.Rendering.HighDefinition.HDAdditionalCameraData>();
+            if (hdCamera != null && hdCamera.customRenderingSettings)
+            {
+                hdCamera.customRenderingSettings = false;
+                changed = true;
+            }
+        }
+
+        if (changed && !m_TopCameraRenderableFixLogged)
+        {
+            m_TopCameraRenderableFixLogged = true;
+            GameDebug.LogWarning($"Top camera renderability fix applied: camera={topCamera.name}, isPlayerCamera={topIsPlayerCamera}, enabled={topCamera.enabled}, cullingMask={topCamera.cullingMask}, clearFlags={topCamera.clearFlags}, near={topCamera.nearClipPlane}, far={topCamera.farClipPlane}, fov={topCamera.fieldOfView}");
+        }
+    }
+
+    void EnsureGameplayCameraOwnership()
+    {
+        var topCamera = Game.game.TopCamera();
+        if (topCamera == null)
+            return;
+
+        if (topCamera != Game.game.bootCamera)
+        {
+            m_BootTopFrameCount = 0;
+            return;
+        }
+
+        m_BootTopFrameCount++;
+
+        var playerCameras = UnityEngine.Object.FindObjectsOfType<PlayerCamera>();
+        for (int i = 0; i < playerCameras.Length; i++)
+        {
+            var playerCamera = playerCameras[i];
+            if (playerCamera == null || playerCamera.cameraSettings == null || !playerCamera.cameraSettings.isEnabled)
+                continue;
+
+            var camera = playerCamera.GetComponent<Camera>();
+            if (camera == null || !camera.enabled || !camera.gameObject.activeInHierarchy)
+                continue;
+
+            if (Game.game.TopCamera() != camera)
+            {
+                Game.game.PushCamera(camera);
+                if (!m_PlayerCameraPromotedLogged)
+                {
+                    m_PlayerCameraPromotedLogged = true;
+                    GameDebug.LogWarning("Promoted PlayerCamera to top camera during gameplay to replace boot camera.");
+                }
+            }
+            return;
+        }
+
+        var cameras = UnityEngine.Object.FindObjectsOfType<Camera>();
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            var camera = cameras[i];
+            if (camera == null || camera == Game.game.bootCamera)
+                continue;
+            if (!camera.enabled || !camera.gameObject.activeInHierarchy)
+                continue;
+
+            if (Game.game.TopCamera() != camera)
+            {
+                Game.game.PushCamera(camera);
+                if (!m_PlayerCameraPromotedLogged)
+                {
+                    m_PlayerCameraPromotedLogged = true;
+                    GameDebug.LogWarning("Promoted non-boot active camera to top camera during gameplay (fallback path).");
+                }
+            }
+            return;
+        }
+
+        if (m_BootTopFrameCount % 120 == 0)
+        {
+            GameDebug.LogWarning($"Boot camera still top in playing: frames={m_BootTopFrameCount}, playerCameraCount={playerCameras.Length}, activeCameraCount={cameras.Length}");
+        }
+    }
+
+    void EnsurePlayingVisualState()
+    {
+        if (m_PlayingVisualRecoveryFrames <= 0)
+            return;
+
+        m_PlayingVisualRecoveryFrames--;
+
+        Game.game.BlackFade(false);
+        Console.SetOpen(false);
+
+        if (Game.game.clientFrontend != null)
+            Game.game.clientFrontend.ShowMenu(ClientFrontend.MenuShowing.None);
+
+        var topCamera = Game.game.TopCamera();
+        if (topCamera == null)
+            return;
+
+        if (!topCamera.enabled)
+            topCamera.enabled = true;
+
+        if (topCamera == Game.game.bootCamera)
+        {
+            topCamera.cullingMask = ~0;
+            if (topCamera.clearFlags == CameraClearFlags.Nothing)
+                topCamera.clearFlags = CameraClearFlags.Skybox;
+        }
+
+        if (!m_PlayingVisualRecoveryLogged)
+        {
+            var topCameraName = topCamera != null ? topCamera.name : "<null>";
+            var isBootCamera = topCamera == Game.game.bootCamera;
+            GameDebug.Log($"Playing visual recovery: top={topCameraName}, enabled={topCamera.enabled}, bootTop={isBootCamera}, cullingMask={topCamera.cullingMask}, clearFlags={topCamera.clearFlags}");
+            m_PlayingVisualRecoveryLogged = true;
+        }
+    }
+
+    void EnsureRuntimeLightingFallback()
+    {
+        if (Application.isEditor)
+            return;
+
+        if (debugForceLightingFallback.IntValue == 0)
+            return;
+
+        var lights = UnityEngine.Object.FindObjectsOfType<Light>();
+        var enabledDirectionalLights = 0;
+        for (var i = 0; i < lights.Length; i++)
+        {
+            var light = lights[i];
+            if (light == null || !light.enabled || !light.gameObject.activeInHierarchy)
+                continue;
+
+            if (light.type == LightType.Directional)
+                enabledDirectionalLights++;
+        }
+
+        if (enabledDirectionalLights == 0 && m_RuntimeFallbackDirectionalLight == null)
+        {
+            var lightObject = new GameObject("RuntimeFallbackDirectionalLight");
+            m_RuntimeFallbackDirectionalLight = lightObject.AddComponent<Light>();
+            m_RuntimeFallbackDirectionalLight.type = LightType.Directional;
+            m_RuntimeFallbackDirectionalLight.intensity = 1.2f;
+            m_RuntimeFallbackDirectionalLight.color = Color.white;
+            lightObject.transform.rotation = Quaternion.Euler(50.0f, -30.0f, 0.0f);
+            GameDebug.LogWarning("Lighting fallback: created runtime directional light for standalone visibility.");
+        }
+
+        if (!m_RuntimeAmbientFallbackApplied)
+        {
+            UnityEngine.RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            UnityEngine.RenderSettings.ambientLight = new Color(0.28f, 0.28f, 0.28f, 1.0f);
+            m_RuntimeAmbientFallbackApplied = true;
+            GameDebug.LogWarning("Lighting fallback: forced ambient flat lighting for standalone visibility.");
+        }
+    }
+
+    void LogPlayingCameraStatus()
+    {
+        m_PlayingStatusFrameCounter++;
+        if (m_PlayingStatusFrameCounter % 120 != 0)
+            return;
+
+        var topCamera = Game.game.TopCamera();
+        var topName = topCamera != null ? topCamera.name : "<null>";
+        var topEnabled = topCamera != null && topCamera.enabled;
+        var topIsBoot = topCamera != null && topCamera == Game.game.bootCamera;
+        var cullingMask = topCamera != null ? topCamera.cullingMask : 0;
+        var clearFlags = topCamera != null ? topCamera.clearFlags.ToString() : "<none>";
+        var nearClip = topCamera != null ? topCamera.nearClipPlane : 0.0f;
+        var farClip = topCamera != null ? topCamera.farClipPlane : 0.0f;
+        var fov = topCamera != null ? topCamera.fieldOfView : 0.0f;
+        var camPos = topCamera != null ? topCamera.transform.position : Vector3.zero;
+        var camEuler = topCamera != null ? topCamera.transform.rotation.eulerAngles : Vector3.zero;
+        var occlusion = topCamera != null && topCamera.useOcclusionCulling;
+        var targetTexture = topCamera != null && topCamera.targetTexture != null ? topCamera.targetTexture.name : "<backbuffer>";
+        var hdrpCustom = "<n/a>";
+        if (topCamera != null)
+        {
+            var hdCamera = topCamera.GetComponent<UnityEngine.Rendering.HighDefinition.HDAdditionalCameraData>();
+            if (hdCamera != null)
+                hdrpCustom = hdCamera.customRenderingSettings ? "custom" : "default";
+            else
+                hdrpCustom = "missing";
+        }
+        var playerCamCount = UnityEngine.Object.FindObjectsOfType<PlayerCamera>().Length;
+        var cameras = UnityEngine.Object.FindObjectsOfType<Camera>();
+        var cameraCount = cameras.Length;
+        var enabledCameraSummary = "<none>";
+        var enabledCount = 0;
+        if (cameraCount > 0)
+        {
+            System.Array.Sort(cameras, (a, b) => a.depth.CompareTo(b.depth));
+            var parts = new List<string>();
+            for (var i = 0; i < cameras.Length; i++)
+            {
+                var camera = cameras[i];
+                if (camera == null || !camera.enabled)
+                    continue;
+
+                enabledCount++;
+                if (parts.Count >= 3)
+                    continue;
+
+                parts.Add($"{camera.name}[d={camera.depth},clear={camera.clearFlags},mask={camera.cullingMask},rect={camera.pixelRect}]");
+            }
+
+            if (parts.Count > 0)
+                enabledCameraSummary = string.Join(" | ", parts.ToArray());
+        }
+
+        GameDebug.Log($"Playing camera status: frame={m_PlayingStatusFrameCounter}, top={topName}, enabled={topEnabled}, bootTop={topIsBoot}, cullingMask={cullingMask}, clearFlags={clearFlags}, near={nearClip:F3}, far={farClip:F1}, fov={fov:F1}, pos=({camPos.x:F2},{camPos.y:F2},{camPos.z:F2}), rot=({camEuler.x:F1},{camEuler.y:F1},{camEuler.z:F1}), occlusion={occlusion}, target={targetTexture}, hdrp={hdrpCustom}, playerCameras={playerCamCount}, cameras={cameraCount}, enabledCameras={enabledCount}, active={enabledCameraSummary}");
+    }
+
     public void FixedUpdate()
     {
     }
@@ -847,6 +1180,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         {
             m_performGameWorldLateUpdate = false;
             m_clientWorld.LateUpdate(m_ChatSystem, Time.deltaTime);
+            EnsureTopCameraRenderable();
         }
 
         ShowInfoOverlay(0, 1);
@@ -1061,6 +1395,19 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         });
     }
 
+    void CmdContentDirectories(string[] args)
+    {
+        if (m_contentDirectoryRegistration == null)
+        {
+            Console.Write("Content directory registration not initialized");
+            return;
+        }
+
+        Console.Write("Registered content directories: " + m_contentDirectoryRegistration.RegisteredCount);
+        foreach (var path in m_contentDirectoryRegistration.GetRegisteredPaths())
+            Console.Write(" - " + path);
+    }
+
     enum ClientState
     {
         Browsing,
@@ -1086,7 +1433,8 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     ChatSystemClient m_ChatSystem;
 
     ClientGameWorld m_clientWorld;
-    BundledResourceManager m_resourceSystem;
+    IContentResolver m_resourceSystem;
+    RuntimeContentDirectoryRegistration m_contentDirectoryRegistration;
 
     string m_LevelName;
 
@@ -1096,6 +1444,14 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     double m_lastFrameTime;
     bool m_predictionEnabled = true;
     bool m_performGameWorldLateUpdate;
+    int m_PlayingVisualRecoveryFrames;
+    bool m_PlayingVisualRecoveryLogged;
+    bool m_TopCameraRenderableFixLogged;
+    bool m_PlayerCameraPromotedLogged;
+    int m_BootTopFrameCount;
+    int m_PlayingStatusFrameCounter;
+    bool m_RuntimeAmbientFallbackApplied;
+    Light m_RuntimeFallbackDirectionalLight;
 
     bool m_useMatchmaking = false;
     Matchmaker m_matchmaker;
@@ -1104,4 +1460,6 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     static ConfigVar m_showTickInfo;
     [ConfigVar(Name ="client.showcommandinfo", DefaultValue = "0", Description = "Show command info")]
     static ConfigVar m_showCommandInfo;
+    [ConfigVar(Name = "debug.forcelightingfallback", DefaultValue = "0", Description = "Force ambient/directional fallback lighting in standalone for black-scene diagnostics")]
+    static ConfigVar debugForceLightingFallback;
 }

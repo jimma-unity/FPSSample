@@ -5,7 +5,7 @@ using UnityEngine.Profiling;
 
 public class ReplicatedEntityModuleClient : ISnapshotConsumer 
 {
-    public ReplicatedEntityModuleClient(GameWorld world, BundledResourceManager resourceSystem)
+    public ReplicatedEntityModuleClient(GameWorld world, IContentResolver resourceSystem)
     {
         m_world = world;
         m_resourceSystem = resourceSystem;
@@ -55,7 +55,7 @@ public class ReplicatedEntityModuleClient : ISnapshotConsumer
         
         GameDebug.Assert(index < m_assetRegistry.entries.Count,"TypeId:" +typeId + " not in range. Array Length:" + m_assetRegistry.entries.Count);
 
-        var entity = m_resourceSystem.CreateEntity(m_assetRegistry.entries[index].guid);
+        var entity = m_assetRegistry.Create(m_world.GetEntityManager(), m_resourceSystem, m_world, index, Vector3.zero, Quaternion.identity);
         if (entity == Entity.Null)
         {
             GameDebug.LogError("Failed to create entity for index:" + index + " guid:" + m_assetRegistry.entries[index].guid);
@@ -205,7 +205,7 @@ public class ReplicatedEntityModuleClient : ISnapshotConsumer
 
     readonly GameWorld m_world;
     readonly GameObject m_SystemRoot;
-    readonly BundledResourceManager m_resourceSystem;
+    readonly IContentResolver m_resourceSystem;
     readonly ReplicatedEntityRegistry m_assetRegistry;
     readonly ReplicatedEntityCollection m_entityCollection;
     readonly UpdateReplicatedOwnerFlag m_UpdateReplicatedOwnerFlag;

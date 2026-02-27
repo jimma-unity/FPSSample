@@ -64,6 +64,7 @@ partial class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityCo
     readonly int m_platformLayer;
     readonly int m_charCollisionALayer; 
     readonly int m_charCollisionBLayer; 
+    const float k_MaxWorldDistance = 20000.0f;
 
     public Movement_Update(GameWorld world) : base(world)
     {
@@ -93,6 +94,7 @@ partial class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityCo
         var time = m_world.worldTime;
        
         var command = EntityManager.GetComponentData<UserCommandComponentData>(charAbility.character).command;
+        SanitizeCommand(ref command);
         var predictedState = EntityManager.GetComponentData<CharacterPredictedData>(charAbility.character);
         var character = EntityManager.GetComponentObject<Character>(charAbility.character);
         
@@ -194,9 +196,35 @@ partial class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityCo
             }
         }
 
+        // Sanitize predicted state before any movement math so we never produce invalid move deltas.
+        var controllerPosition = (Vector3)moveQuery.charController.transform.position;
+        if (!IsFinite(predictedState.position) || predictedState.position.sqrMagnitude > (k_MaxWorldDistance * k_MaxWorldDistance))
+        {
+            if (UnityEngine.Time.frameCount % 120 == 0)
+                GameDebug.LogWarning("Movement_Update sanitize: invalid predicted position " + predictedState.position + ", using controller position " + controllerPosition);
+
+            predictedState.position = controllerPosition;
+        }
+
+        if (!IsFinite(predictedState.velocity) || predictedState.velocity.sqrMagnitude > 2000.0f * 2000.0f)
+        {
+            if (UnityEngine.Time.frameCount % 120 == 0)
+                GameDebug.LogWarning("Movement_Update sanitize: invalid predicted velocity " + predictedState.velocity + ", zeroing velocity");
+
+            predictedState.velocity = Vector3.zero;
+        }
+
         // Calculate movement and move character
         var deltaPos = Vector3.zero;
         CalculateMovement(ref time, ref predictedState, ref command, ref deltaPos);
+
+        if (!IsFinite(deltaPos) || deltaPos.sqrMagnitude > 100.0f * 100.0f)
+        {
+            if (UnityEngine.Time.frameCount % 120 == 0)
+                GameDebug.LogWarning("Movement_Update sanitize: invalid movement delta " + deltaPos + ", zeroing delta");
+
+            deltaPos = Vector3.zero;
+        }
 
         // Setup movement query
         moveQuery.collisionLayer = character.teamId == 0 ? m_charCollisionALayer : m_charCollisionBLayer;
@@ -204,6 +232,36 @@ partial class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityCo
         moveQuery.moveQueryEnd = moveQuery.moveQueryStart + (float3)deltaPos;
         
         EntityManager.SetComponentData(charAbility.character,predictedState);
+    }
+
+    static bool IsFinite(Vector3 value)
+    {
+        return float.IsFinite(value.x) && float.IsFinite(value.y) && float.IsFinite(value.z);
+    }
+
+    static bool IsFinite(Quaternion value)
+    {
+        return float.IsFinite(value.x) && float.IsFinite(value.y) && float.IsFinite(value.z) && float.IsFinite(value.w);
+    }
+
+    static void SanitizeCommand(ref UserCommand command)
+    {
+        if (!float.IsFinite(command.lookYaw))
+            command.lookYaw = 0.0f;
+
+        if (!float.IsFinite(command.moveYaw))
+            command.moveYaw = 0.0f;
+
+        if (!float.IsFinite(command.moveMagnitude))
+            command.moveMagnitude = 0.0f;
+
+        command.moveMagnitude = Mathf.Clamp(command.moveMagnitude, -1.0f, 1.0f);
+
+        if (!IsFinite(command.lookRotation))
+            {
+                command.lookYaw = 0.0f;
+                command.lookPitch = 90.0f;
+            }
     }
     
     void CalculateMovement(ref GameTime gameTime, ref CharacterPredictedData predicted, ref UserCommand command, ref Vector3 deltaPos)
@@ -299,6 +357,8 @@ partial class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityCo
 [DisableAutoCreation]
 partial class Movement_HandleCollision : BaseComponentDataSystem<CharBehaviour, AbilityControl, Ability_Movement.Settings>
 {
+    const float k_MaxWorldDistance = 200000.0f;
+
     public Movement_HandleCollision(GameWorld world) : base(world)
     {
         ExtraComponentRequirements = new ComponentType[] { typeof(ServerEntity) } ;
@@ -341,11 +401,25 @@ partial class Movement_HandleCollision : BaseComponentDataSystem<CharBehaviour, 
         // Manually calculate resulting velocity as characterController.velocity is linked to Time.deltaTime
         var newPos = query.moveQueryResult;
         var oldPos = query.moveQueryStart;
+        if (!IsFinite(newPos) || !IsFinite(oldPos) || math.lengthsq(newPos) > k_MaxWorldDistance * k_MaxWorldDistance || math.lengthsq(oldPos) > k_MaxWorldDistance * k_MaxWorldDistance)
+        {
+            if (UnityEngine.Time.frameCount % 120 == 0)
+                GameDebug.LogWarning("Movement_HandleCollision sanitize: invalid query output detected. oldPos=" + oldPos + ", newPos=" + newPos + ". Keeping predicted position.");
+
+            EntityManager.SetComponentData(charAbility.character, predictedState);
+            return;
+        }
+
         var velocity = (newPos - oldPos) / time.tickDuration;
     
         predictedState.velocity = velocity;
         predictedState.position = query.moveQueryResult;
         
         EntityManager.SetComponentData(charAbility.character, predictedState);
+    }
+
+    static bool IsFinite(float3 value)
+    {
+        return math.isfinite(value.x) && math.isfinite(value.y) && math.isfinite(value.z);
     }
 }

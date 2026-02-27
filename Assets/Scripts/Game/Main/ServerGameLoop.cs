@@ -21,7 +21,7 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
     }
     public float TickInterval { get { return m_GameWorld.worldTime.tickInterval; } }
 
-    public ServerGameWorld(GameWorld world, NetworkServer networkServer, Dictionary<int, ServerGameLoop.ClientInfo> clients, ChatSystemServer m_ChatSystem, BundledResourceManager resourceSystem)
+    public ServerGameWorld(GameWorld world, NetworkServer networkServer, Dictionary<int, ServerGameLoop.ClientInfo> clients, ChatSystemServer m_ChatSystem, IContentResolver resourceSystem)
     {
         m_NetworkServer = networkServer;
         m_Clients = clients;
@@ -348,6 +348,9 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
 #endif        
         m_GameWorld = new GameWorld("ServerWorld");
 
+    m_contentDirectoryRegistration = new RuntimeContentDirectoryRegistration();
+    m_contentDirectoryRegistration.RegisterDefaultContentDirectories("ServerGameLoop");
+
         m_NetworkStatistics = new NetworkStatisticsServer(m_NetworkServer);
 
         m_ChatSystem = new ChatSystemServer(m_Clients, m_NetworkServer);
@@ -362,6 +365,7 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         Console.AddCommand("endnetworkprofile", CmdEndNetworkProfile, "Ends a network profile and analyzes. [optional] filepath for model data", this.GetHashCode());
         Console.AddCommand("loadcompressionmodel", CmdLoadNetworkCompressionModel, "Loads a network compression model from a filepath", this.GetHashCode());
         Console.AddCommand("list", CmdList, "List clients", this.GetHashCode());
+        Console.AddCommand("contentdirs", CmdContentDirectories, "List registered content directories", this.GetHashCode());
 
         CmdLoad(args);
         Game.SetMousePointerLock(false);
@@ -377,6 +381,9 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
     {
         GameDebug.Log("ServerGameState shutdown");
         Console.RemoveCommandsWithTag(this.GetHashCode());
+
+        m_contentDirectoryRegistration?.UnregisterAll("ServerGameLoop");
+        m_contentDirectoryRegistration = null;
 
         m_StateMachine.Shutdown();
         m_NetworkServer.Shutdown();
@@ -551,7 +558,9 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
 
         m_GameWorld.RegisterSceneEntities();
 
-        m_resourceSystem = new BundledResourceManager(m_GameWorld,"BundledResources/Server");
+        var resolverBackend = ContentResolverFactory.ResolveConfiguredBackend();
+        GameDebug.Log("ServerGameLoop: Content resolver backend: " + resolverBackend);
+        m_resourceSystem = ContentResolverFactory.Create(m_GameWorld, RuntimeContentDirectoryRegistration.ServerRegistryName, resolverBackend);
 
         m_NetworkServer.InitializeMap((ref NetworkWriter data) =>
         {
@@ -629,6 +638,8 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
 
     void LeaveActiveState()
     {
+        m_contentDirectoryRegistration?.UnregisterAll("ServerGameLoop");
+
         m_serverGameWorld.Shutdown();
         m_serverGameWorld = null;
 
@@ -798,6 +809,19 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         Console.Write(string.Format("Total: {0}/{0} players connected", m_Clients.Count, serverMaxClients.IntValue));
     }
 
+    void CmdContentDirectories(string[] args)
+    {
+        if (m_contentDirectoryRegistration == null)
+        {
+            Console.Write("Content directory registration not initialized");
+            return;
+        }
+
+        Console.Write("Registered content directories: " + m_contentDirectoryRegistration.RegisteredCount);
+        foreach (var path in m_contentDirectoryRegistration.GetRegisteredPaths())
+            Console.Write(" - " + path);
+    }
+
     string MakeServername()
     {
 
@@ -853,7 +877,8 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
 
     SocketTransport m_NetworkTransport;
 
-    BundledResourceManager m_resourceSystem;
+    IContentResolver m_resourceSystem;
+    RuntimeContentDirectoryRegistration m_contentDirectoryRegistration;
     ChatSystemServer m_ChatSystem;
     Dictionary<int, ClientInfo> m_Clients = new Dictionary<int, ClientInfo>();
 

@@ -150,14 +150,31 @@ public class PlayerModuleClient
         if (localPlayer.playerState == null)
             return;
 
-        localPlayer.command.checkTick = tick;
-
         var lastBufferTick = localPlayer.commandBuffer.LastTick();
-        if (tick != lastBufferTick && tick != lastBufferTick + 1)
+        if (lastBufferTick >= 0 && tick < lastBufferTick)
         {
-            localPlayer.commandBuffer.Clear();
-            GameDebug.Log(string.Format("Trying to store tick:{0} but last buffer tick is:{1}. Clearing buffer", tick, lastBufferTick));
+            if (localPlayer.commandBuffer.IsValidTick(tick))
+            {
+                localPlayer.command.checkTick = tick;
+                localPlayer.commandBuffer.Set(ref localPlayer.command, tick);
+            }
+            else
+            {
+                GameDebug.Log(string.Format("Skipping stale tick store:{0} (buffer range {1}->{2})", tick, localPlayer.commandBuffer.FirstTick(), lastBufferTick));
+            }
+            return;
         }
+
+        if (lastBufferTick >= 0 && tick > lastBufferTick + 1)
+        {
+            for (int fillTick = lastBufferTick + 1; fillTick < tick; fillTick++)
+            {
+                localPlayer.command.checkTick = fillTick;
+                localPlayer.commandBuffer.Add(ref localPlayer.command, fillTick);
+            }
+        }
+
+        localPlayer.command.checkTick = tick;
         
         if (tick == lastBufferTick)
             localPlayer.commandBuffer.Set(ref localPlayer.command, tick);
@@ -176,7 +193,19 @@ public class PlayerModuleClient
 
         var command = UserCommand.defaultCommand;
         var found = m_LocalPlayer.commandBuffer.TryGetValue(tick, ref command);
-        GameDebug.Assert(found, "Failed to find command for tick:{0}",tick);
+        if (!found)
+        {
+            var fallbackTick = m_LocalPlayer.commandBuffer.LastTick();
+            if (fallbackTick >= 0 && m_LocalPlayer.commandBuffer.TryGetValue(fallbackTick, ref command))
+            {
+                command.checkTick = tick;
+            }
+            else
+            {
+                command = UserCommand.defaultCommand;
+                command.checkTick = tick;
+            }
+        }
         
         // Normally we can expect commands to be present, but if client has done hardcatchup commands might not have been generated yet
         // so we just use the defaultCommand
@@ -188,9 +217,12 @@ public class PlayerModuleClient
 
     public bool HasCommands(int firstTick, int lastTick)
     {
-        var hasCommands = m_LocalPlayer.commandBuffer.FirstTick() <= firstTick &&
-                          m_LocalPlayer.commandBuffer.LastTick() >= lastTick;
-        return hasCommands;
+        var firstBufferedTick = m_LocalPlayer.commandBuffer.FirstTick();
+        var lastBufferedTick = m_LocalPlayer.commandBuffer.LastTick();
+        if (firstBufferedTick < 0)
+            return false;
+
+        return lastBufferedTick >= lastTick;
     }
 
     public void SendCommand(int tick)

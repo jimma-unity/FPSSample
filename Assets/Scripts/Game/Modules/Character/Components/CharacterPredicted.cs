@@ -81,6 +81,11 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
 
     public void Deserialize(ref SerializeContext context, ref NetworkReader reader)
     {
+        var prevPosition = position;
+        var prevVelocity = velocity;
+        var prevLocoState = locoState;
+        var prevCameraProfile = cameraProfile;
+
         this.tick = reader.ReadInt32();
         velocity = reader.ReadVector3Q();
         action = (Action)reader.ReadInt32();
@@ -93,6 +98,41 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
         cameraProfile = (CameraProfile)reader.ReadByte();
         damageTick = reader.ReadInt32();
         damageDirection = reader.ReadVector3Q();
+
+        var corrected = false;
+        if (!IsFinite(position) || position.sqrMagnitude > 200000.0f * 200000.0f)
+        {
+            position = IsFinite(prevPosition) ? prevPosition : Vector3.zero;
+            corrected = true;
+        }
+
+        if (!IsFinite(velocity) || velocity.sqrMagnitude > 1000.0f * 1000.0f)
+        {
+            velocity = IsFinite(prevVelocity) ? prevVelocity : Vector3.zero;
+            corrected = true;
+        }
+
+        if ((int)locoState < 0 || locoState >= LocoState.MaxValue)
+        {
+            locoState = prevLocoState;
+            corrected = true;
+        }
+
+        if ((int)cameraProfile < 0 || (int)cameraProfile > (int)CameraProfile.ThirdPerson)
+        {
+            cameraProfile = prevCameraProfile;
+            corrected = true;
+        }
+
+        if (corrected && UnityEngine.Time.frameCount % 120 == 0)
+        {
+            GameDebug.LogWarning("CharacterPredictedData sanitize: corrected invalid network state at tick=" + tick + ", position=" + position + ", velocity=" + velocity + ", locoState=" + locoState + ", cameraProfile=" + cameraProfile);
+        }
+    }
+
+    static bool IsFinite(Vector3 value)
+    {
+        return float.IsFinite(value.x) && float.IsFinite(value.y) && float.IsFinite(value.z);
     }
 
     public bool IsOnGround()

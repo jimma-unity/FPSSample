@@ -58,7 +58,7 @@ public partial class HandleCharacterSpawnRequests : BaseComponentSystem
     EntityQuery SpawnGroup;
     CharacterModuleSettings m_settings;
     
-    public HandleCharacterSpawnRequests(GameWorld world, BundledResourceManager resourceManager, bool isServer) : base(world)
+    public HandleCharacterSpawnRequests(GameWorld world, IContentResolver resourceManager, bool isServer) : base(world)
     {
         m_ResourceManager = resourceManager;
         m_settings = Resources.Load<CharacterModuleSettings>("CharacterModuleSettings");
@@ -110,7 +110,7 @@ public partial class HandleCharacterSpawnRequests : BaseComponentSystem
 
     List<Entity> abilityList = new List<Entity>(16);
     public Character SpawnCharacter(GameWorld world, PlayerState owner, Vector3 position, Quaternion rotation, 
-        int heroIndex, BundledResourceManager resourceSystem)
+        int heroIndex, IContentResolver resourceSystem)
     {
         var heroTypeRegistry = resourceSystem.GetResourceRegistry<HeroTypeRegistry>();
 
@@ -127,9 +127,11 @@ public partial class HandleCharacterSpawnRequests : BaseComponentSystem
         var charRepAll = EntityManager.GetComponentData<CharacterReplicatedData>(charEntity);
         charRepAll.heroTypeIndex = heroIndex;
         
-        //charRepAll.abilityCollection = heroTypeAsset.abilities.Create(EntityManager, resourceSystem, m_world);
-
-        charRepAll.abilityCollection = resourceSystem.CreateEntity(heroTypeAsset.abilities);
+        ReplicatedEntityFactory abilitiesFactory;
+        if (heroTypeRegistry.TryGetAbilitiesFactory(heroIndex, out abilitiesFactory) && abilitiesFactory != null)
+            charRepAll.abilityCollection = abilitiesFactory.Create(EntityManager, resourceSystem, m_world);
+        else
+            charRepAll.abilityCollection = resourceSystem.CreateEntity(heroTypeAsset.abilities);
         EntityManager.SetComponentData(charEntity,charRepAll);
         
         // Set as predicted by owner
@@ -145,7 +147,7 @@ public partial class HandleCharacterSpawnRequests : BaseComponentSystem
         return character;
     }
 
-    readonly BundledResourceManager m_ResourceManager;
+    readonly IContentResolver m_ResourceManager;
 }
 
 
@@ -302,7 +304,7 @@ public partial class HandleDamage : BaseComponentSystem
 
 public class CharacterModuleServer : CharacterModuleShared
 {
-    public CharacterModuleServer(GameWorld world, BundledResourceManager resourceSystem): base(world)
+    public CharacterModuleServer(GameWorld world, IContentResolver resourceSystem): base(world)
     {
         // Handle spawn requests
         m_HandleCharacterSpawnRequests = m_world.GetECSWorld().AddSystemManaged(new HandleCharacterSpawnRequests(m_world, resourceSystem, true));

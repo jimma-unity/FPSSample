@@ -13,5 +13,8 @@ public class ItemTypeDefinition : ScriptableObject
     public WeakAssetReference prefabServer;
     public WeakAssetReference prefabClient;
     public WeakAssetReference prefab1P;
+    public Loadable<GameObject> prefabServerLoadable;
+    public Loadable<GameObject> prefabClientLoadable;
+    public Loadable<GameObject> prefab1PLoadable;
 }
 

@@ -63,7 +63,7 @@ public partial class CharacterLateUpdate : BaseComponentSystem<CharacterPresenta
 
 class CharacterModuleClient : CharacterModuleShared
 {
-    public CharacterModuleClient(GameWorld world, BundledResourceManager resourceSystem) : base(world)
+    public CharacterModuleClient(GameWorld world, IContentResolver resourceSystem) : base(world)
     {
         // Handle controlled entity change        
         m_ControlledEntityChangedSystems.Add(m_world.GetECSWorld().AddSystemManaged(new UpdateCharacter1PSpawn(m_world, resourceSystem)));
@@ -100,8 +100,14 @@ class CharacterModuleClient : CharacterModuleShared
         var charRegistry = resourceSystem.GetResourceRegistry<CharacterTypeRegistry>();
         for (var i = 0; i < charRegistry.entries.Count; i++)
         {
-            resourceSystem.GetSingleAssetResource(charRegistry.entries[i].prefab1P);
-            resourceSystem.GetSingleAssetResource(charRegistry.entries[i].prefabClient);
+            GameObject prefab1P;
+            GameObject prefabClient;
+            charRegistry.TryGetClientPrefabs(i, out prefab1P, out prefabClient);
+
+            if (prefab1P == null)
+                resourceSystem.GetSingleAssetResource(charRegistry.entries[i].prefab1P);
+            if (prefabClient == null)
+                resourceSystem.GetSingleAssetResource(charRegistry.entries[i].prefabClient);
         }
 
         Console.AddCommand("thirdperson", CmdToggleThirdperson, "Toggle third person mode", this.GetHashCode());

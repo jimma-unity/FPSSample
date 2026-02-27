@@ -27,6 +27,7 @@ public class HeroTypeAsset : ScriptableObject
     
     [AssetType(typeof(ReplicatedEntityFactory))]
     public WeakAssetReference abilities;
+    public Loadable<ScriptableObject> abilitiesLoadable;
     
     public CharacterTypeDefinition character;
     public ItemEntry[] items;

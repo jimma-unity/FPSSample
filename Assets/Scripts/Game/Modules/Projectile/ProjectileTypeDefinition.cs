@@ -25,6 +25,7 @@ public class ProjectileTypeDefinition : ScriptableObject
     // Clientprojectile settings.  
     public int clientProjectileBufferSize = 20;
     public WeakAssetReference clientProjectilePrefab;
+    public Loadable<GameObject> clientProjectilePrefabLoadable;
     
     
 #if UNITY_EDITOR

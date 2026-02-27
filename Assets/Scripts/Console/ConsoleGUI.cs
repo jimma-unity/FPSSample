@@ -49,7 +49,10 @@ public class ConsoleGUI : MonoBehaviour, IConsoleUI
 
     public void ConsoleUpdate()
     {
-        if (Game.Input.GetKeyDownNoBlock(toggle_console_key) || Game.Input.GetKeyDownNoBlock(Key.Backquote))
+        if (Game.Input.GetKeyDownNoBlock(toggle_console_key)
+            || Game.Input.GetKeyDownNoBlock(Key.Backquote)
+            || Game.Input.GetKeyDownNoBlock(Key.Quote)
+            || Game.Input.GetKeyDownNoBlock(Key.F1))
             SetOpen(!IsOpen());
 
         if (!IsOpen())

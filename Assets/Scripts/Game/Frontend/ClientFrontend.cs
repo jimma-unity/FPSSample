@@ -31,6 +31,9 @@ public class ClientFrontend : MonoBehaviour
     }
 
     Interpolator m_MenuFader = new Interpolator(0.0f, Interpolator.CurveType.SmoothStep);
+    const float k_MenuToggleEscapeHoldSeconds = 0.12f;
+    bool m_EscapeWasDownNoBlock;
+    float m_EscapeHeldDuration;
 
     public MenuShowing menuShowing { get; private set; } = MenuShowing.None;
 
@@ -79,6 +82,22 @@ public class ClientFrontend : MonoBehaviour
     {
         mainMenu.UpdateMenus();
 
+        var clientLoop = Game.GetGameLoop<ClientGameLoop>();
+        var canToggleIngameMenu = clientLoop != null && clientLoop.CanToggleIngameMenu();
+        var escapeIsDown = Game.Input.GetKeyNoBlock(Key.Escape);
+        var escapeReleased = !escapeIsDown && m_EscapeWasDownNoBlock;
+
+        if (!Application.isFocused)
+            m_EscapeHeldDuration = 0.0f;
+        else if (escapeIsDown)
+            m_EscapeHeldDuration += Time.unscaledDeltaTime;
+
+        var deliberateEscapeRelease = escapeReleased && m_EscapeHeldDuration >= k_MenuToggleEscapeHoldSeconds;
+        if (escapeReleased)
+            m_EscapeHeldDuration = 0.0f;
+
+        m_EscapeWasDownNoBlock = escapeIsDown;
+
         // Show/Hide fully for debug purposes
         var show = IngameHUD.showHud.IntValue > 0;
         if (m_ChatPanelCanvas.enabled != show)
@@ -89,18 +108,15 @@ public class ClientFrontend : MonoBehaviour
         }
 
         // Toggle menu if not in editor
-        if(!Application.isEditor && Game.Input.GetKeyUpNoBlock(Key.Escape))
+        var mouseUnlocked = !Game.GetMousePointerLock();
+        if(!Application.isEditor && Application.isFocused && canToggleIngameMenu && deliberateEscapeRelease)
         {
             if (menuShowing == MenuShowing.None)
             {
-                // What menu should we show?
-                // Show main menu if no level loaded or menu level loaded
-                if (Game.game.levelManager.currentLevel == null || Game.game.levelManager.currentLevel.name == "level_menu")
-                    Console.EnqueueCommandNoHistory("menu 1 0.2");
-                else
-                    Console.EnqueueCommandNoHistory("menu 2 0.2");
+                Console.EnqueueCommandNoHistory("menu 2 0.2");
+                Game.SetMousePointerLock(false);
             }
-            else
+            else if (mouseUnlocked)
             {
                 Console.EnqueueCommandNoHistory("menu 0 0.2");
                 Game.RequestMousePointerLock();

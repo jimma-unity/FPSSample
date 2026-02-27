@@ -52,7 +52,7 @@ public partial class GameModeSystemServer : BaseComponentSystem
     public List<Team> teams = new List<Team>();
     public List<TeamBase> teamBases = new List<TeamBase>();
 
-    public GameModeSystemServer(GameWorld world, ChatSystemServer chatSystem, BundledResourceManager resourceSystem) : base(world)
+    public GameModeSystemServer(GameWorld world, ChatSystemServer chatSystem, IContentResolver resourceSystem) : base(world)
     {
         m_World = world;
         m_ResourceSystem = resourceSystem;
@@ -417,7 +417,7 @@ public partial class GameModeSystemServer : BaseComponentSystem
     };
 
     readonly GameWorld m_World;
-    readonly BundledResourceManager m_ResourceSystem;
+    readonly IContentResolver m_ResourceSystem;
     readonly GameModeSystemSettings m_Settings;
     int[] m_prevTeamSpawnPointIndex = new int[2];
     IGameMode m_GameMode;

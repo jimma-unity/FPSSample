@@ -9,7 +9,7 @@ public partial class HandleServerProjectileRequests : BaseComponentSystem
 {
 	EntityQuery Group;
 
-	public HandleServerProjectileRequests(GameWorld world, BundledResourceManager resourceSystem) : base(world)
+	public HandleServerProjectileRequests(GameWorld world, IContentResolver resourceSystem) : base(world)
 	{
 		m_resourceSystem = resourceSystem;
     
@@ -69,6 +69,6 @@ public partial class HandleServerProjectileRequests : BaseComponentSystem
 		requestArray.Dispose();
 	}
 
-	BundledResourceManager m_resourceSystem;
+	IContentResolver m_resourceSystem;
 	ProjectileModuleSettings m_settings;
 }
