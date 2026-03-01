@@ -36,7 +36,7 @@ Material:
   - _NORMALMAP_TANGENT_SPACE3
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 2225
   stringTagMap: {}
@@ -316,6 +316,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TransmittanceColorMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -343,6 +347,9 @@ Material:
     - _AlbedoAffectEmissive: 0
     - _AlphaCutoff: 0.5
     - _AlphaCutoffEnable: 0
+    - _AlphaCutoffPostpass: 0.5
+    - _AlphaCutoffPrepass: 0.5
+    - _AlphaCutoffShadow: 0.5
     - _AlphaDstBlend: 0
     - _AlphaRemapMax0: 1
     - _AlphaRemapMax1: 1
@@ -477,6 +484,7 @@ Material:
     - _InvTilingScale1: 1
     - _InvTilingScale2: 0.5
     - _InvTilingScale3: 0.25
+    - _Ior: 1.5
     - _LayerCount: 4
     - _LinkDetailsWithBase: 1
     - _LinkDetailsWithBase0: 1
@@ -508,6 +516,7 @@ Material:
     - _NormalScale2: 2
     - _NormalScale3: 1
     - _ObjectScaleAffectTile: 0
+    - _ObjectSpaceUVMappingEmissive: 0
     - _OpacityAsDensity0: 0
     - _OpacityAsDensity1: 0
     - _OpacityAsDensity2: 0
@@ -522,6 +531,7 @@ Material:
     - _RayTracing: 0
     - _ReceivesSSR: 1
     - _RefractionMode: 0
+    - _RefractionModel: 0
     - _ShiverDirectionality: 0.5
     - _ShiverDrag: 0.2
     - _ShowLayer0: 1
@@ -594,6 +604,7 @@ Material:
     - _TransmissionMask3: 1
     - _TransparentCullMode: 2
     - _TransparentSortPriority: 0
+    - _TransparentWritingMotionVec: 0
     - _TransparentZWrite: 0
     - _UVBase: 0
     - _UVBase0: 0
@@ -611,6 +622,7 @@ Material:
     - _UseEmissiveIntensity: 0
     - _UseHeightBasedBlend: 1
     - _UseMainLayerInfluence: 1
+    - _UseShadowThreshold: 0
     - _VertexColorMode: 0
     - _ZTestDepthEqualForOpaque: 3
     - _ZTestGBuffer: 4
@@ -653,6 +665,7 @@ Material:
     - _UVMappingMaskBlendMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &3819779323221006897
 MonoBehaviour:
   m_ObjectHideFlags: 11

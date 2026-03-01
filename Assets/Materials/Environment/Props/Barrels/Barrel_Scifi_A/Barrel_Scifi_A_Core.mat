@@ -15,7 +15,7 @@ Material:
   m_InvalidKeywords:
   - _DOUBLESIDED_ON
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
   m_CustomRenderQueue: 2000
   stringTagMap:
@@ -176,6 +176,7 @@ Material:
     - _DoubleSidedNormalMode: 2
     - _Drag: 0.001
     - _DstBlend: 0
+    - _DstBlend2: 0
     - _EmissiveColorMode: 1
     - _EmissiveIntensity: 600
     - _EnableBlendModePreserveSpecularLighting: 0
@@ -215,6 +216,7 @@ Material:
     - _PPDMinSamples: 5
     - _PPDPrimitiveLength: 1
     - _PPDPrimitiveWidth: 1
+    - _PerPixelSorting: 0
     - _PreRefractionPass: 0
     - _ReceivesSSR: 1
     - _RefractionMode: 0
@@ -283,6 +285,7 @@ Material:
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &1729431749142069920
 MonoBehaviour:
   m_ObjectHideFlags: 11
