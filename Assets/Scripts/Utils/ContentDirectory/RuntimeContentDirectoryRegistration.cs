@@ -10,6 +10,13 @@ public sealed class RuntimeContentDirectoryRegistration
     public const string ClientRegistryName = "BundledResources/Client";
     public const string ServerRegistryName = "BundledResources/Server";
 
+    enum RuntimeRole
+    {
+        Unknown,
+        Client,
+        Server
+    }
+
     readonly struct RegistrationHandle
     {
         public readonly string path;
@@ -41,7 +48,7 @@ public sealed class RuntimeContentDirectoryRegistration
             yield return m_handles[i].path;
     }
 
-    public void RegisterDefaultContentDirectories(string owner)
+    public void RegisterDefaultContentDirectories(string owner, string registryName = null)
     {
         m_owner = string.IsNullOrWhiteSpace(owner) ? "RuntimeContentDirectoryRegistration" : owner;
         EnsureQuitHookRegistered();
@@ -53,7 +60,7 @@ public sealed class RuntimeContentDirectoryRegistration
             return;
         }
 
-        foreach (var path in EnumerateDefaultContentDirectories())
+        foreach (var path in EnumerateDefaultContentDirectories(registryName))
             RegisterDirectory(path, owner);
     }
 
@@ -167,6 +174,9 @@ public sealed class RuntimeContentDirectoryRegistration
         if (!Directory.Exists(directoryPath))
             return;
 
+        if (!File.Exists(Path.Combine(directoryPath, "BuildManifestHash.txt")))
+            return;
+
         try
         {
             var normalized = Path.GetFullPath(directoryPath).Replace('\\', '/');
@@ -194,7 +204,7 @@ public sealed class RuntimeContentDirectoryRegistration
         GameDebug.LogWarning(owner + ": ContentLoadManager register/unregister API not available; skipping runtime content directory registration.");
     }
 
-    static IEnumerable<string> EnumerateDefaultContentDirectories()
+    static IEnumerable<string> EnumerateDefaultContentDirectories(string registryName)
     {
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var yieldReturnBuffer = new List<string>();
@@ -210,6 +220,9 @@ public sealed class RuntimeContentDirectoryRegistration
         }
 
         Add(Application.dataPath);
+
+        var runtimeRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+        AddRoleVersionedContentDirectories(runtimeRoot, DetermineRole(registryName), yieldReturnBuffer, seen);
 
         if (Application.isEditor)
         {
@@ -236,6 +249,86 @@ public sealed class RuntimeContentDirectoryRegistration
 
         foreach (var path in yieldReturnBuffer)
             yield return path;
+    }
+
+    static void AddRoleVersionedContentDirectories(string runtimeRoot, RuntimeRole role, List<string> buffer, HashSet<string> seen)
+    {
+        if (string.IsNullOrWhiteSpace(runtimeRoot))
+            return;
+
+        var contentRoot = Path.Combine(runtimeRoot, "Content");
+        if (!Directory.Exists(contentRoot))
+            return;
+
+        var buildId = GetRuntimeBuildId();
+
+        bool HasContentDirectoryManifest(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
+                return false;
+
+            var manifestPath = Path.Combine(path, "BuildManifestHash.txt");
+            return File.Exists(manifestPath);
+        }
+
+        void AddIfUnique(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return;
+
+            if (!HasContentDirectoryManifest(path))
+                return;
+
+            var fullPath = Path.GetFullPath(path).Replace('\\', '/');
+            if (seen.Add(fullPath))
+                buffer.Add(fullPath);
+        }
+
+        AddIfUnique(Path.Combine(contentRoot, "Base"));
+        if (!string.IsNullOrEmpty(buildId))
+            AddIfUnique(Path.Combine(contentRoot, "Base", buildId));
+
+        if (role == RuntimeRole.Client)
+        {
+            AddIfUnique(Path.Combine(contentRoot, "Client"));
+            if (!string.IsNullOrEmpty(buildId))
+                AddIfUnique(Path.Combine(contentRoot, "Client", buildId));
+        }
+        else if (role == RuntimeRole.Server)
+        {
+            AddIfUnique(Path.Combine(contentRoot, "Server"));
+            if (!string.IsNullOrEmpty(buildId))
+                AddIfUnique(Path.Combine(contentRoot, "Server", buildId));
+        }
+    }
+
+    static RuntimeRole DetermineRole(string registryName)
+    {
+        if (string.IsNullOrWhiteSpace(registryName))
+            return RuntimeRole.Unknown;
+
+        if (registryName.IndexOf("/Client", StringComparison.OrdinalIgnoreCase) >= 0)
+            return RuntimeRole.Client;
+
+        if (registryName.IndexOf("/Server", StringComparison.OrdinalIgnoreCase) >= 0)
+            return RuntimeRole.Server;
+
+        return RuntimeRole.Unknown;
+    }
+
+    static string GetRuntimeBuildId()
+    {
+        var buildId = Game.game != null ? Game.game.buildId : null;
+        if (string.IsNullOrWhiteSpace(buildId))
+            return null;
+
+        var invalidChars = Path.GetInvalidFileNameChars();
+        foreach (var invalid in invalidChars)
+        {
+            buildId = buildId.Replace(invalid, '_');
+        }
+
+        return buildId;
     }
 
     static Type FindContentLoadManagerType()

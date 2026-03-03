@@ -267,6 +267,7 @@ public class BuildWindow : EditorWindow
 
     static bool s_SingleLevelBuilding = false;
     static bool s_ForceBuildBundles = true;
+    const bool LegacyBundleBuildButtonsEnabled = false;
     void DrawBuildTools()
     {
         var action = BuildAction.None;
@@ -284,6 +285,12 @@ public class BuildWindow : EditorWindow
         // s_ForceBuildBundles = EditorGUILayout.Toggle("Force Build Bundles", s_ForceBuildBundles);
 
         GUILayout.EndHorizontal();
+
+        if (!LegacyBundleBuildButtonsEnabled)
+            EditorGUILayout.HelpBox("Legacy bundle build buttons are disabled after content-directory parity cutover. Use FPS Sample/BuildSystem/ContentDirectories flows.", MessageType.Info);
+
+        var previousGuiEnabled = GUI.enabled;
+        GUI.enabled = LegacyBundleBuildButtonsEnabled;
 
         if (s_SingleLevelBuilding)
         {
@@ -331,6 +338,8 @@ public class BuildWindow : EditorWindow
             }
             GUIUtility.ExitGUI();
         }
+
+        GUI.enabled = previousGuiEnabled;
 
         GUILayout.Space(10.0f);
         GUILayout.Label("Game (" + PrettyPrintTimeStamp(TimeLastBuildGame()) + ")", EditorStyles.boldLabel);

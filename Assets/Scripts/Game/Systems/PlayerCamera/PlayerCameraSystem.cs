@@ -26,6 +26,7 @@ public partial class UpdatePlayerCameras : BaseComponentSystem
 {
     public EntityQuery Group;
     const float k_MaxCameraDistance = 200000.0f;
+    const float k_DefaultMinCameraWorldY = -30.0f;
 
     public UpdatePlayerCameras(GameWorld world) : base(world) { }
 
@@ -41,98 +42,99 @@ public partial class UpdatePlayerCameras : BaseComponentSystem
         var playerCameraArray = Group.ToComponentArray<PlayerCamera>();
         for (var i = 0; i < cameraArray.Length; i++)
         {
-            var camera = cameraArray[i];
-            var playerCamera = playerCameraArray[i];
-            var settings = playerCamera.cameraSettings;
-            var enabled = settings.isEnabled;
-            var isActive = camera.gameObject.activeSelf;
-            if (!enabled)
+            try
             {
-                if (isActive)
+                var camera = cameraArray[i];
+                var playerCamera = playerCameraArray[i];
+                if (camera == null || playerCamera == null)
+                    continue;
+
+                var gameObject = camera.gameObject;
+                if (gameObject == null)
+                    continue;
+
+                var settings = playerCamera.cameraSettings;
+                var enabled = settings.isEnabled;
+                var isActive = gameObject.activeSelf;
+                if (!enabled)
                 {
-                    Game.game.PopCamera(camera);
-                    camera.gameObject.SetActive(false);
+                    if (isActive)
+                    {
+                        Game.game.PopCamera(camera);
+                        gameObject.SetActive(false);
+                    }
+                    continue;
                 }
+
+                if (!isActive)
+                {
+                    gameObject.SetActive(true);
+                    Game.game.PushCamera(camera);
+                }
+
+                camera.fieldOfView = settings.fieldOfView;
+                if (debugCameraDetach.IntValue == 0)
+                {
+                    var desiredPosition = settings.position;
+                    var desiredRotation = settings.rotation;
+                    var rawPosition = desiredPosition;
+
+                    var invalidPosition = !IsFinite(desiredPosition) || desiredPosition.sqrMagnitude > (k_MaxCameraDistance * k_MaxCameraDistance);
+                    if (invalidPosition)
+                    {
+                        desiredPosition = camera.transform.position;
+                        settings.position = desiredPosition;
+                        if (UnityEngine.Time.frameCount % 120 == 0)
+                            GameDebug.LogWarning("PlayerCamera pose guard: rejected invalid camera position " + rawPosition + " and kept previous transform position.");
+                    }
+
+                    if (!IsFinite(desiredRotation))
+                    {
+                        desiredRotation = camera.transform.rotation;
+                        settings.rotation = desiredRotation;
+                        if (UnityEngine.Time.frameCount % 120 == 0)
+                            GameDebug.LogWarning("PlayerCamera pose guard: rejected invalid camera rotation and kept previous transform rotation.");
+                    }
+
+                    var minCameraWorldY = k_DefaultMinCameraWorldY;
+                    if (desiredPosition.y < minCameraWorldY)
+                    {
+                        desiredPosition.y = minCameraWorldY;
+                        settings.position = desiredPosition;
+                        if (UnityEngine.Time.frameCount % 120 == 0)
+                            GameDebug.LogWarning("PlayerCamera pose guard: clamped camera Y below world floor. minY=" + minCameraWorldY + ", requested=" + rawPosition.y);
+                    }
+
+                    camera.transform.position = desiredPosition;
+                    camera.transform.rotation = desiredRotation;
+                }
+
+                if(debugCameraDetach.ChangeCheck())
+                {
+                    Game.Input.SetBlock(Game.Input.Blocker.Debug, debugCameraDetach.IntValue == 2);
+                }
+                if (debugCameraDetach.IntValue == 2 && !Console.IsOpen())
+                {
+                    var eu = camera.transform.localEulerAngles;
+                    if (eu.x > 180.0f) eu.x -= 360.0f;
+                    eu.x = Mathf.Clamp(eu.x, -70.0f, 70.0f);
+                    eu += new Vector3(-Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"), 0);
+                    float invertY = Game.configInvertY.IntValue > 0 ? 1.0f : -1.0f;
+                    eu += SystemAPI.Time.DeltaTime * (new Vector3(- invertY * Input.GetAxisRaw("RightStickY")*InputSystem.s_JoystickLookSensitivity.y, Input.GetAxisRaw("RightStickX") * InputSystem.s_JoystickLookSensitivity.x, 0));
+                    camera.transform.localEulerAngles = eu;
+                    m_DetachedMoveSpeed += Input.GetAxisRaw("Mouse ScrollWheel");
+                    float verticalMove = (Game.Input.GetKeyNoBlock(Key.R) ? 1.0f : 0.0f) + (Game.Input.GetKeyNoBlock(Key.F) ? -1.0f : 0.0f);
+                    verticalMove += Input.GetAxisRaw("Trigger");
+                    camera.transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal"), verticalMove, Input.GetAxisRaw("Vertical")) * SystemAPI.Time.DeltaTime * m_DetachedMoveSpeed);
+                }
+            }
+            catch (System.NullReferenceException)
+            {
                 continue;
             }
-
-            if (!isActive)
+            catch (MissingReferenceException)
             {
-                camera.gameObject.SetActive(true);
-                Game.game.PushCamera(camera);
-            }
-
-            camera.fieldOfView = settings.fieldOfView;
-            if (debugCameraDetach.IntValue == 0)
-            {
-                // Normal movement
-                var desiredPosition = settings.position;
-                var desiredRotation = settings.rotation;
-                var rawPosition = desiredPosition;
-
-                var invalidPosition = !IsFinite(desiredPosition) || desiredPosition.sqrMagnitude > (k_MaxCameraDistance * k_MaxCameraDistance);
-                if (invalidPosition)
-                {
-                    desiredPosition = camera.transform.position;
-                    settings.position = desiredPosition;
-                    if (UnityEngine.Time.frameCount % 120 == 0)
-                    GameDebug.LogWarning("PlayerCamera pose guard: rejected invalid camera position " + rawPosition + " and kept previous transform position.");
-                }
-
-                if (!IsFinite(desiredRotation))
-                {
-                    desiredRotation = camera.transform.rotation;
-                    settings.rotation = desiredRotation;
-                    if (UnityEngine.Time.frameCount % 120 == 0)
-                        GameDebug.LogWarning("PlayerCamera pose guard: rejected invalid camera rotation and kept previous transform rotation.");
-                }
-
-                camera.transform.position = desiredPosition;
-                camera.transform.rotation = desiredRotation;
-            }
-            else if(debugCameraDetach.IntValue == 1)
-            {
-                // Move char but still camera
-            }
-
-
-            if(debugCameraDetach.ChangeCheck())
-            {
-                // Block normal input
-                Game.Input.SetBlock(Game.Input.Blocker.Debug, debugCameraDetach.IntValue == 2);
-            }
-            if (debugCameraDetach.IntValue == 2 && !Console.IsOpen())
-            {
-                var eu = camera.transform.localEulerAngles;
-                if (eu.x > 180.0f) eu.x -= 360.0f;
-                eu.x = Mathf.Clamp(eu.x, -70.0f, 70.0f);
-                eu += new Vector3(-Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"), 0);
-                float invertY = Game.configInvertY.IntValue > 0 ? 1.0f : -1.0f;
-                eu += SystemAPI.Time.DeltaTime * (new Vector3(- invertY * Input.GetAxisRaw("RightStickY")*InputSystem.s_JoystickLookSensitivity.y, Input.GetAxisRaw("RightStickX") * InputSystem.s_JoystickLookSensitivity.x, 0));
-                camera.transform.localEulerAngles = eu;
-                m_DetachedMoveSpeed += Input.GetAxisRaw("Mouse ScrollWheel");
-                float verticalMove = (Game.Input.GetKeyNoBlock(Key.R) ? 1.0f : 0.0f) + (Game.Input.GetKeyNoBlock(Key.F) ? -1.0f : 0.0f);
-                verticalMove += Input.GetAxisRaw("Trigger");
-                camera.transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal"), verticalMove, Input.GetAxisRaw("Vertical")) * SystemAPI.Time.DeltaTime * m_DetachedMoveSpeed);
-            }
-
-            if (debugCameraMove.IntValue > 0)
-            {
-                // Only show for one player
-                /*if (lastUsedFrame < Time.frameCount)
-                {
-                    lastUsedFrame = Time.frameCount;
-
-                    int o = Time.frameCount % movehist_x.Length;
-                    var rot = camera.transform.localEulerAngles;
-                    movehist_x[o] = rot.x % 90.0f;
-                    movehist_y[o] = rot.y % 90.0f;
-                    movehist_z[o] = rot.z % 90.0f;
-
-                    DebugOverlay.DrawGraph(4, 4, 10, 5, movehist_x, o, Color.red, 10.0f);
-                    DebugOverlay.DrawGraph(4, 12, 10, 5, movehist_y, o, Color.green, 10.0f);
-                    DebugOverlay.DrawGraph(4, 20, 10, 5, movehist_z, o, Color.blue, 10.0f);
-                }*/
+                continue;
             }
         }
     }

@@ -140,7 +140,7 @@ public class PreviewGameLoop : Game.IGameLoop
         m_GameWorld = new GameWorld("World[PreviewGameLoop]");
 
         m_contentDirectoryRegistration = new RuntimeContentDirectoryRegistration();
-        m_contentDirectoryRegistration.RegisterDefaultContentDirectories("PreviewGameLoop");
+        m_contentDirectoryRegistration.RegisterDefaultContentDirectories("PreviewGameLoop", RuntimeContentDirectoryRegistration.ClientRegistryName);
         
         if (args.Length > 0)
         {

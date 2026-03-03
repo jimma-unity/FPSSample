@@ -500,7 +500,14 @@ public class BuildTools
 
         if (!allowLegacyFallback && hasKnownImportWorkerIncompatibleRoots)
         {
-            Debug.Log("BuildContentDirectories route: strict=BuildPipeline.BuildContentDirectory, outputPath=" + outputPath + ", roots=" + string.Join(", ", rootAssetPaths));
+            var strictFailureMessage =
+                "BuildContentDirectories strict mode blocked before BuildPipeline.BuildContentDirectory due to known Unity Entities import-worker limitation for roots: " +
+                string.Join(", ", rootAssetPaths) +
+                ". Use FPS Sample/BuildSystem/ContentDirectories/MigrationMode/FallbackPreferred (Stable) to keep Autobuild unblocked. " +
+                "Use StrictOnly (Validation) only when your editor environment supports this content-directory path without import-worker exceptions.";
+
+            Debug.LogError(strictFailureMessage);
+            throw new Exception(strictFailureMessage);
         }
 
         var buildParameters = new BuildContentDirectoryParameters
@@ -512,7 +519,8 @@ public class BuildTools
         };
 
         var originalWorkerCount = AssetDatabase.DesiredWorkerCount;
-        var requestedWorkerCount = allowLegacyFallback ? 1 : 0;
+        var requestedWorkerCount = 1;
+        var restoreWorkerCount = Math.Max(1, originalWorkerCount);
         var autoRefreshDisabled = false;
         try
         {
@@ -541,7 +549,7 @@ public class BuildTools
             if (autoRefreshDisabled)
                 AssetDatabase.AllowAutoRefresh();
 
-            AssetDatabase.DesiredWorkerCount = originalWorkerCount;
+            AssetDatabase.DesiredWorkerCount = restoreWorkerCount;
             AssetDatabase.ForceToDesiredWorkerCount();
         }
 
@@ -659,6 +667,101 @@ public class BuildTools
             BuildContentDirectories(target, outputPath, roots);
     }
 
+    static void BuildRoleVersionedContentDirectoriesForMigrationMode(BuildTarget target, string contentRootPath, string buildId)
+    {
+        EnsureDirectoryClean(contentRootPath);
+        Directory.CreateDirectory(contentRootPath);
+
+        var normalizedBuildId = NormalizeBuildIdForPath(buildId);
+        var basePath = Path.Combine(contentRootPath, "Base", normalizedBuildId);
+        var clientPath = Path.Combine(contentRootPath, "Client", normalizedBuildId);
+        var serverPath = Path.Combine(contentRootPath, "Server", normalizedBuildId);
+
+        var mode = GetContentDirectoryMigrationMode();
+        if (mode == ContentDirectoryMigrationMode.StrictOnly)
+        {
+            BuildContentDirectoriesStrict(target, basePath,
+                "Assets/Resources/Content/SceneListRoot.asset");
+            BuildContentDirectoriesStrict(target, clientPath,
+                "Assets/ContentRoots/ClientContentRoot.asset");
+            BuildContentDirectoriesStrict(target, serverPath,
+                "Assets/ContentRoots/ServerContentRoot.asset");
+
+            var manifestsPresent = ValidateRoleVersionedContentManifests(contentRootPath, normalizedBuildId, true);
+            Debug.Log("ROLE_CONTENT_PACKAGING=" + (manifestsPresent ? "STRICT_OK" : "FALLBACK_ONLY"));
+            Debug.Log("Strict role/versioned content directories built under: " + contentRootPath + " (build-id=" + normalizedBuildId + ")");
+            return;
+        }
+
+        BuildContentDirectories(target, basePath,
+            "Assets/Resources/Content/SceneListRoot.asset");
+        BuildContentDirectories(target, clientPath,
+            "Assets/ContentRoots/ClientContentRoot.asset");
+        BuildContentDirectories(target, serverPath,
+            "Assets/ContentRoots/ServerContentRoot.asset");
+
+        var manifestsPresentInFallbackMode = ValidateRoleVersionedContentManifests(contentRootPath, normalizedBuildId, false);
+        Debug.Log("ROLE_CONTENT_PACKAGING=" + (manifestsPresentInFallbackMode ? "STRICT_OK" : "FALLBACK_ONLY"));
+        Debug.Log("Fallback-preferred role/versioned packaging completed under: " + contentRootPath + " (build-id=" + normalizedBuildId + ")");
+    }
+
+    static void BuildRoleVersionedContentDirectoriesStrict(BuildTarget target, string contentRootPath, string buildId)
+    {
+        var current = GetContentDirectoryMigrationMode();
+        try
+        {
+            SetContentDirectoryMigrationMode(ContentDirectoryMigrationMode.StrictOnly);
+            BuildRoleVersionedContentDirectoriesForMigrationMode(target, contentRootPath, buildId);
+        }
+        finally
+        {
+            SetContentDirectoryMigrationMode(current);
+        }
+    }
+
+    static string NormalizeBuildIdForPath(string buildId)
+    {
+        var normalizedBuildId = string.IsNullOrWhiteSpace(buildId) ? "UnknownBuild" : buildId;
+        var invalidChars = Path.GetInvalidFileNameChars();
+        foreach (var invalid in invalidChars)
+            normalizedBuildId = normalizedBuildId.Replace(invalid, '_');
+        return normalizedBuildId;
+    }
+
+    static bool ValidateRoleVersionedContentManifests(string contentRootPath, string normalizedBuildId, bool throwIfMissing)
+    {
+        var requiredPaths = new[]
+        {
+            Path.Combine(contentRootPath, "Base", normalizedBuildId),
+            Path.Combine(contentRootPath, "Client", normalizedBuildId),
+            Path.Combine(contentRootPath, "Server", normalizedBuildId)
+        };
+
+        var missing = new List<string>();
+        foreach (var directory in requiredPaths)
+        {
+            var manifestPath = Path.Combine(directory, "BuildManifestHash.txt");
+            if (!File.Exists(manifestPath))
+                missing.Add(manifestPath);
+        }
+
+        if (missing.Count > 0)
+        {
+            var message =
+                "Role/versioned content packaging incomplete. Missing manifest(s): " +
+                string.Join(" | ", missing) +
+                ". Ensure content directories are produced via BuildPipeline.BuildContentDirectory (set migration mode to StrictOnly if fallback mode is active).";
+
+            if (throwIfMissing)
+                throw new Exception(message);
+
+            Debug.LogWarning(message);
+            return false;
+        }
+
+        return true;
+    }
+
     [MenuItem("FPS Sample/BuildSystem/ContentDirectories/MigrationMode/FallbackPreferred (Stable)")]
     public static void SetContentDirectoryMigrationModeFallbackPreferred()
     {
@@ -677,6 +780,7 @@ public class BuildTools
     public static void SetContentDirectoryMigrationModeStrictOnly()
     {
         SetContentDirectoryMigrationMode(ContentDirectoryMigrationMode.StrictOnly);
+        Debug.LogWarning("ContentDirectories migration mode is StrictOnly (Validation). Autobuild-like flows are most stable with FPS Sample/BuildSystem/ContentDirectories/MigrationMode/FallbackPreferred (Stable).");
     }
 
     [MenuItem("FPS Sample/BuildSystem/ContentDirectories/MigrationMode/StrictOnly (Validation)", true)]
@@ -905,15 +1009,27 @@ public class BuildTools
         var target = BuildTarget.StandaloneWindows64;
         var buildPath = Path.Combine(GetProjectRoot(), "Autobuild");
         var exeName = "Autobuild.exe";
-        var dataPath = Path.Combine(buildPath, "Autobuild_Data");
+        var contentPath = Path.Combine(buildPath, "Content");
 
         StopRunningBuildExecutable(buildPath, exeName);
 
         Directory.CreateDirectory(buildPath);
-        BuildContentDirectoriesForMigrationMode(target, dataPath,
-            "Assets/ContentRoots/ClientContentRoot.asset",
-            "Assets/ContentRoots/ServerContentRoot.asset",
-            "Assets/Resources/Content/SceneListRoot.asset");
+        var previousMode = GetContentDirectoryMigrationMode();
+        try
+        {
+            if (previousMode != ContentDirectoryMigrationMode.FallbackPreferred)
+            {
+                Debug.LogWarning("CreateAutoBuildLikeWindows64 detected StrictOnly/non-stable migration mode and is forcing FPS Sample/BuildSystem/ContentDirectories/MigrationMode/FallbackPreferred (Stable) to keep Autobuild unblocked.");
+                SetContentDirectoryMigrationMode(ContentDirectoryMigrationMode.FallbackPreferred);
+            }
+
+            BuildRoleVersionedContentDirectoriesForMigrationMode(target, contentPath, "AutoBuild");
+        }
+        finally
+        {
+            if (GetContentDirectoryMigrationMode() != previousMode)
+                SetContentDirectoryMigrationMode(previousMode);
+        }
 
         var res = BuildGame(buildPath, exeName, target, BuildOptions.None, "AutoBuild", false);
         if (!res)
@@ -943,8 +1059,70 @@ public class BuildTools
             exeName + " -nographics -batchmode -noboot +serve level_01 +game.modename assault"
         };
         File.WriteAllLines(Path.Combine(buildPath, "server.bat"), serverBat);
+        WriteAutobuildLaunchScripts(buildPath, exeName);
 
         Debug.Log("Window64 Autobuild-like build completed at: " + buildPath);
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/CreateAutoBuildLike-ExternalBatch (Safer)")]
+    public static void CreateAutoBuildLikeWindows64ExternalBatch()
+    {
+        if (GetContentDirectoryMigrationMode() != ContentDirectoryMigrationMode.FallbackPreferred)
+        {
+            Debug.LogWarning("CreateAutoBuildLikeWindows64ExternalBatch detected StrictOnly/non-stable migration mode. External batch run will execute CreateAutoBuildLikeWindows64, which forces FPS Sample/BuildSystem/ContentDirectories/MigrationMode/FallbackPreferred (Stable) for Autobuild safety.");
+        }
+
+        var unityExe = EditorApplication.applicationPath;
+        var projectPath = GetProjectRoot();
+        var batchLogPath = Path.Combine(projectPath, "Autobuild", "unity_autobuild_batch.log");
+
+        Directory.CreateDirectory(Path.GetDirectoryName(batchLogPath));
+
+        var args =
+            "-quit -batchmode -nographics -force-d3d11 " +
+            "-projectPath \"" + projectPath + "\" " +
+            "-executeMethod BuildTools.CreateAutoBuildLikeWindows64 " +
+            "-logFile \"" + batchLogPath + "\"";
+
+        var process = new System.Diagnostics.Process();
+        process.StartInfo = new System.Diagnostics.ProcessStartInfo(unityExe, args)
+        {
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            WorkingDirectory = projectPath,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        if (!process.Start())
+            throw new Exception("Failed to launch external Unity batch process for Autobuild-like build.");
+
+        if (process.WaitForExit(15000))
+        {
+            var stdOut = process.StandardOutput.ReadToEnd();
+            var stdErr = process.StandardError.ReadToEnd();
+            var processOutput = (stdOut ?? string.Empty) + "\n" + (stdErr ?? string.Empty);
+
+            if (process.ExitCode != 0 && processOutput.IndexOf("another Unity instance is running", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                Debug.LogWarning("External batch Autobuild cannot run while this project is already open in Unity. Falling back to in-editor Autobuild-like build.");
+                CreateAutoBuildLikeWindows64();
+                return;
+            }
+
+            if (process.ExitCode != 0)
+            {
+                Debug.LogError("External batch Autobuild-like build failed quickly. exitCode=" + process.ExitCode + ", log=" + batchLogPath);
+                if (!string.IsNullOrWhiteSpace(processOutput))
+                    Debug.LogError("External batch output:\n" + processOutput);
+                return;
+            }
+
+            Debug.Log("External batch Autobuild-like build completed quickly. log=" + batchLogPath);
+            return;
+        }
+
+        Debug.Log("Started external batch Autobuild-like build. pid=" + process.Id + ", log=" + batchLogPath);
     }
 
     [MenuItem("FPS Sample/BuildSystem/Win64/CreateAutoBuildLike-ContentDirectoriesOnly")]
@@ -955,15 +1133,12 @@ public class BuildTools
         var target = BuildTarget.StandaloneWindows64;
         var buildPath = Path.Combine(GetProjectRoot(), "Autobuild");
         var exeName = "Autobuild.exe";
-        var dataPath = Path.Combine(buildPath, "Autobuild_Data");
+        var contentPath = Path.Combine(buildPath, "Content");
 
         StopRunningBuildExecutable(buildPath, exeName);
 
         Directory.CreateDirectory(buildPath);
-        BuildContentDirectoriesStrict(target, dataPath,
-            "Assets/ContentRoots/ClientContentRoot.asset",
-            "Assets/ContentRoots/ServerContentRoot.asset",
-            "Assets/Resources/Content/SceneListRoot.asset");
+        BuildRoleVersionedContentDirectoriesStrict(target, contentPath, "AutoBuild");
 
         var res = BuildGame(buildPath, exeName, target, BuildOptions.None, "AutoBuild", false);
         if (!res)
@@ -993,8 +1168,36 @@ public class BuildTools
             exeName + " -nographics -batchmode -noboot +serve level_01 +game.modename assault"
         };
         File.WriteAllLines(Path.Combine(buildPath, "server.bat"), serverBat);
+        WriteAutobuildLaunchScripts(buildPath, exeName);
 
         Debug.Log("Window64 Autobuild-like strict content-directory build completed at: " + buildPath);
+    }
+
+    static void WriteAutobuildLaunchScripts(string buildPath, string exeName)
+    {
+        var previewBat = new[]
+        {
+            "@echo off",
+            "setlocal",
+            "cd /d \"%~dp0\"",
+            "set \"BUNDLE_PATH=%~dp0Content\\Client\\AutoBuild\\AssetBundles\"",
+            "set \"BUNDLE_PATH=%BUNDLE_PATH:\\=/%\"",
+            "echo Launching local preview mode (no server required)...",
+            "start \"\" \"" + exeName + "\" +res.runtimebundlepath %BUNDLE_PATH% +preview level_01 -noboot"
+        };
+        File.WriteAllLines(Path.Combine(buildPath, "preview_local.bat"), previewBat);
+
+        var clientBat = new[]
+        {
+            "@echo off",
+            "setlocal",
+            "cd /d \"%~dp0\"",
+            "set \"BUNDLE_PATH=%~dp0Content\\Client\\AutoBuild\\AssetBundles\"",
+            "set \"BUNDLE_PATH=%BUNDLE_PATH:\\=/%\"",
+            "echo Launching client mode (requires server listening on 127.0.0.1:17913)...",
+            "start \"\" \"" + exeName + "\" +res.runtimebundlepath %BUNDLE_PATH% +server.port 17913 +server.sqp_port 17923 +client 127.0.0.1:17913 -noboot"
+        };
+        File.WriteAllLines(Path.Combine(buildPath, "client_localhost.bat"), clientBat);
     }
 
     static void WriteShellScriptAndMakeExecutable(string fullPath, string[] script)

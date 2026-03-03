@@ -194,6 +194,9 @@ public class Game : MonoBehaviour
     [ConfigVar(Name = "debug.cpuprofile", DefaultValue = "0", Description = "Profile and dump cpu usage")]
     public static ConfigVar debugCpuProfile;
 
+    [ConfigVar(Name = "debug.forcekillonquit", DefaultValue = "0", Description = "Force-kill process on quit (legacy behavior)")]
+    public static ConfigVar debugForceKillOnQuit;
+
     [ConfigVar(Name = "net.dropevents", DefaultValue = "0", Description = "Drops a fraction of all packages containing events!!")]
     public static ConfigVar netDropEvents;
 
@@ -728,9 +731,11 @@ public class Game : MonoBehaviour
         RuntimeContentDirectoryRegistration.ForceShutdownUnregister("Game.OnApplicationQuit");
         ShutdownGameLoops();
 #if !UNITY_EDITOR && UNITY_STANDALONE_WIN
-        GameDebug.Log("Farewell, cruel world...");
-        if (!Application.isBatchMode)
+        if (!Application.isBatchMode && debugForceKillOnQuit.IntValue > 0)
+        {
+            GameDebug.Log("Farewell, cruel world...");
             System.Diagnostics.Process.GetCurrentProcess().Kill();
+        }
 #endif
     }
 

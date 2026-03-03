@@ -174,16 +174,19 @@ public class BundledResourceBuilder
             }
 
             // Build single asset bundles
-            var singleAssetBundlesHandled = new List<string>();
+            var singleAssetBundlesHandled = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var singleAssetBundleGUID in singleAssetGUIDs)
             {
                 if (singleAssetBundleGUID == null || singleAssetBundleGUID == "")
                     continue;
 
-                if (singleAssetBundlesHandled.Contains(singleAssetBundleGUID))
+                path = AssetDatabase.GUIDToAssetPath(singleAssetBundleGUID);
+                if (string.IsNullOrWhiteSpace(path))
                     continue;
 
-                path = AssetDatabase.GUIDToAssetPath(singleAssetBundleGUID);
+                var normalizedPath = path.Replace('\\', '/');
+                if (!singleAssetBundlesHandled.Add(normalizedPath))
+                    continue;
 
                 build = new AssetBundleBuild();
                 build.assetBundleName = singleAssetFolder + "/" + singleAssetBundleGUID;
@@ -193,7 +196,6 @@ public class BundledResourceBuilder
                 Debug.Log("Creating single asset bundle from asset:" + path + " Bundle name:" + build.assetBundleName);
 
                 builds.Add(build);
-                singleAssetBundlesHandled.Add(singleAssetBundleGUID);
             }
             
 

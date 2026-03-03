@@ -408,6 +408,8 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
     void EnterBrowsingState()
     {
         GameDebug.Assert(m_clientWorld == null);
+        if (Game.game.clientFrontend != null)
+            Game.game.clientFrontend.ShowMenu(ClientFrontend.MenuShowing.Main);
         m_ClientState = ClientState.Browsing;
     }
 

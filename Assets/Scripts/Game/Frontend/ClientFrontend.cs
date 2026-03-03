@@ -83,7 +83,8 @@ public class ClientFrontend : MonoBehaviour
         mainMenu.UpdateMenus();
 
         var clientLoop = Game.GetGameLoop<ClientGameLoop>();
-        var canToggleIngameMenu = clientLoop != null && clientLoop.CanToggleIngameMenu();
+        var previewLoop = Game.GetGameLoop<PreviewGameLoop>();
+        var canToggleIngameMenu = (clientLoop != null && clientLoop.CanToggleIngameMenu()) || previewLoop != null;
         var escapeIsDown = Game.Input.GetKeyNoBlock(Key.Escape);
         var escapeReleased = !escapeIsDown && m_EscapeWasDownNoBlock;
 

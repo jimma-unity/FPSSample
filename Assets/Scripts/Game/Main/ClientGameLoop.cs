@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 using UnityEngine;
 using Unity.Entities;
 using UnityEngine.InputSystem;
@@ -256,9 +257,14 @@ public class ClientGameWorld
         
         m_ItemModule.LateUpdate();
 
-
-        m_CharacterModule.CameraUpdate();
-        m_PlayerModule.CameraUpdate();
+        try
+        {
+            m_CharacterModule.CameraUpdate();
+            m_PlayerModule.CameraUpdate();
+        }
+        catch (NullReferenceException)
+        {
+        }
         
         m_CharacterModule.LateUpdate();
         
@@ -539,7 +545,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         m_GameWorld = new GameWorld("ClientWorld");
 
         m_contentDirectoryRegistration = new RuntimeContentDirectoryRegistration();
-        m_contentDirectoryRegistration.RegisterDefaultContentDirectories("ClientGameLoop");
+        m_contentDirectoryRegistration.RegisterDefaultContentDirectories("ClientGameLoop", RuntimeContentDirectoryRegistration.ClientRegistryName);
         
         m_NetworkTransport = new SocketTransport();
         m_NetworkClient = new NetworkClient(m_NetworkTransport);
@@ -583,6 +589,8 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     {
         GameDebug.Log("ClientGameLoop shutdown");
         Console.RemoveCommandsWithTag(this.GetHashCode());
+
+        m_performGameWorldLateUpdate = false;
 
         m_contentDirectoryRegistration?.UnregisterAll("ClientGameLoop");
         m_contentDirectoryRegistration = null;
@@ -682,6 +690,8 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     void EnterBrowsingState()
     {
         GameDebug.Assert(m_clientWorld == null);
+        if (Game.game.clientFrontend != null)
+            Game.game.clientFrontend.ShowMenu(ClientFrontend.MenuShowing.Main);
         m_ClientState = ClientState.Browsing;
     }
 
@@ -813,6 +823,8 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
     void LeavePlayingState()
     {
+        m_performGameWorldLateUpdate = false;
+
         m_contentDirectoryRegistration?.UnregisterAll("ClientGameLoop");
 
         m_PlayingVisualRecoveryFrames = 0;

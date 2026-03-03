@@ -118,8 +118,9 @@ public sealed class LoadableIndexedContentResolver : IContentResolver
         for (var i = 0; i < root.replicatedEntities.Count; i++)
         {
             var entry = root.replicatedEntities[i];
-            AddEntry(entry.legacyGuid, entry.prefabLoadable, typeof(GameObject), root.name + ".replicatedEntities.prefabLoadable");
-            AddEntry(entry.legacyGuid, entry.factoryLoadable, typeof(ScriptableObject), root.name + ".replicatedEntities.factoryLoadable");
+            var legacyRef = ResolveLegacyReference(entry.guidKey, entry.legacyGuid);
+            AddEntry(legacyRef, entry.prefabLoadable, typeof(GameObject), root.name + ".replicatedEntities.prefabLoadable");
+            AddEntry(legacyRef, entry.factoryLoadable, typeof(ScriptableObject), root.name + ".replicatedEntities.factoryLoadable");
         }
 
         for (var i = 0; i < root.characters.Count; i++)
@@ -139,14 +140,22 @@ public sealed class LoadableIndexedContentResolver : IContentResolver
         for (var i = 0; i < root.projectiles.Count; i++)
         {
             var entry = root.projectiles[i];
-            AddEntry(entry.legacyProjectileGuid, entry.clientProjectilePrefab, typeof(GameObject), root.name + ".projectiles.clientProjectilePrefab");
+            AddEntry(ResolveLegacyReference(entry.guidKey, entry.legacyProjectileGuid), entry.clientProjectilePrefab, typeof(GameObject), root.name + ".projectiles.clientProjectilePrefab");
         }
 
         for (var i = 0; i < root.presentations.Count; i++)
         {
             var entry = root.presentations[i];
-            AddEntry(entry.legacyPresentationGuid, entry.presentationPrefab, typeof(GameObject), root.name + ".presentations.presentationPrefab");
+            AddEntry(ResolveLegacyReference(entry.ownerGuidKey, entry.legacyPresentationGuid), entry.presentationPrefab, typeof(GameObject), root.name + ".presentations.presentationPrefab");
         }
+    }
+
+    static WeakAssetReference ResolveLegacyReference(string guidKey, WeakAssetReference fallback)
+    {
+        if (!string.IsNullOrWhiteSpace(guidKey))
+            return new WeakAssetReference(guidKey);
+
+        return fallback;
     }
 
     void AddEntry<T>(WeakAssetReference legacyGuid, T loadable, Type expectedType, string source)

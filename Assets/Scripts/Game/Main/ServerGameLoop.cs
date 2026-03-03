@@ -349,7 +349,7 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         m_GameWorld = new GameWorld("ServerWorld");
 
     m_contentDirectoryRegistration = new RuntimeContentDirectoryRegistration();
-    m_contentDirectoryRegistration.RegisterDefaultContentDirectories("ServerGameLoop");
+    m_contentDirectoryRegistration.RegisterDefaultContentDirectories("ServerGameLoop", RuntimeContentDirectoryRegistration.ServerRegistryName);
 
         m_NetworkStatistics = new NetworkStatisticsServer(m_NetworkServer);
 

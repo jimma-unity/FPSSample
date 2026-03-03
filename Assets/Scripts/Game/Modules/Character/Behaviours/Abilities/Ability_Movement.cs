@@ -54,6 +54,9 @@ partial class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityCo
 {
     [ConfigVar(Name = "debug.charactermove", Description = "Show graphs of one character's movement along x, y, z", DefaultValue = "0")]
     public static ConfigVar debugCharacterMove;
+
+    [ConfigVar(Name = "movement.minworldy", Description = "Minimum world Y for client movement prediction recovery", DefaultValue = "-40")]
+    public static ConfigVar movementMinWorldY;
     
     // Debugging graphs to show player movement in 3 axis
     static float[] movehist_x = new float[100];
@@ -212,6 +215,20 @@ partial class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityCo
                 GameDebug.LogWarning("Movement_Update sanitize: invalid predicted velocity " + predictedState.velocity + ", zeroing velocity");
 
             predictedState.velocity = Vector3.zero;
+        }
+
+        var minWorldY = movementMinWorldY.FloatValue;
+        if (float.IsFinite(minWorldY) && predictedState.position.y < minWorldY)
+        {
+            var recoverPosition = controllerPosition;
+            recoverPosition.y = minWorldY + 2.0f;
+            predictedState.position = recoverPosition;
+            predictedState.velocity = Vector3.zero;
+            predictedState.locoState = CharacterPredictedData.LocoState.InAir;
+            predictedState.locoStartTick = time.tick;
+
+            if (UnityEngine.Time.frameCount % 120 == 0)
+                GameDebug.LogWarning("Movement_Update sanitize: recovered predicted position below min world y. minY=" + minWorldY + ", newPos=" + recoverPosition);
         }
 
         // Calculate movement and move character

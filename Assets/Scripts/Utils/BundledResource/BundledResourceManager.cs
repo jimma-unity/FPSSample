@@ -43,11 +43,35 @@ public class BundledResourceManager : IContentResolver {
         if (useBundles)
         {
             var bundlePath = GetBundlePath();
-            var assetPath = bundlePath + "/" + registryName;
+            var registryPathOriginal = registryName.Replace('\\', '/');
+            var registryPathLower = registryPathOriginal.ToLowerInvariant();
 
-            if (verbose.IntValue > 0)
-                GameDebug.Log("resource: loading bundle (" + assetPath + ")");
-            m_assetRegistryRootBundle = AssetBundle.LoadFromFile(assetPath);     
+            var candidateRegistryPaths = new List<string> { registryPathLower };
+            if (!string.Equals(registryPathOriginal, registryPathLower))
+                candidateRegistryPaths.Add(registryPathOriginal);
+
+            string selectedRegistryPath = null;
+            foreach (var candidateRegistryPath in candidateRegistryPaths)
+            {
+                var assetPath = bundlePath + "/" + candidateRegistryPath;
+                if (verbose.IntValue > 0)
+                    GameDebug.Log("resource: loading bundle (" + assetPath + ")");
+
+                m_assetRegistryRootBundle = AssetBundle.LoadFromFile(assetPath);
+                if (m_assetRegistryRootBundle != null)
+                {
+                    selectedRegistryPath = candidateRegistryPath;
+                    break;
+                }
+            }
+
+            if (m_assetRegistryRootBundle == null)
+            {
+                GameDebug.LogError("Failed to load registry bundle: " + bundlePath + "/" + registryPathLower);
+                if (!string.Equals(registryPathOriginal, registryPathLower))
+                    GameDebug.LogError("Also attempted registry bundle path: " + bundlePath + "/" + registryPathOriginal);
+                return;
+            }
 
             var registryRoots = m_assetRegistryRootBundle.LoadAllAssets<AssetRegistryRoot>();
 
@@ -55,6 +79,9 @@ public class BundledResourceManager : IContentResolver {
                 m_assetRegistryRoot = registryRoots[0];
             else
                 GameDebug.LogError("Wrong number(" + registryRoots.Length + ") of registry roots in "+ registryName);
+
+            m_assetResourceFolder = selectedRegistryPath + "_assets";
+            m_fallbackAssetResourceFolder = selectedRegistryPath + "_Assets";
         }
 
         // Update asset registry map
@@ -70,7 +97,8 @@ public class BundledResourceManager : IContentResolver {
                 System.Type type = registry.GetType();
                 m_assetRegistryMap.Add(type, registry);
             }
-            m_assetResourceFolder = registryName + "_Assets";
+            if (!useBundles)
+                m_assetResourceFolder = registryName + "_Assets";
         }
     }
 
@@ -177,9 +205,25 @@ public class BundledResourceManager : IContentResolver {
         if(useBundles)
         {
             var bundlePath = GetBundlePath();
-            def.bundle = AssetBundle.LoadFromFile(bundlePath + "/" + m_assetResourceFolder + "/" + guidStr);
+            var primaryBundlePath = bundlePath + "/" + m_assetResourceFolder + "/" + guidStr;
+            def.bundle = AssetBundle.LoadFromFile(primaryBundlePath);
+
+            if (def.bundle == null && !string.IsNullOrEmpty(m_fallbackAssetResourceFolder))
+            {
+                var fallbackBundlePath = bundlePath + "/" + m_fallbackAssetResourceFolder + "/" + guidStr;
+                def.bundle = AssetBundle.LoadFromFile(fallbackBundlePath);
+            }
+
             if (verbose.IntValue > 0)
                 GameDebug.Log("resource: loading bundled asset: " + m_assetResourceFolder + "/" + guidStr);
+
+            if (def.bundle == null)
+            {
+                GameDebug.LogWarning("Failed to load bundled asset bundle for guid " + guidStr + " from root " + bundlePath + "/" + m_assetResourceFolder);
+                m_resources.Add(reference, def);
+                return null;
+            }
+
             var handles = def.bundle.LoadAllAssets();
             if (handles.Length > 0)
                 def.asset = handles[0];
@@ -208,6 +252,7 @@ public class BundledResourceManager : IContentResolver {
     AssetBundle m_assetRegistryRootBundle;
     Dictionary<System.Type, ScriptableObject> m_assetRegistryMap = new Dictionary<System.Type, ScriptableObject>();
     string m_assetResourceFolder = "";
+    string m_fallbackAssetResourceFolder = "";
 
     Dictionary<WeakAssetReference, SingleResourceBundle> m_resources = new Dictionary<WeakAssetReference, SingleResourceBundle>();
 }
