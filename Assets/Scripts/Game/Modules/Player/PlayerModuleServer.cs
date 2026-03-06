@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using UnityEngine;
+using System;
 
 public class PlayerModuleServer
 {
@@ -19,8 +20,29 @@ public class PlayerModuleServer
     public PlayerState CreatePlayer(GameWorld world, int playerId, string playerName, bool isReady)
     {
         var prefab = (GameObject)m_resourceSystem.GetSingleAssetResource(m_settings.playerStatePrefab);
-        
-        
+
+        if (prefab == null)
+        {
+            var fallbackEntity = m_resourceSystem.CreateEntity(m_settings.playerStatePrefab);
+            if (fallbackEntity != Entity.Null)
+            {
+                var fallbackPlayerState = m_world.GetEntityManager().GetComponentObject<PlayerState>(fallbackEntity);
+                if (fallbackPlayerState != null)
+                {
+                    fallbackPlayerState.playerId = playerId;
+                    fallbackPlayerState.playerName = playerName;
+
+                    var fallbackReplicated = m_world.GetEntityManager().GetComponentData<ReplicatedEntityData>(fallbackEntity);
+                    fallbackReplicated.predictingPlayerId = playerId;
+                    m_world.GetEntityManager().SetComponentData(fallbackEntity, fallbackReplicated);
+
+                    return fallbackPlayerState;
+                }
+            }
+
+            throw new Exception("PlayerModuleServer: failed to resolve playerStatePrefab for guid " + m_settings.playerStatePrefab.GetGuidStr());
+        }
+
         var gameObjectEntity = m_world.Spawn<GameObjectEntity>(prefab);
         var entityManager = gameObjectEntity.EntityManager;
         var entity = gameObjectEntity.Entity;

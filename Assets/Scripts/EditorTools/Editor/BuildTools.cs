@@ -10,6 +10,20 @@ using UnityEditor.Build;
 public class BuildTools
 {
     const string ContentDirectoryMigrationModePrefKey = "FPSSample.Build.ContentDirectoryMigrationMode";
+    const string ContentDirectoryStrictPreflightAttemptPrefKey = "FPSSample.Build.ContentDirectory.StrictPreflightAttempt";
+    const string RuntimeContentDirectoryOnlyConfigVar = "res.contentdirectoryonly";
+    const string RuntimeGeneratedResourcesFolder = "Assets/Resources/ContentDirectoryRuntimeGenerated";
+
+    static readonly string[] RuntimeGeneratedSourceAssets =
+    {
+        "Assets/ContentRoots/ClientContentRoot.asset",
+        "Assets/ContentRoots/ServerContentRoot.asset",
+        "Assets/BundledResources/Shared/Characters.asset",
+        "Assets/BundledResources/Shared/HeroRegistry.asset",
+        "Assets/BundledResources/Shared/ReplicatedEntityRegistry.asset",
+        "Assets/BundledResources/Shared/ProjectileRegistry.asset",
+        "Assets/BundledResources/Shared/PresentationRegistry.asset"
+    };
 
     static void EnsureDirectoryClean(string rootPath)
     {
@@ -168,7 +182,7 @@ public class BuildTools
     }
 
     public static UnityEditor.Build.Reporting.BuildReport BuildGame(string buildPath, string exeName, BuildTarget target,
-        BuildOptions opts, string buildId, bool il2cpp)
+        BuildOptions opts, string buildId, bool il2cpp, StandaloneBuildSubtarget standaloneSubtarget = StandaloneBuildSubtarget.Default)
     {
         var levels = new List<string>
         {
@@ -281,7 +295,15 @@ public class BuildTools
         Debug.Log("Done.");
         
         Environment.SetEnvironmentVariable("BUILD_ID", buildId, EnvironmentVariableTarget.Process);
-        var result = BuildPipeline.BuildPlayer(levels.ToArray(), exePathName, target, opts);
+        var buildPlayerOptions = new BuildPlayerOptions
+        {
+            scenes = levels.ToArray(),
+            locationPathName = exePathName,
+            target = target,
+            options = opts,
+            subtarget = (int)standaloneSubtarget
+        };
+        var result = BuildPipeline.BuildPlayer(buildPlayerOptions);
         Environment.SetEnvironmentVariable("BUILD_ID", "", EnvironmentVariableTarget.Process);
 
         if (target == BuildTarget.PS4)
@@ -396,14 +418,270 @@ public class BuildTools
         return shared;
     }
 
+    static bool IsRoleVersionedServerContentPath(string bundlePath)
+    {
+        if (string.IsNullOrWhiteSpace(bundlePath))
+            return false;
+
+        var normalizedPath = Path.GetFullPath(bundlePath).Replace('\\', '/');
+        return normalizedPath.IndexOf("/Content/Server/", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    static bool TryEnterInProcessImportMode(out object previousRefreshImportMode)
+    {
+        previousRefreshImportMode = null;
+
+        try
+        {
+            var property = typeof(EditorSettings).GetProperty("refreshImportMode", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            if (property == null || !property.CanRead || !property.CanWrite)
+                return false;
+
+            var enumType = property.PropertyType;
+            if (!enumType.IsEnum)
+                return false;
+
+            var inProcessName = Enum.GetNames(enumType)
+                .FirstOrDefault(name => string.Equals(name, "InProcess", StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrEmpty(inProcessName))
+                return false;
+
+            previousRefreshImportMode = property.GetValue(null, null);
+            var inProcessValue = Enum.Parse(enumType, inProcessName);
+
+            if (!Equals(previousRefreshImportMode, inProcessValue))
+            {
+                property.SetValue(null, inProcessValue, null);
+                Debug.Log("BuildContentDirectories: using in-process import mode for content-directory build.");
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("BuildContentDirectories: failed to switch import mode to in-process: " + ex.Message);
+            return false;
+        }
+    }
+
+    static void TryRestoreImportMode(object previousRefreshImportMode)
+    {
+        if (previousRefreshImportMode == null)
+            return;
+
+        try
+        {
+            var property = typeof(EditorSettings).GetProperty("refreshImportMode", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            if (property == null || !property.CanWrite)
+                return;
+
+            property.SetValue(null, previousRefreshImportMode, null);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("BuildContentDirectories: failed to restore import mode after content-directory build: " + ex.Message);
+        }
+    }
+
+    static void TrySetDesiredWorkerCount(int desiredWorkerCount)
+    {
+        try
+        {
+            AssetDatabase.DesiredWorkerCount = Math.Max(1, desiredWorkerCount);
+            AssetDatabase.ForceToDesiredWorkerCount();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("BuildContentDirectories: failed to set desired worker count to " + desiredWorkerCount + ": " + ex.Message);
+        }
+    }
+
+    static bool TryDisableEntitiesLiveConversion(out bool previousEnabled)
+    {
+        previousEnabled = true;
+
+        try
+        {
+            var settingsType = Type.GetType("Unity.Scenes.Editor.LiveConversionEditorSettings, Unity.Scenes.Editor");
+            var property = settingsType?.GetProperty("LiveConversionEnabled", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+
+            if (property != null && property.PropertyType == typeof(bool) && property.CanRead && property.CanWrite)
+            {
+                previousEnabled = (bool)property.GetValue(null, null);
+                if (!previousEnabled)
+                    return false;
+
+                property.SetValue(null, false, null);
+                Debug.Log("BuildContentDirectories: temporarily disabled Entities live conversion during content-directory build.");
+                return true;
+            }
+
+            const string liveConversionKey = "Unity.Entities.Streaming.SubScene.LiveBakingEnabled";
+            previousEnabled = SessionState.GetBool(liveConversionKey, true);
+            if (!previousEnabled)
+                return false;
+
+            SessionState.SetBool(liveConversionKey, false);
+            Debug.Log("BuildContentDirectories: temporarily disabled Entities live conversion via SessionState fallback.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("BuildContentDirectories: failed to disable Entities live conversion: " + ex.Message);
+            return false;
+        }
+    }
+
+    static void TryRestoreEntitiesLiveConversion(bool previousEnabled)
+    {
+        try
+        {
+            var settingsType = Type.GetType("Unity.Scenes.Editor.LiveConversionEditorSettings, Unity.Scenes.Editor");
+            var property = settingsType?.GetProperty("LiveConversionEnabled", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+
+            if (property != null && property.PropertyType == typeof(bool) && property.CanWrite)
+            {
+                property.SetValue(null, previousEnabled, null);
+                return;
+            }
+
+            const string liveConversionKey = "Unity.Entities.Streaming.SubScene.LiveBakingEnabled";
+            SessionState.SetBool(liveConversionKey, previousEnabled);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning("BuildContentDirectories: failed to restore Entities live conversion: " + ex.Message);
+        }
+    }
+
+    static void ExecuteWithContentDirectoryBuildIsolation(Action contentBuildAction)
+    {
+        if (contentBuildAction == null)
+            throw new ArgumentNullException(nameof(contentBuildAction));
+
+        var originalWorkerCount = AssetDatabase.DesiredWorkerCount;
+        var restoreWorkerCount = originalWorkerCount;
+        var autoRefreshDisabled = false;
+        var importModeOverridden = false;
+        object previousRefreshImportMode = null;
+        var liveConversionOverridden = false;
+        var previousLiveConversionEnabled = true;
+        try
+        {
+            AssetDatabase.DisallowAutoRefresh();
+            autoRefreshDisabled = true;
+
+            importModeOverridden = TryEnterInProcessImportMode(out previousRefreshImportMode);
+            liveConversionOverridden = TryDisableEntitiesLiveConversion(out previousLiveConversionEnabled);
+            TrySetDesiredWorkerCount(1);
+
+            contentBuildAction();
+        }
+        finally
+        {
+            TrySetDesiredWorkerCount(restoreWorkerCount);
+
+            if (liveConversionOverridden)
+                TryRestoreEntitiesLiveConversion(previousLiveConversionEnabled);
+
+            if (importModeOverridden)
+                TryRestoreImportMode(previousRefreshImportMode);
+
+            if (autoRefreshDisabled)
+                AssetDatabase.AllowAutoRefresh();
+        }
+    }
+
+    static void BuildContentDirectoriesStrictNoFallbackCore(BuildTarget target, string outputPath, params string[] roots)
+    {
+        var rootAssetPaths = new List<string>();
+        if (roots != null)
+        {
+            foreach (var root in roots)
+            {
+                if (string.IsNullOrWhiteSpace(root))
+                    continue;
+
+                var normalized = root.Replace('\\', '/').Trim();
+                rootAssetPaths.Add(normalized);
+            }
+        }
+
+        if (rootAssetPaths.Count == 0)
+        {
+            var defaultCandidates = new[]
+            {
+                "Assets/ContentRoots/ClientContentRoot.asset",
+                "Assets/ContentRoots/ServerContentRoot.asset",
+                "Assets/Resources/Content/SceneListRoot.asset"
+            };
+
+            foreach (var path in defaultCandidates)
+            {
+                if (File.Exists(path))
+                    rootAssetPaths.Add(path);
+            }
+        }
+
+        if (rootAssetPaths.Count == 0)
+            throw new Exception("BuildContentDirectoriesStrictNoFallback: no valid rootAssetPaths specified or discovered.");
+
+        Directory.CreateDirectory(outputPath);
+
+        var buildParameters = new BuildContentDirectoryParameters
+        {
+            rootAssetPaths = rootAssetPaths.ToArray(),
+            outputPath = outputPath,
+            targetPlatform = target,
+            options = BuildContentOptions.CleanBuildCache | BuildContentOptions.DetailedBuildReport
+        };
+
+        try
+        {
+            var report = BuildPipeline.BuildContentDirectory(buildParameters);
+            if (report == null)
+                throw new Exception("BuildPipeline.BuildContentDirectory returned null report.");
+            if (report.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+                throw new Exception("BuildPipeline.BuildContentDirectory failed: " + report.summary.result);
+        }
+        catch (ArgumentException ex) when (ex.Message != null && ex.Message.IndexOf("Importing dependent assets on an import workers is currently not supported", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            var strictFailureMessage =
+                "BuildContentDirectories strict no-fallback failed due known Unity Entities import-worker limitation for roots: " +
+                string.Join(", ", rootAssetPaths) +
+                ". Legacy bundle fallback is intentionally disabled for this flow.";
+
+            Debug.LogError(strictFailureMessage + " error=" + ex.Message);
+            throw new Exception(strictFailureMessage, ex);
+        }
+
+        Debug.Log("BuildContentDirectories strict no-fallback completed: outputPath=" + outputPath + ", roots=" + string.Join(", ", rootAssetPaths));
+    }
+
     public static void BuildBundles(string bundlePath, BuildTarget target, bool buildBundledAssets, bool buildBundledLevels, bool force = false, List<LevelInfo> buildOnlyLevels = null)
     {
         DateTime startTime = DateTime.Now;
         Debug.Log($"AssetBundle build started - {startTime:yyyy-MM-dd HH:mm:ss.fff}");
 
+        var shouldBuildBundledLevels = buildBundledLevels;
+        if (shouldBuildBundledLevels && IsRoleVersionedServerContentPath(bundlePath))
+        {
+            Debug.LogWarning("BuildBundles: suppressing level bundle build for role-versioned server content path: " + bundlePath);
+            shouldBuildBundledLevels = false;
+        }
+
         IsBuildingContent = true;
+        var originalWorkerCount = AssetDatabase.DesiredWorkerCount;
+        var restoreWorkerCount = originalWorkerCount;
+        var autoRefreshDisabled = false;
         try
         {
+            AssetDatabase.DisallowAutoRefresh();
+            autoRefreshDisabled = true;
+
+            AssetDatabase.DesiredWorkerCount = 1;
+            AssetDatabase.ForceToDesiredWorkerCount();
+
             var path = bundlePath + "/" + SimpleBundleManager.assetBundleFolder;
 
             if (!Directory.Exists(path))
@@ -415,16 +693,16 @@ public class BuildTools
             {
                 Debug.Log("Cleaning existing bundle output directory: " + path);
                 EnsureDirectoryClean(path);
-            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
 
-            BuildAssetBundleOptions assetBundleOptions = BuildAssetBundleOptions.UncompressedAssetBundle;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        BuildAssetBundleOptions assetBundleOptions = BuildAssetBundleOptions.UncompressedAssetBundle;
             if (force)
             {
                 Debug.Log("Forcing rebuild");
                 assetBundleOptions |= BuildAssetBundleOptions.ForceRebuildAssetBundle;
             }
 
-            if (buildBundledLevels)
+            if (shouldBuildBundledLevels)
                 BuildLevelBundles(path, target, assetBundleOptions, buildOnlyLevels);
 
             if (buildBundledAssets)
@@ -432,6 +710,12 @@ public class BuildTools
         }
         finally
         {
+            if (autoRefreshDisabled)
+                AssetDatabase.AllowAutoRefresh();
+
+            AssetDatabase.DesiredWorkerCount = restoreWorkerCount;
+            AssetDatabase.ForceToDesiredWorkerCount();
+
             IsBuildingContent = false;
             DateTime endTime = DateTime.Now;
             Debug.Log($"AssetBundle build finished - {endTime:yyyy-MM-dd HH:mm:ss.fff}");
@@ -447,6 +731,12 @@ public class BuildTools
     public static void BuildContentDirectoriesStrict(BuildTarget target, string outputPath, params string[] roots)
     {
         BuildContentDirectoriesInternal(target, outputPath, false, roots);
+    }
+
+    public static void BuildContentDirectoriesStrictNoFallback(BuildTarget target, string outputPath, params string[] roots)
+    {
+        ExecuteWithContentDirectoryBuildIsolation(() =>
+            BuildContentDirectoriesStrictNoFallbackCore(target, outputPath, roots));
     }
 
     static void BuildContentDirectoriesInternal(BuildTarget target, string outputPath, bool allowLegacyFallback, params string[] roots)
@@ -491,23 +781,37 @@ public class BuildTools
             path.EndsWith("ClientContentRoot.asset", StringComparison.OrdinalIgnoreCase) ||
             path.EndsWith("ServerContentRoot.asset", StringComparison.OrdinalIgnoreCase));
 
+        var strictPreflightAttemptEnabled = GetStrictPreflightAttemptEnabled();
+        var allowFallbackForStrictPreflightAttempt =
+            !allowLegacyFallback && hasKnownImportWorkerIncompatibleRoots && strictPreflightAttemptEnabled;
+        var shouldBuildLevelBundlesForFallback = rootAssetPaths.Any(path =>
+            path.EndsWith("SceneListRoot.asset", StringComparison.OrdinalIgnoreCase));
+
         if (allowLegacyFallback && hasKnownImportWorkerIncompatibleRoots)
         {
             Debug.LogWarning("BuildContentDirectories route: fallback=BuildBundles, reason=KnownUnityEntitiesImportWorkerLimitation, outputPath=" + outputPath);
-            BuildBundles(outputPath, target, true, true, true);
+            BuildBundles(outputPath, target, true, shouldBuildLevelBundlesForFallback, true);
             return;
         }
 
         if (!allowLegacyFallback && hasKnownImportWorkerIncompatibleRoots)
         {
+            if (allowFallbackForStrictPreflightAttempt)
+            {
+                Debug.LogWarning("BuildContentDirectories strict preflight override active: attempting BuildPipeline.BuildContentDirectory despite known import-worker limitation. fallbackOnImportWorkerException=true");
+            }
+            else
+            {
             var strictFailureMessage =
                 "BuildContentDirectories strict mode blocked before BuildPipeline.BuildContentDirectory due to known Unity Entities import-worker limitation for roots: " +
                 string.Join(", ", rootAssetPaths) +
                 ". Use FPS Sample/BuildSystem/ContentDirectories/MigrationMode/FallbackPreferred (Stable) to keep Autobuild unblocked. " +
-                "Use StrictOnly (Validation) only when your editor environment supports this content-directory path without import-worker exceptions.";
+                "Use StrictOnly (Validation) only when your editor environment supports this content-directory path without import-worker exceptions. " +
+                "Optional preflight override: enable FPS Sample/BuildSystem/ContentDirectories/StrictPreflight/AttemptStrictThenFallbackOnImportWorker (Experimental).";
 
             Debug.LogError(strictFailureMessage);
             throw new Exception(strictFailureMessage);
+            }
         }
 
         var buildParameters = new BuildContentDirectoryParameters
@@ -520,15 +824,20 @@ public class BuildTools
 
         var originalWorkerCount = AssetDatabase.DesiredWorkerCount;
         var requestedWorkerCount = 1;
-        var restoreWorkerCount = Math.Max(1, originalWorkerCount);
+        var restoreWorkerCount = originalWorkerCount;
         var autoRefreshDisabled = false;
+        var importModeOverridden = false;
+        object previousRefreshImportMode = null;
+        var liveConversionOverridden = false;
+        var previousLiveConversionEnabled = true;
         try
         {
             AssetDatabase.DisallowAutoRefresh();
             autoRefreshDisabled = true;
 
-            AssetDatabase.DesiredWorkerCount = requestedWorkerCount;
-            AssetDatabase.ForceToDesiredWorkerCount();
+            importModeOverridden = TryEnterInProcessImportMode(out previousRefreshImportMode);
+            liveConversionOverridden = TryDisableEntitiesLiveConversion(out previousLiveConversionEnabled);
+            TrySetDesiredWorkerCount(requestedWorkerCount);
 
             var report = BuildPipeline.BuildContentDirectory(buildParameters);
             if (report == null)
@@ -538,19 +847,28 @@ public class BuildTools
         }
         catch (ArgumentException ex) when (ex.Message != null && ex.Message.IndexOf("Importing dependent assets on an import workers is currently not supported", StringComparison.OrdinalIgnoreCase) >= 0)
         {
-            if (!allowLegacyFallback)
+            if (!allowLegacyFallback && !allowFallbackForStrictPreflightAttempt)
                 throw;
 
-            Debug.LogWarning("BuildContentDirectories route: fallback=BuildBundles, reason=ImportWorkerException, outputPath=" + outputPath + ", error=" + ex.Message);
-            BuildBundles(outputPath, target, true, true, true);
+            var fallbackReason = allowFallbackForStrictPreflightAttempt
+                ? "ImportWorkerException.StrictPreflightOverride"
+                : "ImportWorkerException";
+
+            Debug.LogWarning("BuildContentDirectories route: fallback=BuildBundles, reason=" + fallbackReason + ", outputPath=" + outputPath + ", error=" + ex.Message);
+            BuildBundles(outputPath, target, true, shouldBuildLevelBundlesForFallback, true);
         }
         finally
         {
             if (autoRefreshDisabled)
                 AssetDatabase.AllowAutoRefresh();
 
-            AssetDatabase.DesiredWorkerCount = restoreWorkerCount;
-            AssetDatabase.ForceToDesiredWorkerCount();
+            TrySetDesiredWorkerCount(restoreWorkerCount);
+
+            if (liveConversionOverridden)
+                TryRestoreEntitiesLiveConversion(previousLiveConversionEnabled);
+
+            if (importModeOverridden)
+                TryRestoreImportMode(previousRefreshImportMode);
         }
 
         Debug.Log("BuildContentDirectories route: primary=BuildPipeline.BuildContentDirectory, outputPath=" + outputPath + ", roots=" + string.Join(", ", rootAssetPaths));
@@ -577,8 +895,8 @@ public class BuildTools
         //builds.Add(sharedbuild);
 
         // TODO (mogensh) Settle on what buildpipeline to use. LegacyBuildPipeline uses SBP internally and is faster.      
-        //        LegacyBuildPipeline.BuildAssetBundles(path, builds.ToArray(), assetBundleOptions, EditorUserBuildSettings.activeBuildTarget);
-        BuildPipeline.BuildAssetBundles(path, builds.ToArray(), assetBundleOptions, EditorUserBuildSettings.activeBuildTarget);
+        //        LegacyBuildPipeline.BuildAssetBundles(path, builds.ToArray(), assetBundleOptions, target);
+        BuildPipeline.BuildAssetBundles(path, builds.ToArray(), assetBundleOptions, target);
 
         // Set write time so tools can show time since build
         Directory.SetLastWriteTime(path, DateTime.Now);
@@ -656,6 +974,17 @@ public class BuildTools
         Debug.Log("ContentDirectories migration mode set to: " + mode);
     }
 
+    static bool GetStrictPreflightAttemptEnabled()
+    {
+        return EditorPrefs.GetBool(ContentDirectoryStrictPreflightAttemptPrefKey, false);
+    }
+
+    static void SetStrictPreflightAttemptEnabled(bool enabled)
+    {
+        EditorPrefs.SetBool(ContentDirectoryStrictPreflightAttemptPrefKey, enabled);
+        Debug.Log("ContentDirectories strict preflight override set to: " + enabled);
+    }
+
     static void BuildContentDirectoriesForMigrationMode(BuildTarget target, string outputPath, params string[] roots)
     {
         var mode = GetContentDirectoryMigrationMode();
@@ -669,6 +998,29 @@ public class BuildTools
 
     static void BuildRoleVersionedContentDirectoriesForMigrationMode(BuildTarget target, string contentRootPath, string buildId)
     {
+        var normalizedContentRootPath = string.IsNullOrWhiteSpace(contentRootPath)
+            ? string.Empty
+            : contentRootPath.Replace('\\', '/');
+        if (normalizedContentRootPath.IndexOf("/AutobuildCD/", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            Debug.Log("AutobuildCD content root detected. Forcing strict content-directory build with no legacy bundle fallback. contentRootPath=" + contentRootPath);
+            BuildRoleVersionedContentDirectoriesStrictContentOnly(target, contentRootPath, buildId);
+            return;
+        }
+
+        var mode = GetContentDirectoryMigrationMode();
+        if (mode == ContentDirectoryMigrationMode.StrictOnly && !GetStrictPreflightAttemptEnabled())
+        {
+            var strictBlockedMessage =
+                "Strict role/versioned content build is blocked on known Unity Entities import-worker-limited roots in this environment. " +
+                "Existing content output was preserved (no cleanup performed). " +
+                "Use FPS Sample/BuildSystem/ContentDirectories/StrictPreflight/AttemptStrictThenFallbackOnImportWorker (Experimental) " +
+                "to attempt strict with safe fallback, or switch to MigrationMode/FallbackPreferred (Stable).";
+
+            Debug.LogError(strictBlockedMessage);
+            throw new Exception(strictBlockedMessage);
+        }
+
         EnsureDirectoryClean(contentRootPath);
         Directory.CreateDirectory(contentRootPath);
 
@@ -677,7 +1029,6 @@ public class BuildTools
         var clientPath = Path.Combine(contentRootPath, "Client", normalizedBuildId);
         var serverPath = Path.Combine(contentRootPath, "Server", normalizedBuildId);
 
-        var mode = GetContentDirectoryMigrationMode();
         if (mode == ContentDirectoryMigrationMode.StrictOnly)
         {
             BuildContentDirectoriesStrict(target, basePath,
@@ -686,6 +1037,10 @@ public class BuildTools
                 "Assets/ContentRoots/ClientContentRoot.asset");
             BuildContentDirectoriesStrict(target, serverPath,
                 "Assets/ContentRoots/ServerContentRoot.asset");
+
+            BuildBundles(basePath, target, true, true, true);
+            BuildBundles(clientPath, target, true, false, true);
+            BuildBundles(serverPath, target, true, false, true);
 
             var manifestsPresent = ValidateRoleVersionedContentManifests(contentRootPath, normalizedBuildId, true);
             Debug.Log("ROLE_CONTENT_PACKAGING=" + (manifestsPresent ? "STRICT_OK" : "FALLBACK_ONLY"));
@@ -717,6 +1072,90 @@ public class BuildTools
         {
             SetContentDirectoryMigrationMode(current);
         }
+    }
+
+    static void BuildRoleVersionedContentDirectoriesStrictContentOnly(BuildTarget target, string contentRootPath, string buildId)
+    {
+        EnsureDirectoryClean(contentRootPath);
+        Directory.CreateDirectory(contentRootPath);
+
+        var normalizedBuildId = NormalizeBuildIdForPath(buildId);
+        var basePath = Path.Combine(contentRootPath, "Base", normalizedBuildId);
+        var clientPath = Path.Combine(contentRootPath, "Client", normalizedBuildId);
+        var serverPath = Path.Combine(contentRootPath, "Server", normalizedBuildId);
+
+        ExecuteWithContentDirectoryBuildIsolation(() =>
+        {
+            BuildContentDirectoriesStrictNoFallbackCore(target, basePath,
+                "Assets/Resources/Content/SceneListRoot.asset");
+            BuildContentDirectoriesStrictNoFallbackCore(target, clientPath,
+                "Assets/ContentRoots/ClientContentRoot.asset");
+            BuildContentDirectoriesStrictNoFallbackCore(target, serverPath,
+                "Assets/ContentRoots/ServerContentRoot.asset");
+        });
+
+        ValidateRoleVersionedContentManifests(contentRootPath, normalizedBuildId, true);
+        Debug.Log("Strict role/versioned content directories built without legacy bundles under: " + contentRootPath + " (build-id=" + normalizedBuildId + ")");
+    }
+
+    static void UpsertRuntimeBundlePath(string userCfgPath, string runtimePath)
+    {
+        UpsertUserCfgLine(userCfgPath, "res.runtimebundlepath", "\"" + runtimePath + "\"");
+    }
+
+    static void UpsertRuntimeContentDirectoryOnly(string userCfgPath, bool enabled)
+    {
+        UpsertUserCfgLine(userCfgPath, RuntimeContentDirectoryOnlyConfigVar, enabled ? "1" : "0");
+    }
+
+    static void UpsertUserCfgLine(string userCfgPath, string key, string valueExpression)
+    {
+        if (!File.Exists(userCfgPath))
+            return;
+
+        var userCfgLines = File.ReadAllLines(userCfgPath).ToList();
+        userCfgLines.RemoveAll(line => line.TrimStart().StartsWith(key, StringComparison.OrdinalIgnoreCase));
+        userCfgLines.Insert(0, key + " " + valueExpression);
+        File.WriteAllLines(userCfgPath, userCfgLines);
+    }
+
+    static void StageRuntimeGeneratedResourcesForContentDirectoryOnlyBuild()
+    {
+        if (Directory.Exists(RuntimeGeneratedResourcesFolder))
+        {
+            FileUtil.DeleteFileOrDirectory(RuntimeGeneratedResourcesFolder);
+            FileUtil.DeleteFileOrDirectory(RuntimeGeneratedResourcesFolder + ".meta");
+        }
+
+        Directory.CreateDirectory(RuntimeGeneratedResourcesFolder);
+
+        var stagedCount = 0;
+        foreach (var sourcePath in RuntimeGeneratedSourceAssets)
+        {
+            if (!File.Exists(sourcePath))
+            {
+                Debug.LogWarning("ContentDirectory runtime resource staging skipped missing source asset: " + sourcePath);
+                continue;
+            }
+
+            var destinationPath = Path.Combine(RuntimeGeneratedResourcesFolder, Path.GetFileName(sourcePath)).Replace('\\', '/');
+            FileUtil.CopyFileOrDirectory(sourcePath, destinationPath);
+            stagedCount++;
+        }
+
+        AssetDatabase.Refresh();
+        Debug.Log("Staged content-directory runtime resources for strict build. destination=" + RuntimeGeneratedResourcesFolder + ", count=" + stagedCount);
+    }
+
+    static void CleanupRuntimeGeneratedResourcesForContentDirectoryOnlyBuild()
+    {
+        if (!Directory.Exists(RuntimeGeneratedResourcesFolder))
+            return;
+
+        FileUtil.DeleteFileOrDirectory(RuntimeGeneratedResourcesFolder);
+        FileUtil.DeleteFileOrDirectory(RuntimeGeneratedResourcesFolder + ".meta");
+        AssetDatabase.Refresh();
+        Debug.Log("Cleaned staged content-directory runtime resources: " + RuntimeGeneratedResourcesFolder);
     }
 
     static string NormalizeBuildIdForPath(string buildId)
@@ -791,6 +1230,34 @@ public class BuildTools
         return true;
     }
 
+    [MenuItem("FPS Sample/BuildSystem/ContentDirectories/StrictPreflight/AttemptStrictThenFallbackOnImportWorker (Experimental)")]
+    public static void EnableStrictPreflightAttempt()
+    {
+        SetStrictPreflightAttemptEnabled(true);
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/ContentDirectories/StrictPreflight/AttemptStrictThenFallbackOnImportWorker (Experimental)", true)]
+    public static bool ValidateEnableStrictPreflightAttempt()
+    {
+        Menu.SetChecked("FPS Sample/BuildSystem/ContentDirectories/StrictPreflight/AttemptStrictThenFallbackOnImportWorker (Experimental)",
+            GetStrictPreflightAttemptEnabled());
+        return true;
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/ContentDirectories/StrictPreflight/BlockStrictOnKnownRoots (Default)")]
+    public static void DisableStrictPreflightAttempt()
+    {
+        SetStrictPreflightAttemptEnabled(false);
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/ContentDirectories/StrictPreflight/BlockStrictOnKnownRoots (Default)", true)]
+    public static bool ValidateDisableStrictPreflightAttempt()
+    {
+        Menu.SetChecked("FPS Sample/BuildSystem/ContentDirectories/StrictPreflight/BlockStrictOnKnownRoots (Default)",
+            !GetStrictPreflightAttemptEnabled());
+        return true;
+    }
+
     [MenuItem("Assets/ResirializeAssets")]
     public static void ReserializeProject()
     {
@@ -843,6 +1310,197 @@ public class BuildTools
             "Assets/ContentRoots/ClientContentRoot.asset",
             "Assets/ContentRoots/ServerContentRoot.asset",
             "Assets/Resources/Content/SceneListRoot.asset");
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/Step1-BuildRoleVersionedContentOnly (Use MigrationMode)")]
+    public static void BuildRoleVersionedContentOnlyWindows64ForMigrationMode()
+    {
+        var target = BuildTarget.StandaloneWindows64;
+        var buildPath = Path.Combine(GetProjectRoot(), "Autobuild");
+        var contentPath = Path.Combine(buildPath, "Content");
+
+        Directory.CreateDirectory(buildPath);
+        BuildRoleVersionedContentDirectoriesForMigrationMode(target, contentPath, "AutoBuild");
+
+        Debug.Log("Step1 content-only build completed under: " + contentPath + " (build-id=AutoBuild, mode=" + GetContentDirectoryMigrationMode() + ")");
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/AutobuildCD/Step1-BuildRoleVersionedContentOnly (Use MigrationMode)")]
+    public static void BuildRoleVersionedContentOnlyWindows64ForMigrationModeAutobuildCD()
+    {
+        var target = BuildTarget.StandaloneWindows64;
+        var buildPath = Path.Combine(GetProjectRoot(), "AutobuildCD");
+        var contentPath = Path.Combine(buildPath, "Content");
+        var requestedMode = GetContentDirectoryMigrationMode();
+
+        Directory.CreateDirectory(buildPath);
+        if (requestedMode != ContentDirectoryMigrationMode.StrictOnly)
+        {
+            Debug.LogWarning("AutobuildCD Step1 migration entry is strict no-fallback by design. Requested mode was " + requestedMode + ", effective mode is StrictOnly(no-legacy-fallback).");
+        }
+
+        BuildRoleVersionedContentDirectoriesStrictContentOnly(target, contentPath, "AutoBuild");
+
+        Debug.Log("AutobuildCD Step1 content-only build completed under: " + contentPath + " (build-id=AutoBuild, requested-mode=" + requestedMode + ", effective=StrictOnlyNoFallback)");
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/Step1-BuildRoleVersionedContentOnly (Use MigrationMode)-AutobuildCD")]
+    public static void BuildRoleVersionedContentOnlyWindows64ForMigrationModeAutobuildCDAlias()
+    {
+        BuildRoleVersionedContentOnlyWindows64ForMigrationModeAutobuildCD();
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/Step1-BuildRoleVersionedContentOnly-StrictValidation")]
+    public static void BuildRoleVersionedContentOnlyWindows64StrictValidation()
+    {
+        var target = BuildTarget.StandaloneWindows64;
+        var buildPath = Path.Combine(GetProjectRoot(), "Autobuild");
+        var contentPath = Path.Combine(buildPath, "Content");
+
+        Directory.CreateDirectory(buildPath);
+        BuildRoleVersionedContentDirectoriesStrict(target, contentPath, "AutoBuild");
+
+        Debug.Log("Step1 strict content-only build completed under: " + contentPath + " (build-id=AutoBuild)");
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/AutobuildCD/Step1-BuildRoleVersionedContentOnly-StrictValidation")]
+    public static void BuildRoleVersionedContentOnlyWindows64StrictValidationAutobuildCD()
+    {
+        var target = BuildTarget.StandaloneWindows64;
+        var buildPath = Path.Combine(GetProjectRoot(), "AutobuildCD");
+        var contentPath = Path.Combine(buildPath, "Content");
+
+        Directory.CreateDirectory(buildPath);
+        BuildRoleVersionedContentDirectoriesStrictContentOnly(target, contentPath, "AutoBuild");
+
+        Debug.Log("AutobuildCD Step1 strict content-only build completed under: " + contentPath + " (build-id=AutoBuild)");
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/Step1-BuildRoleVersionedContentOnly-StrictValidation-AutobuildCD")]
+    public static void BuildRoleVersionedContentOnlyWindows64StrictValidationAutobuildCDAlias()
+    {
+        BuildRoleVersionedContentOnlyWindows64StrictValidationAutobuildCD();
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/Step2-BuildPlayerOnly-UseExistingContent")]
+    public static void BuildPlayerOnlyWindows64UseExistingContent()
+    {
+        Debug.Log("Window64 Step2 player-only build started (reusing existing Autobuild/Content).");
+
+        var target = BuildTarget.StandaloneWindows64;
+        var buildPath = Path.Combine(GetProjectRoot(), "Autobuild");
+        var exeName = "Autobuild.exe";
+
+        StopRunningBuildExecutable(buildPath, exeName);
+
+        Directory.CreateDirectory(buildPath);
+
+        var contentRootPath = Path.Combine(buildPath, "Content");
+        var clientContentPath = Path.Combine(contentRootPath, "Client", "AutoBuild", "AssetBundles");
+        if (!Directory.Exists(contentRootPath))
+            Debug.LogWarning("Step2 player-only build: Autobuild/Content directory does not exist yet. Run Step1 first to generate role/versioned content directories.");
+
+        var res = BuildGame(buildPath, exeName, target, BuildOptions.None, "AutoBuild", false);
+        if (!res)
+            throw new Exception("BuildPipeline.BuildPlayer failed");
+        if (res.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+            throw new Exception("BuildPipeline.BuildPlayer failed: " + res.summary.result);
+
+        var configDir = Path.Combine(GetProjectRoot(), "Configs");
+        var srcBoot = Path.Combine(configDir, "boot.cfg");
+        var srcUser = Path.Combine(configDir, "user.cfg");
+        var dstBoot = Path.Combine(buildPath, Game.k_BootConfigFilename);
+        var dstUser = Path.Combine(buildPath, "user.cfg");
+
+        if (File.Exists(srcBoot))
+            File.Copy(srcBoot, dstBoot, true);
+        else
+            File.WriteAllLines(dstBoot, new[] { "preview", "load level_01" });
+
+        if (File.Exists(srcUser))
+            File.Copy(srcUser, dstUser, true);
+        else
+            File.WriteAllLines(dstUser, Array.Empty<string>());
+
+        if (File.Exists(dstUser))
+        {
+            UpsertRuntimeBundlePath(dstUser, "Content/Client/AutoBuild/AssetBundles");
+            UpsertRuntimeContentDirectoryOnly(dstUser, false);
+        }
+
+        WriteAutobuildLaunchScripts(buildPath, exeName);
+
+        Debug.Log("Window64 Step2 player-only build completed at: " + buildPath + " (contentRoot=" + contentRootPath + ", clientContentPath=" + clientContentPath + ")");
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/Step2-BuildPlayerOnly-UseExistingContent-AutobuildCD")]
+    public static void BuildPlayerOnlyWindows64UseExistingContentAutobuildCD()
+    {
+        Debug.Log("Window64 Step2 player-only build started (reusing existing AutobuildCD/Content strict content-directory output).");
+
+        var target = BuildTarget.StandaloneWindows64;
+        var buildPath = Path.Combine(GetProjectRoot(), "AutobuildCD");
+        var exeName = "AutobuildCD.exe";
+
+        StopRunningBuildExecutable(buildPath, exeName);
+
+        Directory.CreateDirectory(buildPath);
+
+        var contentRootPath = Path.Combine(buildPath, "Content");
+        var clientContentPath = Path.Combine(contentRootPath, "Client", "AutoBuild");
+        if (!Directory.Exists(contentRootPath))
+            Debug.LogWarning("Step2 AutobuildCD player-only build: AutobuildCD/Content directory does not exist yet. Run CreateAutoBuildCD-StrictContentDirectoryOnly first to generate strict role/versioned content directories.");
+
+        StageRuntimeGeneratedResourcesForContentDirectoryOnlyBuild();
+        UnityEditor.Build.Reporting.BuildReport res;
+        try
+        {
+            res = BuildGame(buildPath, exeName, target, BuildOptions.None, "AutoBuild", false);
+        }
+        finally
+        {
+            CleanupRuntimeGeneratedResourcesForContentDirectoryOnlyBuild();
+        }
+
+        if (!res)
+            throw new Exception("BuildPipeline.BuildPlayer failed");
+        if (res.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+            throw new Exception("BuildPipeline.BuildPlayer failed: " + res.summary.result);
+
+        var configDir = Path.Combine(GetProjectRoot(), "Configs");
+        var srcBoot = Path.Combine(configDir, "boot.cfg");
+        var srcUser = Path.Combine(configDir, "user.cfg");
+        var dstBoot = Path.Combine(buildPath, Game.k_BootConfigFilename);
+        var dstUser = Path.Combine(buildPath, "user.cfg");
+
+        if (File.Exists(srcBoot))
+            File.Copy(srcBoot, dstBoot, true);
+        else
+            File.WriteAllLines(dstBoot, new[] { "preview", "load level_01" });
+
+        if (File.Exists(srcUser))
+            File.Copy(srcUser, dstUser, true);
+        else
+            File.WriteAllLines(dstUser, Array.Empty<string>());
+
+        UpsertRuntimeBundlePath(dstUser, "Content/Client/AutoBuild");
+        UpsertRuntimeContentDirectoryOnly(dstUser, true);
+
+        var serverBat = new[]
+        {
+            "REM start game server on level_01",
+            exeName + " -nographics -batchmode -noboot +" + RuntimeContentDirectoryOnlyConfigVar + " 1 +serve level_01 +game.modename assault"
+        };
+        File.WriteAllLines(Path.Combine(buildPath, "server.bat"), serverBat);
+        WriteAutobuildContentDirectoryOnlyLaunchScripts(buildPath, exeName);
+
+        Debug.Log("Window64 Step2 AutobuildCD player-only build completed at: " + buildPath + " (contentRoot=" + contentRootPath + ", clientContentPath=" + clientContentPath + ")");
+    }
+
+    [MenuItem("FPS Sample/BuildSystem/Win64/AutobuildCD/Step2-BuildPlayerOnly-UseExistingContent")]
+    public static void BuildPlayerOnlyWindows64UseExistingContentAutobuildCDMenu()
+    {
+        BuildPlayerOnlyWindows64UseExistingContentAutobuildCD();
     }
 
     [MenuItem("FPS Sample/BuildSystem/Win64/Deploy")]
@@ -1173,6 +1831,67 @@ public class BuildTools
         Debug.Log("Window64 Autobuild-like strict content-directory build completed at: " + buildPath);
     }
 
+    [MenuItem("FPS Sample/BuildSystem/Win64/CreateAutoBuildCD-StrictContentDirectoryOnly")]
+    public static void CreateAutoBuildCDWindows64StrictContentDirectoryOnly()
+    {
+        Debug.Log("Window64 AutobuildCD strict content-directory build started.");
+
+        var target = BuildTarget.StandaloneWindows64;
+        var buildPath = Path.Combine(GetProjectRoot(), "AutobuildCD");
+        var exeName = "AutobuildCD.exe";
+        var contentPath = Path.Combine(buildPath, "Content");
+
+        StopRunningBuildExecutable(buildPath, exeName);
+
+        Directory.CreateDirectory(buildPath);
+        BuildRoleVersionedContentDirectoriesStrictContentOnly(target, contentPath, "AutoBuild");
+
+        StageRuntimeGeneratedResourcesForContentDirectoryOnlyBuild();
+        UnityEditor.Build.Reporting.BuildReport res;
+        try
+        {
+            res = BuildGame(buildPath, exeName, target, BuildOptions.None, "AutoBuild", false);
+        }
+        finally
+        {
+            CleanupRuntimeGeneratedResourcesForContentDirectoryOnlyBuild();
+        }
+
+        if (!res)
+            throw new Exception("BuildPipeline.BuildPlayer failed");
+        if (res.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
+            throw new Exception("BuildPipeline.BuildPlayer failed: " + res.summary.result);
+
+        var configDir = Path.Combine(GetProjectRoot(), "Configs");
+        var srcBoot = Path.Combine(configDir, "boot.cfg");
+        var srcUser = Path.Combine(configDir, "user.cfg");
+        var dstBoot = Path.Combine(buildPath, Game.k_BootConfigFilename);
+        var dstUser = Path.Combine(buildPath, "user.cfg");
+
+        if (File.Exists(srcBoot))
+            File.Copy(srcBoot, dstBoot, true);
+        else
+            File.WriteAllLines(dstBoot, new[] { "client", "load level_01" });
+
+        if (File.Exists(srcUser))
+            File.Copy(srcUser, dstUser, true);
+        else
+            File.WriteAllLines(dstUser, Array.Empty<string>());
+
+        UpsertRuntimeBundlePath(dstUser, "Content/Client/AutoBuild");
+        UpsertRuntimeContentDirectoryOnly(dstUser, true);
+
+        var serverBat = new[]
+        {
+            "REM start game server on level_01",
+            exeName + " -nographics -batchmode -noboot +" + RuntimeContentDirectoryOnlyConfigVar + " 1 +serve level_01 +game.modename assault"
+        };
+        File.WriteAllLines(Path.Combine(buildPath, "server.bat"), serverBat);
+        WriteAutobuildContentDirectoryOnlyLaunchScripts(buildPath, exeName);
+
+        Debug.Log("Window64 AutobuildCD strict content-directory build completed at: " + buildPath);
+    }
+
     static void WriteAutobuildLaunchScripts(string buildPath, string exeName)
     {
         var previewBat = new[]
@@ -1180,10 +1899,16 @@ public class BuildTools
             "@echo off",
             "setlocal",
             "cd /d \"%~dp0\"",
-            "set \"BUNDLE_PATH=%~dp0Content\\Client\\AutoBuild\\AssetBundles\"",
+            "set \"PRIMARY_BUNDLE_PATH=%~dp0Content\\Client\\AutoBuild\\AssetBundles\\AssetBundles\"",
+            "set \"SECONDARY_BUNDLE_PATH=%~dp0Content\\Client\\AutoBuild\\AssetBundles\"",
+            "set \"FALLBACK_BUNDLE_PATH=%~dp0Content\\Client\\AutoBuild\"",
+            "set \"BUNDLE_PATH=%FALLBACK_BUNDLE_PATH%\"",
+            "if exist \"%SECONDARY_BUNDLE_PATH%\\bundledresources\\client\" set \"BUNDLE_PATH=%SECONDARY_BUNDLE_PATH%\"",
+            "if exist \"%PRIMARY_BUNDLE_PATH%\\bundledresources\\client\" set \"BUNDLE_PATH=%PRIMARY_BUNDLE_PATH%\"",
             "set \"BUNDLE_PATH=%BUNDLE_PATH:\\=/%\"",
+            "echo Runtime bundle path: %BUNDLE_PATH%",
             "echo Launching local preview mode (no server required)...",
-            "start \"\" \"" + exeName + "\" +res.runtimebundlepath %BUNDLE_PATH% +preview level_01 -noboot"
+            "start \"\" \"" + exeName + "\" +res.runtimebundlepath %BUNDLE_PATH% +" + RuntimeContentDirectoryOnlyConfigVar + " 0 +preview level_01 -noboot"
         };
         File.WriteAllLines(Path.Combine(buildPath, "preview_local.bat"), previewBat);
 
@@ -1192,10 +1917,45 @@ public class BuildTools
             "@echo off",
             "setlocal",
             "cd /d \"%~dp0\"",
-            "set \"BUNDLE_PATH=%~dp0Content\\Client\\AutoBuild\\AssetBundles\"",
+            "set \"PRIMARY_BUNDLE_PATH=%~dp0Content\\Client\\AutoBuild\\AssetBundles\\AssetBundles\"",
+            "set \"SECONDARY_BUNDLE_PATH=%~dp0Content\\Client\\AutoBuild\\AssetBundles\"",
+            "set \"FALLBACK_BUNDLE_PATH=%~dp0Content\\Client\\AutoBuild\"",
+            "set \"BUNDLE_PATH=%FALLBACK_BUNDLE_PATH%\"",
+            "if exist \"%SECONDARY_BUNDLE_PATH%\\bundledresources\\client\" set \"BUNDLE_PATH=%SECONDARY_BUNDLE_PATH%\"",
+            "if exist \"%PRIMARY_BUNDLE_PATH%\\bundledresources\\client\" set \"BUNDLE_PATH=%PRIMARY_BUNDLE_PATH%\"",
             "set \"BUNDLE_PATH=%BUNDLE_PATH:\\=/%\"",
+            "echo Runtime bundle path: %BUNDLE_PATH%",
             "echo Launching client mode (requires server listening on 127.0.0.1:17913)...",
-            "start \"\" \"" + exeName + "\" +res.runtimebundlepath %BUNDLE_PATH% +server.port 17913 +server.sqp_port 17923 +client 127.0.0.1:17913 -noboot"
+            "start \"\" \"" + exeName + "\" +res.runtimebundlepath %BUNDLE_PATH% +" + RuntimeContentDirectoryOnlyConfigVar + " 0 +server.port 17913 +server.sqp_port 17923 +client 127.0.0.1:17913 -noboot"
+        };
+        File.WriteAllLines(Path.Combine(buildPath, "client_localhost.bat"), clientBat);
+    }
+
+    static void WriteAutobuildContentDirectoryOnlyLaunchScripts(string buildPath, string exeName)
+    {
+        var previewBat = new[]
+        {
+            "@echo off",
+            "setlocal",
+            "cd /d \"%~dp0\"",
+            "set \"CONTENT_PATH=%~dp0Content\\Client\\AutoBuild\"",
+            "set \"CONTENT_PATH=%CONTENT_PATH:\\=/%\"",
+            "echo Runtime content path: %CONTENT_PATH%",
+            "echo Launching local preview mode (strict content-directory only)...",
+            "start \"\" \"" + exeName + "\" +res.runtimebundlepath %CONTENT_PATH% +" + RuntimeContentDirectoryOnlyConfigVar + " 1 +preview level_01 -noboot"
+        };
+        File.WriteAllLines(Path.Combine(buildPath, "preview_local.bat"), previewBat);
+
+        var clientBat = new[]
+        {
+            "@echo off",
+            "setlocal",
+            "cd /d \"%~dp0\"",
+            "set \"CONTENT_PATH=%~dp0Content\\Client\\AutoBuild\"",
+            "set \"CONTENT_PATH=%CONTENT_PATH:\\=/%\"",
+            "echo Runtime content path: %CONTENT_PATH%",
+            "echo Launching client mode (strict content-directory only)...",
+            "start \"\" \"" + exeName + "\" +res.runtimebundlepath %CONTENT_PATH% +" + RuntimeContentDirectoryOnlyConfigVar + " 1 +server.port 17913 +server.sqp_port 17923 +client 127.0.0.1:17913 -noboot"
         };
         File.WriteAllLines(Path.Combine(buildPath, "client_localhost.bat"), clientBat);
     }
@@ -1427,7 +2187,7 @@ public class BuildTools
 
         Directory.CreateDirectory(buildPath);
         BuildBundles(buildPath, target, true, true, true);
-        var res = BuildGame(buildPath, executableName, target, BuildOptions.EnableHeadlessMode, buildName, false);
+        var res = BuildGame(buildPath, executableName, target, BuildOptions.None, buildName, false, StandaloneBuildSubtarget.Server);
 
         if (!res)
             throw new Exception("BuildPipeline.BuildPlayer failed");
@@ -1449,7 +2209,7 @@ public class BuildTools
         string executableName = "server-linux.x86_64";
 
         Directory.CreateDirectory(buildPath);
-        var res = BuildGame(buildPath, executableName, target, BuildOptions.EnableHeadlessMode, buildName, false);
+        var res = BuildGame(buildPath, executableName, target, BuildOptions.None, buildName, false, StandaloneBuildSubtarget.Server);
 
         if (!res)
             throw new Exception("BuildPipeline.BuildPlayer failed");

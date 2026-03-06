@@ -141,6 +141,8 @@ public class PreviewGameLoop : Game.IGameLoop
 
         m_contentDirectoryRegistration = new RuntimeContentDirectoryRegistration();
         m_contentDirectoryRegistration.RegisterDefaultContentDirectories("PreviewGameLoop", RuntimeContentDirectoryRegistration.ClientRegistryName);
+        if (ContentResolverFactory.UseContentDirectoryOnlyMode())
+            m_contentDirectoryRegistration.RegisterDefaultContentDirectories("PreviewGameLoop", RuntimeContentDirectoryRegistration.ServerRegistryName);
         
         if (args.Length > 0)
         {
@@ -190,7 +192,10 @@ public class PreviewGameLoop : Game.IGameLoop
 
         var resolverBackend = ContentResolverFactory.ResolveConfiguredBackend();
         GameDebug.Log("PreviewGameLoop: Content resolver backend: " + resolverBackend);
-        m_resourceSystem = ContentResolverFactory.Create(m_GameWorld, RuntimeContentDirectoryRegistration.ClientRegistryName, resolverBackend);
+        var resolverRegistryName = ContentResolverFactory.UseContentDirectoryOnlyMode()
+            ? null
+            : RuntimeContentDirectoryRegistration.ClientRegistryName;
+        m_resourceSystem = ContentResolverFactory.Create(m_GameWorld, resolverRegistryName, resolverBackend);
 
         // Create serializers so we get errors in preview build
         var dataComponentSerializers = new DataComponentSerializers();

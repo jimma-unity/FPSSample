@@ -270,8 +270,9 @@ namespace ConnectedGames.Build
 
         void HandleEnd(string errorMessage, int desiredCode)
         {
-            Debug.Log("HandleEnd: "+m_Request.downloadHandler.text + " err?:" + m_Request.isNetworkError + " code: " + m_Request.responseCode +  " desired: " + desiredCode);
-            if (m_Request.isNetworkError || m_Request.responseCode != desiredCode)
+            var isConnectionError = m_Request.result == UnityWebRequest.Result.ConnectionError;
+            Debug.Log("HandleEnd: "+m_Request.downloadHandler.text + " err?:" + isConnectionError + " code: " + m_Request.responseCode +  " desired: " + desiredCode);
+            if (isConnectionError || m_Request.responseCode != desiredCode)
             {
                 m_IsError = true;
                 m_ErrorMessage = errorMessage + ": '" + m_Request.error + "' " + " using " + m_Request.url

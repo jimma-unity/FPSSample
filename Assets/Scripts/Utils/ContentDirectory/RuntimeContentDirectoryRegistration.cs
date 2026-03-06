@@ -171,6 +171,13 @@ public sealed class RuntimeContentDirectoryRegistration
         if (string.IsNullOrWhiteSpace(directoryPath))
             return;
 
+        var normalized = Path.GetFullPath(directoryPath).Replace('\\', '/');
+        for (var i = 0; i < m_handles.Count; i++)
+        {
+            if (string.Equals(m_handles[i].path, normalized, StringComparison.OrdinalIgnoreCase))
+                return;
+        }
+
         if (!Directory.Exists(directoryPath))
             return;
 
@@ -179,7 +186,6 @@ public sealed class RuntimeContentDirectoryRegistration
 
         try
         {
-            var normalized = Path.GetFullPath(directoryPath).Replace('\\', '/');
             var handle = s_registerMethod.Invoke(null, new object[] { normalized });
             m_handles.Add(new RegistrationHandle(normalized, handle));
             GameDebug.Log(owner + ": Registered content directory: " + normalized);

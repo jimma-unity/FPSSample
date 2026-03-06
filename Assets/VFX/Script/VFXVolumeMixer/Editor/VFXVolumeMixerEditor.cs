@@ -5,7 +5,7 @@ using UnityEditor.Experimental.Rendering;
 using UnityEditor.Rendering;
 using UnityEngine;
 
-[VolumeComponentEditor(typeof(VFXVolumeMixer))]
+[CustomEditor(typeof(VFXVolumeMixer))]
 public class VFXVolumeMixerEditor : VolumeComponentEditor
 {
     SerializedDataParameter[] m_CustomFloatParameters;

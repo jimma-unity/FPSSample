@@ -7,6 +7,8 @@ using Object = UnityEngine.Object;
 
 public sealed class LoadableIndexedContentResolver : IContentResolver
 {
+    const string RuntimeGeneratedRegistryResourcesPath = "ContentDirectoryRuntimeGenerated";
+
     sealed class IndexedEntry
     {
         public object loadable;
@@ -17,8 +19,9 @@ public sealed class LoadableIndexedContentResolver : IContentResolver
     readonly GameWorld m_world;
     readonly List<ContentRootAsset> m_roots = new List<ContentRootAsset>();
     readonly Dictionary<WeakAssetReference, IndexedEntry> m_legacyGuidToEntry = new Dictionary<WeakAssetReference, IndexedEntry>();
+    readonly Dictionary<Type, ScriptableObject> m_registryCache = new Dictionary<Type, ScriptableObject>();
     readonly IContentResolver m_fallback;
-    static bool s_loadableApiWarningLogged;
+    static readonly HashSet<Type> s_missingRegistryWarnings = new HashSet<Type>();
 
     public LoadableIndexedContentResolver(GameWorld world, IEnumerable<ContentRootAsset> roots, IContentResolver fallback = null)
     {
@@ -43,9 +46,13 @@ public sealed class LoadableIndexedContentResolver : IContentResolver
         if (typeof(T) == typeof(ContentRootAsset) && m_roots.Count > 0)
             return m_roots[0] as T;
 
+        if (TryResolveRegistryFromRuntimeResources<T>(out var runtimeRegistry))
+            return runtimeRegistry;
+
         if (m_fallback != null)
             return m_fallback.GetResourceRegistry<T>();
 
+        LogMissingRegistryWithoutFallback(typeof(T));
         return null;
     }
 
@@ -91,8 +98,7 @@ public sealed class LoadableIndexedContentResolver : IContentResolver
             if (m_fallback != null)
                 return m_fallback.CreateEntity(assetGuid);
 
-            GameDebug.LogWarning("LoadableIndexedContentResolver: Factory-based entity creation requires a fallback resolver.");
-            return Entity.Null;
+            return factory.Create(m_world.GetEntityManager(), this, m_world);
         }
 
         return Entity.Null;
@@ -110,7 +116,68 @@ public sealed class LoadableIndexedContentResolver : IContentResolver
     {
         m_fallback?.Shutdown();
         m_legacyGuidToEntry.Clear();
+        m_registryCache.Clear();
         m_roots.Clear();
+    }
+
+    bool TryResolveRegistryFromRuntimeResources<T>(out T registry) where T : ScriptableObject
+    {
+        registry = null;
+
+        ScriptableObject cached;
+        if (m_registryCache.TryGetValue(typeof(T), out cached))
+        {
+            registry = cached as T;
+            return registry != null;
+        }
+
+        if (LoadableAssetResolver.TryGetRootAssets<T>(out var runtimeRegistries) && runtimeRegistries != null)
+        {
+            for (var i = 0; i < runtimeRegistries.Length; i++)
+            {
+                registry = runtimeRegistries[i];
+                if (registry == null)
+                    continue;
+
+                m_registryCache[typeof(T)] = registry;
+                return true;
+            }
+        }
+
+        var registries = Resources.LoadAll<T>(RuntimeGeneratedRegistryResourcesPath);
+        if (registries != null && registries.Length > 0)
+        {
+            registry = registries[0];
+            if (registry != null)
+            {
+                m_registryCache[typeof(T)] = registry;
+                return true;
+            }
+        }
+
+        var loaded = Resources.FindObjectsOfTypeAll<T>();
+        if (loaded != null && loaded.Length > 0)
+        {
+            registry = loaded[0];
+            if (registry != null)
+            {
+                m_registryCache[typeof(T)] = registry;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static void LogMissingRegistryWithoutFallback(Type registryType)
+    {
+        if (registryType == null)
+            return;
+
+        if (!s_missingRegistryWarnings.Add(registryType))
+            return;
+
+        GameDebug.LogWarning("LoadableIndexedContentResolver: registry '" + registryType.Name + "' was not found in runtime resources and no legacy fallback is available.");
     }
 
     void IndexRoot(ContentRootAsset root)
@@ -167,6 +234,9 @@ public sealed class LoadableIndexedContentResolver : IContentResolver
         if (boxed == null)
             return;
 
+        if (IsMarkedInvalidLoadable(boxed))
+            return;
+
         var loadableType = boxed.GetType();
         if (loadableType.IsValueType)
         {
@@ -181,6 +251,11 @@ public sealed class LoadableIndexedContentResolver : IContentResolver
             expectedType = expectedType,
             source = source
         };
+    }
+
+    static bool IsMarkedInvalidLoadable(object loadable)
+    {
+        return LoadableAssetResolver.IsLikelyInvalidLoadableObject(loadable);
     }
 
     bool TryResolveIndexedEntry(IndexedEntry entry, out Object asset)
@@ -206,22 +281,7 @@ public sealed class LoadableIndexedContentResolver : IContentResolver
     static bool TryResolveFromLoadableObject(object loadable, out Object asset)
     {
         asset = null;
-        if (loadable == null)
-            return false;
-
-        if (TryInvokeInstanceGetter(loadable, out asset))
-            return true;
-
-        if (TryInvokeContentLoadManager(loadable, out asset))
-            return true;
-
-        if (!s_loadableApiWarningLogged)
-        {
-            s_loadableApiWarningLogged = true;
-            GameDebug.LogWarning("LoadableIndexedContentResolver: Unable to resolve Loadable<T> via reflection. Falling back to legacy resolver when available.");
-        }
-
-        return false;
+        return LoadableAssetResolver.TryResolveObject(loadable, out asset);
     }
 
     static bool TryInvokeInstanceGetter(object loadable, out Object asset)

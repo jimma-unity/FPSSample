@@ -12,7 +12,7 @@ public static class SkeletonDrawer
     {        
         Skeleton.SkeletonEnabled += OnSkeletonEnabled;
         Skeleton.SkeletonDisabled += OnSkeletonDisabled;
-        SceneView.onSceneGUIDelegate += DrawSkeletons;
+        SceneView.duringSceneGui += DrawSkeletons;
     }
 
     static void DrawSkeletons(SceneView sceneview)

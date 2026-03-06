@@ -62,11 +62,16 @@ public class LevelManager
 
     public bool CanLoadLevel(string name)
     {
+        var strictContentDirectoryOnly = ContentResolverFactory.UseContentDirectoryOnlyMode();
+
         if (!(Application.isEditor && forceLegacyLevelLoadingInEditor))
         {
             if (TryResolveSceneEntry(name, out _))
                 return true;
         }
+
+        if (strictContentDirectoryOnly)
+            return false;
 
         // TODO (petera). We can't really promise you can load a level before trying.
         // Refactor to handle errors during load.
@@ -87,12 +92,13 @@ public class LevelManager
         var newLevel = new Level();
         newLevel.name = name;
 
+        var strictContentDirectoryOnly = ContentResolverFactory.UseContentDirectoryOnlyMode();
         var isEditor = Application.isEditor;
-        var forceLegacy = isEditor && forceLegacyLevelLoadingInEditor;
+        var forceLegacy = isEditor && forceLegacyLevelLoadingInEditor && !strictContentDirectoryOnly;
         var preferredLoader = forceLegacy ? "LegacyBundle" : "SceneListRoot";
         GameDebug.Log("Level load policy: level=" + newLevel.name + ", runtime=" + (isEditor ? "Editor" : "Player") + ", forceLegacyInEditor=" + forceLegacyLevelLoadingInEditor + ", preferredLoader=" + preferredLoader);
 
-        if (Application.isEditor && forceLegacyLevelLoadingInEditor)
+        if (forceLegacy)
         {
             GameDebug.Log("Level load path: Legacy bundle forced in editor for " + newLevel.name);
             return LoadLevelFromLegacyBundle(newLevel);
@@ -103,6 +109,12 @@ public class LevelManager
             GameDebug.Log("Level load path: SceneListRoot (LoadableScene) for " + newLevel.name);
             currentLevel = newLevel;
             return true;
+        }
+
+        if (strictContentDirectoryOnly)
+        {
+            GameDebug.Log("Level load path: SceneListRoot strict mode failed for " + newLevel.name + ". Legacy bundle fallback is disabled.");
+            return false;
         }
 
         GameDebug.Log("Level load path: Legacy bundle fallback for " + newLevel.name);

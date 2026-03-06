@@ -9,7 +9,7 @@ public static class ClearAllReflectionProbesToBlack
 
     static void ClearAllReflection()
     {
-        ReflectionProbe[] probes = Component.FindObjectsOfType<ReflectionProbe>();
+        ReflectionProbe[] probes = UnityEngine.Object.FindObjectsByType<ReflectionProbe>(FindObjectsInactive.Exclude);
         foreach (var rp in probes)
         {
             rp.bakedTexture = null;

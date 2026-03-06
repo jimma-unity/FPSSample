@@ -32,8 +32,19 @@ public class CharacterDebugWindow : EditorWindow
     
     private void OnEnable()
     {
-        EditorApplication.playModeStateChanged += change => ScanForCharacters();
-        SceneView.onSceneGUIDelegate += OnSceneGuiDelegate;
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        SceneView.duringSceneGui += OnSceneGuiDelegate;
+    }
+
+    private void OnDisable()
+    {
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+        SceneView.duringSceneGui -= OnSceneGuiDelegate;
+    }
+
+    private void OnPlayModeStateChanged(PlayModeStateChange change)
+    {
+        ScanForCharacters();
     }
 
     private void OnSceneGuiDelegate(SceneView sceneview)
@@ -76,7 +87,7 @@ public class CharacterDebugWindow : EditorWindow
 
     static void ScanForCharacters()
     {
-        availableCharacters = FindObjectsOfType<Character>();
+        availableCharacters = Object.FindObjectsByType<Character>(FindObjectsInactive.Exclude);
         if(availableCharacters.Length > 0)
             character = availableCharacters[0];
     }
