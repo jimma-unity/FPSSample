@@ -1,36 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8317733956034829375
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1019823810815554064}
-  m_Layer: 0
-  m_Name: Anchor_Override
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1019823810815554064
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8317733956034829375}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.63, z: -2.6}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 6316721969375112127}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &6316721969375244605
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -108,10 +77,6 @@ PrefabInstance:
       value: 180.00002
       objectReference: {fileID: 0}
     - target: {fileID: 2300002, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
-      propertyPath: m_ProbeAnchor
-      value: 
-      objectReference: {fileID: 1019823810815554064}
-    - target: {fileID: 2300002, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 4294967295
       objectReference: {fileID: 0}
@@ -120,10 +85,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 4a0f253c6beb31148a730c8f10eddf76, type: 2}
     - target: {fileID: 2300004, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
-      propertyPath: m_ProbeAnchor
-      value: 
-      objectReference: {fileID: 1019823810815554064}
-    - target: {fileID: 2300004, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 4294967295
       objectReference: {fileID: 0}
@@ -132,10 +93,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 4a0f253c6beb31148a730c8f10eddf76, type: 2}
     - target: {fileID: 2300006, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
-      propertyPath: m_ProbeAnchor
-      value: 
-      objectReference: {fileID: 1019823810815554064}
-    - target: {fileID: 2300006, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 4294967295
       objectReference: {fileID: 0}
@@ -143,10 +100,6 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 4a0f253c6beb31148a730c8f10eddf76, type: 2}
-    - target: {fileID: 2300008, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
-      propertyPath: m_ProbeAnchor
-      value: 
-      objectReference: {fileID: 1019823810815554064}
     - target: {fileID: 2300008, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 4294967295
@@ -177,23 +130,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 400002, guid: dec1067452ebb514e96d18c63155dd77,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1019823810815554064}
+    m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 100002, guid: dec1067452ebb514e96d18c63155dd77,
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 5372696251568873996}
   m_SourcePrefab: {fileID: 100100000, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
---- !u!4 &6316721969375112127 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 400002, guid: dec1067452ebb514e96d18c63155dd77,
-    type: 3}
-  m_PrefabInstance: {fileID: 6316721969375244605}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6316721969375344543 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100002, guid: dec1067452ebb514e96d18c63155dd77,

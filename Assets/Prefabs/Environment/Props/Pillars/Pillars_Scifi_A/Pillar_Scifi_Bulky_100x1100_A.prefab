@@ -51,37 +51,6 @@ LightProbeGroup:
   - {x: 0.19568221, y: 0.40880024, z: 6.308449}
   - {x: 0.1956826, y: -1.2635326, z: 6.308449}
   m_Dering: 0
---- !u!1 &7568310190985751029
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3893505335951969364}
-  m_Layer: 0
-  m_Name: AnchorOverride
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 84
-  m_IsActive: 1
---- !u!4 &3893505335951969364
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7568310190985751029}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.34, y: -0.5, z: 6.5}
-  m_LocalScale: {x: 1, y: 1.0000005, z: 1.0000005}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2595805010485990907}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2595805010486120315
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -155,10 +124,6 @@ PrefabInstance:
       value: -360
       objectReference: {fileID: 0}
     - target: {fileID: 2300004, guid: 658d286f8fa1a43438c5886bf9fbbda4, type: 3}
-      propertyPath: m_ProbeAnchor
-      value: 
-      objectReference: {fileID: 3893505335951969364}
-    - target: {fileID: 2300004, guid: 658d286f8fa1a43438c5886bf9fbbda4, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 4294967295
       objectReference: {fileID: 0}
@@ -167,10 +132,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: f9d41c6116e54f541b68420c4c41b3d2, type: 2}
     - target: {fileID: 2300006, guid: 658d286f8fa1a43438c5886bf9fbbda4, type: 3}
-      propertyPath: m_ProbeAnchor
-      value: 
-      objectReference: {fileID: 3893505335951969364}
-    - target: {fileID: 2300006, guid: 658d286f8fa1a43438c5886bf9fbbda4, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 4294967295
       objectReference: {fileID: 0}
@@ -179,10 +140,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: f9d41c6116e54f541b68420c4c41b3d2, type: 2}
     - target: {fileID: 2300008, guid: 658d286f8fa1a43438c5886bf9fbbda4, type: 3}
-      propertyPath: m_ProbeAnchor
-      value: 
-      objectReference: {fileID: 3893505335951969364}
-    - target: {fileID: 2300008, guid: 658d286f8fa1a43438c5886bf9fbbda4, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 4294967295
       objectReference: {fileID: 0}
@@ -190,10 +147,6 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: f9d41c6116e54f541b68420c4c41b3d2, type: 2}
-    - target: {fileID: 2300010, guid: 658d286f8fa1a43438c5886bf9fbbda4, type: 3}
-      propertyPath: m_ProbeAnchor
-      value: 
-      objectReference: {fileID: 3893505335951969364}
     - target: {fileID: 2300010, guid: 658d286f8fa1a43438c5886bf9fbbda4, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 4294967295
@@ -213,10 +166,6 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 400000, guid: 658d286f8fa1a43438c5886bf9fbbda4,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3893505335951969364}
     - targetCorrespondingSourceObject: {fileID: 400000, guid: 658d286f8fa1a43438c5886bf9fbbda4,
         type: 3}
       insertIndex: -1

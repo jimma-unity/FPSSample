@@ -130,7 +130,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 5e47b65d000c89447988913854f01dda, type: 2}
     - target: {fileID: 20500000, guid: 42a60236e6b8ea34483b737794f237b7, type: 3}
       propertyPath: m_FadeMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 20500000, guid: 42a60236e6b8ea34483b737794f237b7, type: 3}
       propertyPath: m_LODs.Array.data[0].screenRelativeHeight
