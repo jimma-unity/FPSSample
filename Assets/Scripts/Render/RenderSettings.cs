@@ -7,7 +7,7 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.PostProcessing;
 
-public static class RenderSettings
+public static class FPSSampleRenderSettings
 {
     [ConfigVar(Name = "show.quality", DefaultValue = "0", Description = "Show quality setting debug overlay")]
     static ConfigVar showQuality;

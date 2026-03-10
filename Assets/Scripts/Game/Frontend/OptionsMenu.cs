@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
-abstract public class OptionUI : MonoBehaviour
+public abstract class OptionUI : MonoBehaviour
 {
-    abstract public void UpdateFromConfigVar();
-    abstract public void UpdateToConfigVar();
+    public abstract void UpdateFromConfigVar();
+    public abstract void UpdateToConfigVar();
 
     [System.NonSerialized]
     public ConfigVar configVar;
@@ -33,7 +32,7 @@ public class OptionsMenu : MonoBehaviour
     public ScrollRect scrollRect;
     public GameObject content;
 
-    List<OptionUI> options = new List<OptionUI>();
+    List<OptionUI> options = new();
 
     float height = 0.0f;
 
@@ -120,17 +119,17 @@ public class OptionsMenu : MonoBehaviour
         });
 
         AddHeading("Graphics settings");
-        AddDropdown(RenderSettings.rQuality, "Overall quality", new List<string>(QualitySettings.names), new List<string>(QualitySettings.names));
-        AddDropdown(RenderSettings.rResolution, "Screen resolution", res, res, "Custom");
-        AddDropdown(RenderSettings.rFullscreen, "Full screen mode", new List<string>() { "Windowed", "Full screen", "Exclusive" }, new List<string>() { "3", "1", "0" });
-        AddToggle(RenderSettings.rVSync, "Enable v-sync");
-        AddToggle(RenderSettings.rBloom, "Bloom effect");
-        AddToggle(RenderSettings.rMotionBlur, "Motion blur effect");
-        AddToggle(RenderSettings.rSSAO, "Screen space ambient occlusion");
-        AddToggle(RenderSettings.rGrain, "Grain effect");
-        AddToggle(RenderSettings.rSSR, "Screen space reflection");
-        AddToggle(RenderSettings.rSSS, "Subsurface scattering");
-        AddDropdown(RenderSettings.rAAMode, "Anti alias mode", new List<string>() { "Off", "FXAA", "SMAA", "TAA" }, new List<string>() { "off", "fxaa", "smaa", "taa" });
+        AddDropdown(FPSSampleRenderSettings.rQuality, "Overall quality", new List<string>(QualitySettings.names), new List<string>(QualitySettings.names));
+        AddDropdown(FPSSampleRenderSettings.rResolution, "Screen resolution", res, res, "Custom");
+        AddDropdown(FPSSampleRenderSettings.rFullscreen, "Full screen mode", new List<string>() { "Windowed", "Full screen", "Exclusive" }, new List<string>() { "3", "1", "0" });
+        AddToggle(FPSSampleRenderSettings.rVSync, "Enable v-sync");
+        AddToggle(FPSSampleRenderSettings.rBloom, "Bloom effect");
+        AddToggle(FPSSampleRenderSettings.rMotionBlur, "Motion blur effect");
+        AddToggle(FPSSampleRenderSettings.rSSAO, "Screen space ambient occlusion");
+        AddToggle(FPSSampleRenderSettings.rGrain, "Grain effect");
+        AddToggle(FPSSampleRenderSettings.rSSR, "Screen space reflection");
+        AddToggle(FPSSampleRenderSettings.rSSS, "Subsurface scattering");
+        AddDropdown(FPSSampleRenderSettings.rAAMode, "Anti alias mode", new List<string>() { "Off", "FXAA", "SMAA", "TAA" }, new List<string>() { "off", "fxaa", "smaa", "taa" });
 
         AddSpace(100.0f);
         AddHeading("Audio settings");

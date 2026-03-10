@@ -369,7 +369,7 @@ public class Game : MonoBehaviour
         }
         else
         {
-            RenderSettings.Init();
+            FPSSampleRenderSettings.Init();
         }
 
         // Out of the box game behaviour is driven by boot.cfg unless you ask it not to
@@ -486,7 +486,7 @@ public class Game : MonoBehaviour
     void SetCameraEnabled(Camera cam, bool enabled)
     {
         if (enabled)
-            RenderSettings.UpdateCameraSettings(cam);
+            FPSSampleRenderSettings.UpdateCameraSettings(cam);
 
         cam.enabled = enabled;
         var audioListener = cam.GetComponent<AudioListener>();
@@ -510,7 +510,7 @@ public class Game : MonoBehaviour
     public void Update()
     {
         if (!m_isHeadless)
-            RenderSettings.Update();
+            FPSSampleRenderSettings.Update();
 
         // TODO (petera) remove this hack once we know exactly when renderer is available...
         if (!pipeSetup)
