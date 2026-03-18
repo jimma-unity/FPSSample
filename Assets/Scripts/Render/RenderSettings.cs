@@ -128,8 +128,11 @@ public static class FPSSampleRenderSettings
         if (showQuality.IntValue > 0)
             DrawQualityOverlay();
 
-        //if (rVSync.ChangeCheck())
-        QualitySettings.vSyncCount = 1;
+        if (rVSync.ChangeCheck())
+        {
+            QualitySettings.vSyncCount = Math.Clamp(rVSync.IntValue, 0, 4);
+            Debug.Log("QualitySettings.vSyncCount is now " + QualitySettings.vSyncCount);
+        }
 
         if (rFullscreen.ChangeCheck())
             Screen.fullScreenMode = (FullScreenMode)rFullscreen.IntValue;
