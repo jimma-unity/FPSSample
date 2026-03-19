@@ -14,4 +14,16 @@ public static class EnableInstancingOnAllMaterials
             material.enableInstancing = true;
         }
     }
+    
+    [MenuItem("FPS Sample/Performance/Disable Instancing on All Materials")]
+
+    static void UnDoIt()
+    {
+        var materialGuids = AssetDatabase.FindAssets("t:Material");
+        foreach (var materialGuid in materialGuids)
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(materialGuid));
+            material.enableInstancing = false;
+        }
+    }
 }
