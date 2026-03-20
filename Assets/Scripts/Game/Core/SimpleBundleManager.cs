@@ -18,7 +18,7 @@ public class SimpleBundleManager
             return Application.dataPath + "/" + assetBundleFolder;
 #else
         if (Application.isEditor)
-            return "AutoBuild/" + assetBundleFolder;
+            return Application.dataPath + "/../AutoBuild/Autobuild_Data/" + assetBundleFolder;
         else
             return m_runtimeBundlePath.Value;
 #endif
