@@ -11,7 +11,7 @@ public class SimpleBundleManager
     {
 #if UNITY_PS5 || UNITY_GAMECORE_XBOXSERIES
         return Application.streamingAssetsPath + "/" + assetBundleFolder;
-#elif UNITY_STANDALONE_OSX ||  UNITY_EDITOR_OSX
+#elif UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
         if (Application.isEditor)
             return Application.dataPath + "/../Autobuild/AutoBuild.app/Contents/" + assetBundleFolder;
         else
@@ -52,7 +52,7 @@ public class SimpleBundleManager
         // TODO (petera) : Implement unloading of asset bundles. Ideally not by name.
     }
 
-    static Dictionary<string, AssetBundle> m_levelBundles = new Dictionary<string, AssetBundle>();
+    static Dictionary<string, AssetBundle> m_levelBundles = new();
 
     [ConfigVar(Name = "res.runtimebundlepath", DefaultValue = "AssetBundles", Description = "Asset bundle folder", Flags = ConfigVar.Flags.ServerInfo)]
     public static ConfigVar m_runtimeBundlePath;
