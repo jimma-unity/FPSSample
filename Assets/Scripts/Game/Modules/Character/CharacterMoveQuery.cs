@@ -86,7 +86,17 @@ partial class HandleMovementQueries : BaseComponentSystem
             if (math.distance(currentControllerPos, query.moveQueryStart) > 0.01f)
             {
                 currentControllerPos = query.moveQueryStart;
+                
+                // JAPA ¯\_(ツ)_/¯ - Hack - previously Physics.autoSyncTransforms was active and setting the CharacterController transform directly was not an issue.
+                // However, Physics.autoSyncTransforms is deprecated and to be removed. Without it active, setting the Transform *only* updates that value but not the internal Physics Character representation.
+                // As such, when we subsequently call Move() below this block, what is actually moved is still at the old position.
+                // Currently, the game spawns client-side players at 0,0,0 and so the delta between actual position and move destination can be huge, with collision in the way, etc.
+                // The CharacterController does not have a teleport or other function, and we do not want to do Physics.SyncTransforms for each CharacterController.
+                // So we are left with disable->change transform->enable which while clunky does at least update the internal representation.
+                
+                charController.enabled = false;
                 charController.transform.position = currentControllerPos;
+                charController.enabled = true;
             }
 
             var deltaPos = query.moveQueryEnd - currentControllerPos; 
