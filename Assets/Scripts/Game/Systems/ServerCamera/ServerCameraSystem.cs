@@ -12,7 +12,7 @@ public class ServerCameraSystem
 
     public ServerCameraSystem(GameWorld gameWorld)
     {
-        m_CameraSpots = Object.FindObjectsOfType<ServerCameraSpot>();
+        m_CameraSpots = Object.FindObjectsByType<ServerCameraSpot>(FindObjectsSortMode.None);
 
         // NOTE : We should look at this when we have figured out the final 
         // way that cameras should work
