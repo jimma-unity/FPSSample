@@ -1,14 +1,17 @@
+[attr]unity-yaml        merge=unityyamlmerge eol=lf linguist-language=yaml
+
 *    text=auto
+
 # Text files
 *.cs diff=csharp text
 *.txt text
-*.mat text
+*.mat unity-yaml
 *.shader text
 *.meta text
 *.md5 text
 *.compute text
 *.md text
-*.prefab text
+*.prefab unity-yaml
 *.mixer text
 *.ShaderGraph text
 *.anim text
@@ -21,6 +24,7 @@
 *.controller text
 *.mask text
 *.playable text
+*.unity unity-yaml
 ProjectSettings/*.asset text
 # Binaries
 **/Assets/**/*.png filter=lfs diff=lfs merge=lfs -text
