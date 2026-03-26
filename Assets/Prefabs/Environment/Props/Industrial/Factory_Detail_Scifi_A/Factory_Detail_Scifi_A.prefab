@@ -132,15 +132,13 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 100002, guid: dec1067452ebb514e96d18c63155dd77,
-        type: 3}
+    - targetCorrespondingSourceObject: {fileID: 100002, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5372696251568873996}
   m_SourcePrefab: {fileID: 100100000, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
 --- !u!1 &6316721969375344543 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 100002, guid: dec1067452ebb514e96d18c63155dd77,
-    type: 3}
+  m_CorrespondingSourceObject: {fileID: 100002, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
   m_PrefabInstance: {fileID: 6316721969375244605}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &5372696251568873996
@@ -168,25 +166,21 @@ MonoBehaviour:
   m_Materials: []
 --- !u!23 &6316721969377536341 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 2300008, guid: dec1067452ebb514e96d18c63155dd77,
-    type: 3}
+  m_CorrespondingSourceObject: {fileID: 2300008, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
   m_PrefabInstance: {fileID: 6316721969375244605}
   m_PrefabAsset: {fileID: 0}
 --- !u!23 &6316721969377536345 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 2300004, guid: dec1067452ebb514e96d18c63155dd77,
-    type: 3}
+  m_CorrespondingSourceObject: {fileID: 2300004, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
   m_PrefabInstance: {fileID: 6316721969375244605}
   m_PrefabAsset: {fileID: 0}
 --- !u!23 &6316721969377536347 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 2300006, guid: dec1067452ebb514e96d18c63155dd77,
-    type: 3}
+  m_CorrespondingSourceObject: {fileID: 2300006, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
   m_PrefabInstance: {fileID: 6316721969375244605}
   m_PrefabAsset: {fileID: 0}
 --- !u!23 &6316721969377536351 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 2300002, guid: dec1067452ebb514e96d18c63155dd77,
-    type: 3}
+  m_CorrespondingSourceObject: {fileID: 2300002, guid: dec1067452ebb514e96d18c63155dd77, type: 3}
   m_PrefabInstance: {fileID: 6316721969375244605}
   m_PrefabAsset: {fileID: 0}

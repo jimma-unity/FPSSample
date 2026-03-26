@@ -177,32 +177,27 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 400002, guid: 0b8bf31b07216754b9db699723fa2f77,
-        type: 3}
+    - targetCorrespondingSourceObject: {fileID: 400002, guid: 0b8bf31b07216754b9db699723fa2f77, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4963256723581595576}
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 100002, guid: 0b8bf31b07216754b9db699723fa2f77,
-        type: 3}
+    - targetCorrespondingSourceObject: {fileID: 100002, guid: 0b8bf31b07216754b9db699723fa2f77, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2947033394638115300}
   m_SourcePrefab: {fileID: 100100000, guid: 0b8bf31b07216754b9db699723fa2f77, type: 3}
 --- !u!23 &6794153977551796854 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 2300218, guid: 0b8bf31b07216754b9db699723fa2f77,
-    type: 3}
+  m_CorrespondingSourceObject: {fileID: 2300218, guid: 0b8bf31b07216754b9db699723fa2f77, type: 3}
   m_PrefabInstance: {fileID: 6794153977554084684}
   m_PrefabAsset: {fileID: 0}
 --- !u!23 &6794153977551797036 stripped
 MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 2300000, guid: 0b8bf31b07216754b9db699723fa2f77,
-    type: 3}
+  m_CorrespondingSourceObject: {fileID: 2300000, guid: 0b8bf31b07216754b9db699723fa2f77, type: 3}
   m_PrefabInstance: {fileID: 6794153977554084684}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &6794153977554052590 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 100002, guid: 0b8bf31b07216754b9db699723fa2f77,
-    type: 3}
+  m_CorrespondingSourceObject: {fileID: 100002, guid: 0b8bf31b07216754b9db699723fa2f77, type: 3}
   m_PrefabInstance: {fileID: 6794153977554084684}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &2947033394638115300
@@ -220,8 +215,7 @@ MonoBehaviour:
   materialOverrides:
   - active: 1
     material: {fileID: 2100000, guid: 5e47b65d000c89447988913854f01dda, type: 2}
-    propertyOverrideAsset: {fileID: 11400000, guid: 36cb6916a2dc46947a0bd291cc5d0104,
-      type: 2}
+    propertyOverrideAsset: {fileID: 11400000, guid: 36cb6916a2dc46947a0bd291cc5d0104, type: 2}
     propertyOverrides: []
   - active: 0
     material: {fileID: 2100000, guid: 3bb0819784bf73c4e8a2d98977d5f45b, type: 2}
@@ -233,7 +227,6 @@ MonoBehaviour:
   m_Materials: []
 --- !u!4 &6794153977554221518 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 400002, guid: 0b8bf31b07216754b9db699723fa2f77,
-    type: 3}
+  m_CorrespondingSourceObject: {fileID: 400002, guid: 0b8bf31b07216754b9db699723fa2f77, type: 3}
   m_PrefabInstance: {fileID: 6794153977554084684}
   m_PrefabAsset: {fileID: 0}
