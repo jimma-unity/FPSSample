@@ -200,9 +200,9 @@ public class BundledResourceBuilder
             // TODO (mogensh) Settle on what buildpipline to use. LegacyBuildPipeline uses SBP internally and is faster.   
 //            LegacyBuildPipeline.BuildAssetBundles(bundlePath, builds.ToArray(), assetBundleOptions, target);
             BuildPipeline.BuildAssetBundles(bundlePath, builds.ToArray(), assetBundleOptions, target);
-            
-            // Set write time so tools can show time since build
-            Directory.SetLastWriteTime(bundlePath, DateTime.Now);
         }
+        
+        // Set write time so tools can show time since build
+        Directory.SetLastWriteTime(bundlePath, DateTime.Now);
     }
 }
