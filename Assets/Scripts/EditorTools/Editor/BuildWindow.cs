@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
+using System.Globalization;
 using Unity.Mathematics;
 using UnityEngine.Profiling;
 
@@ -558,9 +559,9 @@ public class BuildWindow : EditorWindow
         if (span.TotalMinutes < 60)
             return span.Minutes + " mins ago";
         if (DateTime.Now.Date == time.Date)
-            return time.ToShortTimeString() + " today";
+            return time.ToString("HH:mm", CultureInfo.InvariantCulture) + " today";
         if (DateTime.Now.Date.AddDays(-1) == time.Date)
-            return time.ToShortTimeString() + " yesterday";
+            return time.ToString("HH:mm", CultureInfo.InvariantCulture) + " yesterday";
         return "" + time;
     }
 
