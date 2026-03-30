@@ -16,6 +16,8 @@ public class ScoreboardUIBinding
         {
             team.name.text = "";
             team.score.text = "";
+            foreach (var p in team.playerScores)
+                GameObject.Destroy(p.gameObject);
             team.playerScores.Clear();
             team.playerScoreTemplate.gameObject.SetActive(false);
         }

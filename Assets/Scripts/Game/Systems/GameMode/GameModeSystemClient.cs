@@ -25,7 +25,7 @@ public partial class GameModeSystemClient : SystemBase
         GameModesGroup = GetEntityQuery(typeof(GameMode));
     }
 
-    public void Shutdown()
+    protected override void OnDestroy()
     {
         if (Game.game.clientFrontend != null)
         {
