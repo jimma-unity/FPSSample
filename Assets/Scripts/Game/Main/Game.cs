@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using UnityEngine.Rendering.HighDefinition;
 using System;
 using System.Globalization;
-using UnityEngine.Rendering.PostProcessing;
 using SQP;
 using UnityEngine.Rendering;
 #if UNITY_EDITOR
@@ -469,8 +468,8 @@ public class Game : MonoBehaviour
 
     public void BlackFade(bool enabled)
     {
-        if(m_Exposure != null)
-            m_Exposure.active = enabled;
+        //if(m_Exposure != null)
+            //m_Exposure.active = enabled;
     }
 
     public void PopCamera(Camera cam)
@@ -523,11 +522,11 @@ public class Game : MonoBehaviour
                     GameDebug.LogWarning("Unable to find layer mask for camera fader");
                 else
                 {
-                    m_Exposure = ScriptableObject.CreateInstance<AutoExposure>();
-                    m_Exposure.active = false;
-                    m_Exposure.enabled.Override(true);
-                    m_Exposure.keyValue.Override(0);
-                    m_ExposureVolume = PostProcessManager.instance.QuickVolume(layer, 100.0f, m_Exposure);
+                    //m_Exposure = ScriptableObject.CreateInstance<AutoExposure>();
+                    //m_Exposure.active = false;
+                    //m_Exposure.enabled.Override(true);
+                    //m_Exposure.keyValue.Override(0);
+                    //m_ExposureVolume = PostProcessManager.instance.QuickVolume(layer, 100.0f, m_Exposure);
                 }
 
                 pipeSetup = true;
@@ -950,8 +949,8 @@ public class Game : MonoBehaviour
 
     // Global camera handling
     List<Camera> m_CameraStack = new List<Camera>();
-    AutoExposure m_Exposure;
-    PostProcessVolume m_ExposureVolume;
+    //AutoExposure m_Exposure;
+    //PostProcessVolume m_ExposureVolume;
     int m_ExposureReleaseCount;
 
     List<IGameLoop> m_gameLoops = new List<IGameLoop>();

@@ -22,7 +22,6 @@
 [assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.Canvas))]
 [assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.MeshFilter))]
 [assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.Rendering.HighDefinition.HDAdditionalCameraData))]
-[assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.Rendering.PostProcessing.PostProcessLayer))]
 [assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.RectTransform))]
 [assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.UI.CanvasScaler))]
 [assembly: RegisterUnityEngineComponentType(typeof(UnityEngine.UI.GraphicRaycaster))]
