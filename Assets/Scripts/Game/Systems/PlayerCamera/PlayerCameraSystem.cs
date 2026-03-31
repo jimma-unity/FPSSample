@@ -96,12 +96,13 @@ public partial class UpdatePlayerCameras : BaseComponentSystem
 
             if (debugCameraMove.IntValue > 0)
             {
+                var frameCount = m_world.worldTime.tick;
                 // Only show for one player
-                /*if (lastUsedFrame < Time.frameCount)
+                if (lastUsedFrame < frameCount)
                 {
-                    lastUsedFrame = Time.frameCount;
+                    lastUsedFrame = frameCount;
 
-                    int o = Time.frameCount % movehist_x.Length;
+                    int o = frameCount % movehist_x.Length;
                     var rot = camera.transform.localEulerAngles;
                     movehist_x[o] = rot.x % 90.0f;
                     movehist_y[o] = rot.y % 90.0f;
@@ -110,7 +111,7 @@ public partial class UpdatePlayerCameras : BaseComponentSystem
                     DebugOverlay.DrawGraph(4, 4, 10, 5, movehist_x, o, Color.red, 10.0f);
                     DebugOverlay.DrawGraph(4, 12, 10, 5, movehist_y, o, Color.green, 10.0f);
                     DebugOverlay.DrawGraph(4, 20, 10, 5, movehist_z, o, Color.blue, 10.0f);
-                }*/
+                }
             }
         }
     }

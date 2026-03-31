@@ -151,11 +151,12 @@ partial class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityCo
         if (debugCharacterMove.IntValue > 0)
         {
             // Only show for one player
-            /*if (lastUsedFrame < Time.frameCount)
+            var frameCount = m_world.worldTime.tick;
+            if (lastUsedFrame < frameCount)
             {
-                lastUsedFrame = Time.frameCount;
+                lastUsedFrame = frameCount;
 
-                int o = Time.frameCount % movehist_x.Length;
+                int o = frameCount % movehist_x.Length;
                 movehist_x[o] = predictedState.position.x % 10.0f;
                 movehist_y[o] = predictedState.position.y % 10.0f;
                 movehist_z[o] = predictedState.position.z % 10.0f;
@@ -163,7 +164,7 @@ partial class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityCo
                 DebugOverlay.DrawGraph(4, 4, 10, 5, movehist_x, o, Color.red, 10.0f);
                 DebugOverlay.DrawGraph(4, 12, 10, 5, movehist_y, o, Color.green, 10.0f);
                 DebugOverlay.DrawGraph(4, 20, 10, 5, movehist_z, o, Color.blue, 10.0f);
-            }*/
+            }
         }
 
         if (time.tick != predictedState.tick + 1)
