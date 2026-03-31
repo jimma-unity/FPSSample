@@ -2,11 +2,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
-using UnityEngine.Rendering.HighDefinition;
 using System;
 using System.Globalization;
 using SQP;
-using UnityEngine.Rendering;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -205,6 +203,7 @@ public class Game : MonoBehaviour
     public UnityEngine.Audio.AudioMixer audioMixer;
     public SoundBank defaultBank;
     public Camera bootCamera;
+    public ScreenFader screenFader;
     
     public LevelManager levelManager;
     public SQPClient sqpClient;
@@ -273,6 +272,8 @@ public class Game : MonoBehaviour
 
     public void Awake()
     {
+        //Debug.developerConsoleEnabled = true;
+        //Debug.developerConsoleVisible = true;
         GameDebug.Assert(game == null);
         DontDestroyOnLoad(gameObject);
         game = this;
@@ -463,13 +464,18 @@ public class Game : MonoBehaviour
             SetCameraEnabled(m_CameraStack[m_CameraStack.Count - 1],false);
         m_CameraStack.Add(cam);
         SetCameraEnabled(cam,true);
-        m_ExposureReleaseCount = 10;
     }
 
-    public void BlackFade(bool enabled)
+    public void BlackFade(bool isEnabled, bool instantFade = false)
     {
-        //if(m_Exposure != null)
-            //m_Exposure.active = enabled;
+        float fadeDuration = instantFade ? 0.0f : -1.0f;
+        if(screenFader != null)
+        {
+            if (isEnabled)
+                screenFader.FadeOut(fadeDuration);
+            else
+                screenFader.FadeIn(fadeDuration);
+        }
     }
 
     public void PopCamera(Camera cam)
@@ -510,35 +516,6 @@ public class Game : MonoBehaviour
     {
         if (!m_isHeadless)
             FPSSampleRenderSettings.Update();
-
-        // TODO (petera) remove this hack once we know exactly when renderer is available...
-        if (!pipeSetup)
-        {
-            var hdpipe = RenderPipelineManager.currentPipeline as HDRenderPipeline;
-            if (hdpipe != null)
-            {
-                var layer = LayerMask.NameToLayer("PostProcess Volumes");
-                if (layer == -1)
-                    GameDebug.LogWarning("Unable to find layer mask for camera fader");
-                else
-                {
-                    //m_Exposure = ScriptableObject.CreateInstance<AutoExposure>();
-                    //m_Exposure.active = false;
-                    //m_Exposure.enabled.Override(true);
-                    //m_Exposure.keyValue.Override(0);
-                    //m_ExposureVolume = PostProcessManager.instance.QuickVolume(layer, 100.0f, m_Exposure);
-                }
-
-                pipeSetup = true;
-            }
-
-        }
-        if(m_ExposureReleaseCount > 0)
-        {
-            m_ExposureReleaseCount--;
-            if (m_ExposureReleaseCount == 0)
-                BlackFade(false);
-        }
 
         // Verify if camera was somehow destroyed and pop it
         if(m_CameraStack.Count > 1 && m_CameraStack[m_CameraStack.Count-1] == null)
@@ -944,16 +921,13 @@ public class Game : MonoBehaviour
         }
     }
 
-    List<Type> m_RequestedGameLoopTypes = new List<System.Type>();
-    private List<string[]> m_RequestedGameLoopArguments = new List<string[]>();
+    List<Type> m_RequestedGameLoopTypes = new();
+    private List<string[]> m_RequestedGameLoopArguments = new();
 
     // Global camera handling
-    List<Camera> m_CameraStack = new List<Camera>();
-    //AutoExposure m_Exposure;
-    //PostProcessVolume m_ExposureVolume;
-    int m_ExposureReleaseCount;
+    List<Camera> m_CameraStack = new();
 
-    List<IGameLoop> m_gameLoops = new List<IGameLoop>();
+    List<IGameLoop> m_gameLoops = new();
     DebugOverlay m_DebugOverlay;
     ISoundSystem m_SoundSystem;
 

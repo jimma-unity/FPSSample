@@ -60,11 +60,6 @@ public class LevelManager
         if (currentLevel != null)
             UnloadLevel();
 
-        // This is a pretty ugly hack to handle problems with loading camera and post processing volumes
-        // and those not being initalized at the same time. We simply disable the old camera and the 
-        Game.game.TopCamera().enabled = false;
-        Game.game.BlackFade(true);
-
         var newLevel = new Level();
         newLevel.name = name;
 
@@ -103,6 +98,8 @@ public class LevelManager
             GameDebug.Log("Failed to load level : " + name);
             return false;
         }
+        
+        Game.game.BlackFade(true, true);
 
         currentLevel = newLevel;
         currentLevel.layers.Add(new LevelLayer { loadOperation = mainLoadOperation });
@@ -171,6 +168,8 @@ public class LevelManager
                     StripCode(BuildType.Default, true);
                 
                 GameDebug.Log("Scene " + currentLevel.name + " loaded");
+                
+                Game.game.BlackFade(false);
             }
         }
     }
