@@ -24,7 +24,8 @@ public class HUDGoal : MonoBehaviour
             return;
         }
         goalIndicator.SetActive(true);
-        var goalPosition = localPlayer.playerState.goalPosition;
+        var gpf3 = localPlayer.playerState.goalPosition;
+        var goalPosition = new Vector3(gpf3.x, gpf3.y, gpf3.z);
 
         var c = Game.game.TopCamera();
         var sp = c.WorldToScreenPoint(goalPosition);

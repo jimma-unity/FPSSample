@@ -129,7 +129,7 @@ public partial class GameModeSystemClient : SystemBase
         {
             if (m_LocalPlayer.displayGameResult)
             {
-                overlayUI.message.text = m_LocalPlayer.gameResult;
+                overlayUI.message.text = m_LocalPlayer.gameResult.ToConstantString();
             }
             else
                 overlayUI.message.text = "";
@@ -142,7 +142,7 @@ public partial class GameModeSystemClient : SystemBase
             overlayUI.SetObjectiveProgress(m_LocalPlayer.goalCompletion, (int)m_LocalPlayer.goalAttackers, (int)m_LocalPlayer.goalDefenders, Game.game.gameColors[m_LocalPlayer.goalDefendersColor], Game.game.gameColors[m_LocalPlayer.goalAttackersColor]);
         }
 
-        overlayUI.action.text = m_LocalPlayer.actionString;
+        overlayUI.action.text = m_LocalPlayer.playerAction.ToConstantString();
 
         if(gameMode.teamScore0 >= 0 && gameMode.teamScore1 >= 0)
         {

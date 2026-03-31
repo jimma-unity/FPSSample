@@ -94,9 +94,9 @@ public class GameModeDeathmatch : IGameMode
                         }
                         playerState.displayGameResult = true;
                         if (winTeam == -1)
-                            playerState.gameResult = "TIE";
+                            playerState.gameResult = GameResult.Tie;
                         else
-                            playerState.gameResult = (playerState.teamIndex == winTeam) ? "VICTORY" : "DEFEAT";
+                            playerState.gameResult = (playerState.teamIndex == winTeam) ? GameResult.Victory : GameResult.Defeat;
                         playerState.displayScoreBoard = false;
                         playerState.displayGoal = false;
                     }

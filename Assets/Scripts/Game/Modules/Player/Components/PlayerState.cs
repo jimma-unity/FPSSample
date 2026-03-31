@@ -1,8 +1,43 @@
 ﻿using System;
+using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
+using Unity.Mathematics;
 
-public class PlayerState : MonoBehaviour
+public enum GameResult : byte
+{
+    None = 0,
+    Defeat,
+    Tie,
+    Victory
+}
+
+public enum PlayerAction : byte
+{
+    None = 0,
+    ChangeCharacter
+}
+
+public static class PlayerStateEnumExtensions
+{
+    public static string ToConstantString(this GameResult result) => result switch
+    {
+        GameResult.None => "",
+        GameResult.Defeat => "DEFEAT",
+        GameResult.Tie => "TIE",
+        GameResult.Victory => "VICTORY",
+        _ => throw new ArgumentOutOfRangeException(nameof(result), result, null)
+    };
+    
+    public static string ToConstantString(this PlayerAction action) => action switch
+    {
+        PlayerAction.None => "",
+        PlayerAction.ChangeCharacter => "Press H to change character",
+        _ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
+    };
+}
+
+public class PlayerState : MonoBehaviour // This could be a IComponentData as it only holds POD
 {
     public int playerId;
     public string playerName;
@@ -15,16 +50,16 @@ public class PlayerState : MonoBehaviour
     public bool displayScoreBoard;
     public bool displayGameScore;
     public bool displayGameResult;
-    public string gameResult;
+    public GameResult gameResult;
 
     public bool displayGoal;
-    public Vector3 goalPosition;
+    public float3 goalPosition;
     public uint goalDefendersColor;
     public uint goalAttackersColor;
     public uint goalAttackers;
     public uint goalDefenders;
     public string goalString;
-    public string actionString;
+    public PlayerAction playerAction;
     public float goalCompletion;
 
     // Non synchronized
@@ -64,7 +99,7 @@ public struct PlayerStateData : IComponentData, IReplicatedComponent
         writer.WriteBoolean("displayScoreBoard", behaviour.displayScoreBoard);
         writer.WriteBoolean("displayGameScore", behaviour.displayGameScore);
         writer.WriteBoolean("displayGameResult", behaviour.displayGameResult);
-        writer.WriteString("gameResult", behaviour.gameResult);
+        writer.WriteByte("gameResult", (byte)behaviour.gameResult);
 
         writer.WriteBoolean("displayGoal", behaviour.displayGoal);
         writer.WriteVector3Q("goalPosition", behaviour.goalPosition, 2);
@@ -73,7 +108,7 @@ public struct PlayerStateData : IComponentData, IReplicatedComponent
         writer.WriteUInt32("goalAtackers", behaviour.goalAttackers);
         writer.WriteUInt32("goalDefenders", behaviour.goalDefenders);
         writer.WriteString("goalString", behaviour.goalString);
-        writer.WriteString("actionString", behaviour.actionString);
+        writer.WriteByte("actionString", (byte)behaviour.playerAction);
         writer.WriteFloatQ("goalCompletion", behaviour.goalCompletion, 2);
         writer.ClearFieldSection();
     }
@@ -91,7 +126,7 @@ public struct PlayerStateData : IComponentData, IReplicatedComponent
         behaviour.displayScoreBoard = reader.ReadBoolean();
         behaviour.displayGameScore = reader.ReadBoolean();
         behaviour.displayGameResult = reader.ReadBoolean();
-        behaviour.gameResult = reader.ReadString();
+        behaviour.gameResult = (GameResult)reader.ReadByte();
 
         behaviour.displayGoal = reader.ReadBoolean();
         behaviour.goalPosition = reader.ReadVector3Q();
@@ -100,7 +135,7 @@ public struct PlayerStateData : IComponentData, IReplicatedComponent
         behaviour.goalAttackers = reader.ReadUInt32();
         behaviour.goalDefenders = reader.ReadUInt32();
         behaviour.goalString = reader.ReadString();
-        behaviour.actionString = reader.ReadString();
+        behaviour.playerAction = (PlayerAction)reader.ReadByte();
         behaviour.goalCompletion = reader.ReadFloatQ();
     }
 }

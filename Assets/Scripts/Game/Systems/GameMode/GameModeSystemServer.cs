@@ -91,7 +91,7 @@ public partial class GameModeSystemServer : BaseComponentSystem
             player.score = 0;
             player.displayGameScore = true;
             player.goalCompletion = -1.0f;
-            player.actionString = "";
+            player.playerAction = PlayerAction.None;
         }
 
         m_EnableRespawning = true;
@@ -200,7 +200,7 @@ public partial class GameModeSystemServer : BaseComponentSystem
             var playerEntity = playerEntities[i];
 
             
-            player.actionString = player.enableCharacterSwitch ? "Press H to change character" : "";
+            player.playerAction = player.enableCharacterSwitch ? PlayerAction.ChangeCharacter : PlayerAction.None;
 
             var charControl = playerCharacterControls[i];
 

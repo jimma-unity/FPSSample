@@ -111,7 +111,7 @@ public class GameModeAssault : IGameMode
                     {
                         var p = players[i];
                         p.displayGameResult = true;
-                        p.gameResult = p.teamIndex == winTeam ? "VICTORY" : "DEFEAT";
+                        p.gameResult = p.teamIndex == winTeam ? GameResult.Victory : GameResult.Defeat;
                         p.displayGoal = false;
                         p.goalString = "";
                         p.goalCompletion = -1.0f;
