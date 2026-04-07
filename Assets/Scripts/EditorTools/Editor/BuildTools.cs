@@ -31,7 +31,11 @@ public class BuildTools
             "Assets/Scenes/empty.unity"
         };
 
+#if !UNITY_PS5
         var exePathName = buildPath + "/" + exeName;
+#else
+        var exePathName = buildPath;
+#endif
 
         Debug.Log("Building: " + exePathName);
         Directory.CreateDirectory(buildPath);
@@ -47,19 +51,17 @@ public class BuildTools
             attributes &= ~FileAttributes.ReadOnly;
             File.SetAttributes(fileName, attributes);
         }
-
-        string bundlePathSrc = buildPath + "/" + SimpleBundleManager.assetBundleFolder;
-        string bundlePathDst = "Assets/StreamingAssets/" + SimpleBundleManager.assetBundleFolder;
-        if (target == BuildTarget.PS4)
+        
+        string bundlePath = Path.Combine(Application.streamingAssetsPath, SimpleBundleManager.assetBundleFolder);
+        if (target == BuildTarget.PS5)
         {
-            if (!Directory.Exists(bundlePathSrc))
+            if (!Directory.Exists(bundlePath))
             {
-                EditorUtility.DisplayDialog("No bundles found", "No Asset Bundles found. Please build them first",
-                    "Ok");
+                EditorUtility.DisplayDialog("No bundles found", "No Asset Bundles found. Please build them first", "Ok");
                 return null;
             }
 
-            CopyDirectory(bundlePathSrc, bundlePathDst);
+            //CopyDirectory(Application.streamingAssetsPath, bundlePathDst);
         }
 
         var monoDirs = Directory.GetDirectories(buildPath).Where(s => s.Contains("MonoBleedingEdge"));
@@ -87,34 +89,15 @@ public class BuildTools
         {
             UnityEditor.PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, ScriptingImplementation.Mono2x);
         }
-        
-        /// Colossal hack to work around build postprocessing expecting everything to be writable in the unity
-        /// installation, but if people have unity in p4 it will be readonly.
-        var editorHome = EditorApplication.applicationPath.BeforeLast("/") + "/Data/PlaybackEngines/windowsstandalonesupport";
-        Debug.Log("Checking for read/only files in standalone players");
-        if (Directory.Exists(editorHome))
-        {
-            var files = Directory.GetFiles(editorHome, "*.*", SearchOption.AllDirectories);
-            foreach(var f in files)
-            {
-                var attr = File.GetAttributes(f);
-                if((attr & FileAttributes.ReadOnly) != 0)
-                {
-                    attr = attr & ~FileAttributes.ReadOnly;
-                    Debug.Log("Setting " + f + " to read/write");
-                    File.SetAttributes(f, attr);
-                }
-            }
-        }
         Debug.Log("Done.");
         
         Environment.SetEnvironmentVariable("BUILD_ID", buildId, EnvironmentVariableTarget.Process);
         var result = BuildPipeline.BuildPlayer(levels, exePathName, target, opts);
         Environment.SetEnvironmentVariable("BUILD_ID", "", EnvironmentVariableTarget.Process);
 
-        if (target == BuildTarget.PS4)
+        if (target == BuildTarget.PS5)
         {
-            Directory.Delete(bundlePathDst, true);
+            Directory.Delete(bundlePath, true);
         }
 
 
@@ -319,6 +302,10 @@ public class BuildTools
     {
         if (target == BuildTarget.StandaloneOSX)
             return buildPath + "/" + GetAppNameWithExtension(target) + "/Contents/";
+        if (target == BuildTarget.PS5)
+            return Application.streamingAssetsPath; //dataPath + "/StreamingAssets";
+        if (target == BuildTarget.GameCoreXboxSeries)
+            return buildPath + "/" + Application.productName + "/Loose/Data/StreamingAssets";
         return buildPath + "/" + Application.productName + "_data";
     }
 
@@ -646,7 +633,7 @@ public class BuildTools
 
         Directory.CreateDirectory(buildPath);
         BuildBundles(bundlePath, target, true, true, true);
-        var res = BuildGame(buildPath, executableName, target, BuildOptions.None, buildName, false);
+        var res = BuildGame(buildPath, executableName, target, BuildOptions.None, buildName, true);
 
         if (!res)
             throw new Exception("BuildPipeline.BuildPlayer failed");
