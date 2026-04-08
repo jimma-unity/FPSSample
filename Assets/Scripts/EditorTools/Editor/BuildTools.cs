@@ -672,7 +672,7 @@ public class BuildTools
 
         Directory.CreateDirectory(buildPath);
         BuildBundles(bundlePath, target, true, true, true);
-        var res = BuildGame(buildPath, executableName, target, BuildOptions.None, buildName, false);
+        var res = BuildGame(buildPath, executableName, target, BuildOptions.None, buildName, true);
 
         if (!res)
             throw new Exception("BuildPipeline.BuildPlayer failed");
