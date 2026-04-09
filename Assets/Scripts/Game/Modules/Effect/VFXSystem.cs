@@ -168,8 +168,8 @@ public partial class VFXSystem : SystemBase
     
     EffectTypeData RegisterImpactType(VisualEffectAsset template)
     {
+        GameDebug.Assert(template != null);
         GameDebug.Assert(!m_EffectTypeData.ContainsKey(template));
-        GameDebug.Assert(!template != null);
         
         GameObject go = new GameObject(template.name);
         go.transform.parent = m_rootGameObject.transform;
