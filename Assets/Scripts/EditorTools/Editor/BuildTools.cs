@@ -39,18 +39,6 @@ public class BuildTools
 
         Debug.Log("Building: " + exePathName);
         Directory.CreateDirectory(buildPath);
-
-        // Set all files to be writeable (As Unity 2017.1 sets them to read only)
-        string[] fileNames = Directory.GetFiles(buildPath, "*.*", SearchOption.AllDirectories);
-
-        //Contentpipeline compile player scripts
-
-        foreach (var fileName in fileNames)
-        {
-            FileAttributes attributes = File.GetAttributes(fileName);
-            attributes &= ~FileAttributes.ReadOnly;
-            File.SetAttributes(fileName, attributes);
-        }
         
         string bundlePath = Path.Combine(Application.streamingAssetsPath, SimpleBundleManager.assetBundleFolder);
         if (target == BuildTarget.PS5)
