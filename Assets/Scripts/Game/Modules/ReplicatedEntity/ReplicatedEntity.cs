@@ -108,7 +108,7 @@ public class ReplicatedEntity : ComponentDataProxy<ReplicatedEntityData>
         var stage = PrefabStageUtility.GetPrefabStage(gameObject);
         if (stage != null)
         {
-            var guidStr = AssetDatabase.AssetPathToGUID(stage.prefabAssetPath);
+            var guidStr = AssetDatabase.AssetPathToGUID(stage.assetPath);
             if(SetAssetGUID(guidStr))
                 EditorSceneManager.MarkSceneDirty(stage.scene);
         }
