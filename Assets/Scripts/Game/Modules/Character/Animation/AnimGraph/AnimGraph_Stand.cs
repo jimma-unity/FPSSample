@@ -131,7 +131,7 @@ public class AnimGraph_Stand : AnimGraphAsset
             m_mask = 1 << m_defaultLayer | 1 << m_playerLayer | 1 << m_platformLayer;
 
             // Aim and Aim mixer
-            m_aimMixer = AnimationMixerPlayable.Create(graph, (int)AimMixerPort.Count, true);
+            m_aimMixer = AnimationMixerPlayable.Create(graph, (int)AimMixerPort.Count);
 
             m_animAimLeft = CreateAimAnim(graph, template.animAimLeft, AimMixerPort.AimLeft);
             m_animAimMid = CreateAimAnim(graph, template.animAimMid, AimMixerPort.AimMid);
