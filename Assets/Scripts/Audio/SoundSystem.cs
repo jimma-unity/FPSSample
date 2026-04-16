@@ -14,22 +14,22 @@ public class SoundSystemNull : ISoundSystem
 
     public SoundSystem.SoundHandle Play(SoundDef soundDef)
     {
-        return default(SoundSystem.SoundHandle);
+        return default;
     }
 
     public SoundSystem.SoundHandle Play(SoundDef soundDef, Transform parent)
     {
-        return default(SoundSystem.SoundHandle);
+        return default;
     }
 
     public SoundSystem.SoundHandle Play(SoundDef soundDef, Vector3 position)
     {
-        return default(SoundSystem.SoundHandle);
+        return default;
     }
 
     public SoundSystem.SoundHandle Play(WeakSoundDef weakSoundDef)
     {
-        return default(SoundSystem.SoundHandle);
+        return default;
     }
 
     public void SetCurrentListener(AudioListener audioListener) { }
