@@ -18,6 +18,11 @@ public class InputSystem
         _playerActions = _actions.Player;
     }
 
+    public void Shutdown()
+    {
+        _actions.Disable();
+    }
+
     public void AccumulateInput(ref UserCommand command, float deltaTime)
     {
         // To accumulate move we store the input with max magnitude and uses that

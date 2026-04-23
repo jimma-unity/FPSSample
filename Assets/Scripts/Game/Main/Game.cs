@@ -505,6 +505,7 @@ public class Game : MonoBehaviour
     
     void OnDestroy()
     {
+        inputSystem.Shutdown();
         GameDebug.Shutdown();
         Console.Shutdown();
         if (m_DebugOverlay != null)
