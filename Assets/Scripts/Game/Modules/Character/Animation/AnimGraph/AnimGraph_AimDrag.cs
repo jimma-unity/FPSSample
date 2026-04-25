@@ -42,8 +42,8 @@ public class AnimGraph_AimDrag : AnimGraphAsset
             var skeleton = entityManager.GetComponentObject<Skeleton>(owner);
     
     
-            var weaponHandBone = skeleton.bones[skeleton.GetBoneIndex(settings.weaponHandBone.GetHashCode())];
-            var weaponBone = skeleton.bones[skeleton.GetBoneIndex(settings.weaponBone.GetHashCode())];
+            var weaponHandBone = skeleton.bones[skeleton.GetBoneIndex(settings.weaponHandBone)];
+            var weaponBone = skeleton.bones[skeleton.GetBoneIndex(settings.weaponBone)];
             var resultBone = animator.transform.Find(settings.applyResultOnBone);
     
             // Weapon sway

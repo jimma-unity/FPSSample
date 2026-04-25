@@ -61,10 +61,10 @@ public class Skeleton : MonoBehaviour, ISkeletonTypeComponent//
     {
         if (!skeletonRoot)
         {
-            bones = new Transform[0];
-            nameHashes = new int[0];
-            parentIndex = new int[0];
-            importPose = new Bonepose[0];
+            bones = Array.Empty<Transform>();
+            nameHashes = Array.Empty<int>();
+            parentIndex = Array.Empty<int>();
+            importPose = Array.Empty<Bonepose>();
             return false; 
         }
 
@@ -80,7 +80,7 @@ public class Skeleton : MonoBehaviour, ISkeletonTypeComponent//
         for (var i = 0; i < numBones; i++)
         {
             string boneName = bones[i].gameObject.name;
-            int hashCode = boneName.GetHashCode();
+            int hashCode = boneName.GetStableHashCode();
             nameHashes[i] = hashCode;
             var bindpose = new Bonepose
             {
@@ -95,7 +95,7 @@ public class Skeleton : MonoBehaviour, ISkeletonTypeComponent//
         parentIndex = new int[numBones];
         for (var i = 0; i < numBones; i++)
         {
-            parentIndex[i] = GetBoneIndex(bones[i].parent.gameObject.name.GetHashCode());
+            parentIndex[i] = GetBoneIndex(bones[i].parent.gameObject.name);
         }
         return true;
     }
@@ -111,6 +111,11 @@ public class Skeleton : MonoBehaviour, ISkeletonTypeComponent//
         }
 
         return -1;
+    }
+
+    public int GetBoneIndex(string boneName)
+    {
+        return GetBoneIndex(boneName.GetStableHashCode());
     }
 
     static void GetBones(Transform t, Transform skeletonRoot, ref List<Transform> boneList)

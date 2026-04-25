@@ -59,7 +59,7 @@ public struct VelBasedBlendJob : IAnimationJob
                 {   
                     var tokens = boneMask.GetTransformPath(i).Split('/');
                     var name = tokens[tokens.Length - 1];
-                    var skeletonIndex = skeleton.GetBoneIndex(name.GetHashCode());
+                    var skeletonIndex = skeleton.GetBoneIndex(name);
 
                     if (skeletonIndex != -1)
                     {

@@ -61,7 +61,7 @@ public partial class HandleHitCollisionSpawning : InitializeComponentGroupSystem
                 if (externalSetup)
                 {
                     var skeleton = EntityManager.GetComponentObject<Skeleton>(hitCollisionEntity);
-                    var ownerBoneIndex = skeleton.GetBoneIndex(colliderParentBone.name.GetHashCode());
+                    var ownerBoneIndex = skeleton.GetBoneIndex(colliderParentBone.name);
                     colliderParentBone = skeleton.bones[ownerBoneIndex];
                 }
     

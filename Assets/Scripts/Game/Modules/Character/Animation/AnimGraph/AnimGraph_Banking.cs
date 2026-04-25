@@ -32,7 +32,7 @@ public class AnimGraph_Banking : AnimGraphAsset
             var skeleton = entityManager.GetComponentObject<Skeleton>(owner);
             GameDebug.Assert(entityManager.HasComponent<CharacterPredictedData>(m_AnimStateOwner),"Owner has no CharPredictedState component");
             
-            var bankTransform = skeleton.bones[skeleton.GetBoneIndex(settings.bankTransform.GetHashCode())];
+            var bankTransform = skeleton.bones[skeleton.GetBoneIndex(settings.bankTransform)];
     
             var bankingSettings = new BankingJob.EditorSettings();
             bankingSettings.bankTransform = bankTransform;

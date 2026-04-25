@@ -32,8 +32,8 @@ public class AnimGraph_CameraNoise : AnimGraphAsset
             GameDebug.Assert(entityManager.HasComponent<Skeleton>(owner),"Owner has no Skeleton component");
             var skeleton = entityManager.GetComponentObject<Skeleton>(owner);
     
-            var cameraBone = skeleton.bones[skeleton.GetBoneIndex(settings.cameraBone.GetHashCode())];
-            var characterRootBone = skeleton.bones[skeleton.GetBoneIndex(settings.characterRootBone.GetHashCode())];
+            var cameraBone = skeleton.bones[skeleton.GetBoneIndex(settings.cameraBone)];
+            var characterRootBone = skeleton.bones[skeleton.GetBoneIndex(settings.characterRootBone)];
     
             var cameraNoiseSettings = new CameraNoiseJob.EditorSettings();
             cameraNoiseSettings.cameraBone = cameraBone;

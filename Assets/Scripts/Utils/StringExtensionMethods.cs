@@ -41,4 +41,21 @@ public static class StringExtensionMethods
         }
         return l;
     }
+
+    // FNV-1a 32-bit — deterministic across .NET versions, unlike string.GetHashCode().
+    // Use this instead of GetHashCode() whenever the hash is serialized or compared
+    // across Editor/Player sessions (e.g. skeleton bone name lookup).
+    public static int GetStableHashCode(this string str)
+    {
+        unchecked
+        {
+            uint hash = 2166136261;
+            foreach (char c in str)
+            {
+                hash ^= c;
+                hash *= 16777619;
+            }
+            return (int)hash;
+        }
+    }
 }

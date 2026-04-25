@@ -24,8 +24,8 @@ public class AnimGraph_TwoBoneIk : AnimGraphAsset
         {
             m_graph = graph;
     
-            var targetBone = skeleton.bones[skeleton.GetBoneIndex(settings.targetBone.GetHashCode())];
-            var drivenBone = skeleton.bones[skeleton.GetBoneIndex(settings.drivenBone.GetHashCode())];
+            var targetBone = skeleton.bones[skeleton.GetBoneIndex(settings.targetBone)];
+            var drivenBone = skeleton.bones[skeleton.GetBoneIndex(settings.drivenBone)];
     
     
             // Setup settings
