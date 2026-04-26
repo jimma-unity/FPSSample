@@ -347,17 +347,17 @@ public class SoundSystem : ISoundSystem
         }
         if (soundDebug.IntValue > 0)
         {
-            DebugOverlay.Write(30, 1, "Mixer: {0} {1}", m_AudioMixer.GetInstanceID(), Game.game.audioMixer.GetInstanceID());
+            DebugOverlay.Write(30, 1, "Mixer: {0} {1}", m_AudioMixer.GetEntityId(), Game.game.audioMixer.GetEntityId());
             int ii = 4;
             foreach(var o in GameObject.FindObjectsOfType<AudioMixerGroup>())
             {
-                DebugOverlay.Write(30, ii++, "group: {0} {1}", o.name, o.GetInstanceID());
+                DebugOverlay.Write(30, ii++, "group: {0} {1}", o.name, o.GetEntityId());
             }
             DebugOverlay.Write(1, 1, "Num audios {0}", count);
             for (int i = 0, c = m_Emitters.Length; i < c; ++i)
             {
                 var e = m_Emitters[i];
-                DebugOverlay.Write(1, 3 + i, "Emitter {0:##}  {1} {2} {3}", i, e.playing ? e.soundDef.name : "<n/a>", e.source.gameObject.activeInHierarchy ? "act":"nact", e.playing ? "Mixer: " +e.source.outputAudioMixerGroup.audioMixer.GetInstanceID() : "");
+                DebugOverlay.Write(1, 3 + i, "Emitter {0:##}  {1} {2} {3}", i, e.playing ? e.soundDef.name : "<n/a>", e.source.gameObject.activeInHierarchy ? "act":"nact", e.playing ? "Mixer: " +e.source.outputAudioMixerGroup.audioMixer.GetEntityId() : "");
             }
             if(m_CurrentListener == null)
             {

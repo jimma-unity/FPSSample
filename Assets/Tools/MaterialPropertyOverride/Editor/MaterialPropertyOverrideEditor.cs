@@ -8,7 +8,7 @@ using UnityEditor;
 public class MatPropsOverrideEditor : Editor
 {
     // Cache of known shaders and their properties
-    static Dictionary<int, List<ShaderPropertyInfo>> shaderProps = new Dictionary<int, List<ShaderPropertyInfo>>();
+    private static Dictionary<EntityId, List<ShaderPropertyInfo>> shaderProps = new();
 
     public class ShaderPropertyInfo
     {
@@ -22,8 +22,8 @@ public class MatPropsOverrideEditor : Editor
     // Caches the list of properties
     public static List<ShaderPropertyInfo> GetShaderProperties(Shader s)
     {
-        if (shaderProps.ContainsKey(s.GetInstanceID()))
-            return shaderProps[s.GetInstanceID()];
+        if (shaderProps.ContainsKey(s.GetEntityId()))
+            return shaderProps[s.GetEntityId()];
 
         var res = new List<ShaderPropertyInfo>();
         var pc = ShaderUtil.GetPropertyCount(s);
@@ -40,7 +40,7 @@ public class MatPropsOverrideEditor : Editor
             }
             res.Add(sp);
         }
-        return shaderProps[s.GetInstanceID()] = res;
+        return shaderProps[s.GetEntityId()] = res;
     }
 
     public override void OnInspectorGUI()

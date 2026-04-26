@@ -42,11 +42,11 @@ public class CutAndPaste
             // In this case, we parent under another object
             newParent = Selection.activeGameObject.transform;
         }
-        else if (Selection.activeGameObject == null && Selection.instanceIDs.Length == 1)
+        else if (Selection.activeGameObject == null && Selection.entityIds.Length == 1)
         {
             // In this case, we may have selected a scene
             var method = typeof(EditorSceneManager).GetMethod("GetSceneByHandle", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            var obj = method.Invoke(null, new object[] { Selection.instanceIDs[0] });
+            var obj = method.Invoke(null, new object[] { Selection.entityIds[0] });
             if (obj is Scene)
             {
                 var scene = (Scene)obj;

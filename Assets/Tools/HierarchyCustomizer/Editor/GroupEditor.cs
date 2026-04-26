@@ -41,12 +41,12 @@ public class GroupEditor
         s_IconPrefabOverridden = LoadTexture2D(path + prefabIconOverriddenPath);
         s_IconPrefabMissing = LoadTexture2D(path + prefabIconMissingPath);
 
-        EditorApplication.hierarchyWindowItemOnGUI += HierarchyWinwodItemOnGui;
+        EditorApplication.hierarchyWindowItemByEntityIdOnGUI += HierarchyWinwodItemOnGui;
     }
 
-    static void HierarchyWinwodItemOnGui(int instanceID, Rect selectionRect)
+    static void HierarchyWinwodItemOnGui(EntityId instanceID, Rect selectionRect)
     {
-        var target = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+        var target = EditorUtility.EntityIdToObject(instanceID) as GameObject;
         if (target == null)
         {
             return;
