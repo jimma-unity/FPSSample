@@ -22,8 +22,7 @@ class ShaderVariantStripper : IPreprocessShaders
       "Hidden/",
       "HDRP/Water",
       "HDRP/VFX",
-      //"HDRP/LitTessellation",
-      //"HDRP/TerrainLit",
+      "HDRP/Unlit",
       "Planet",
       "TextMeshPro",
       "UI/"
