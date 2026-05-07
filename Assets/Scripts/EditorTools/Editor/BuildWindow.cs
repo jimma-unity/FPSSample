@@ -290,7 +290,7 @@ public class BuildWindow : EditorWindow
                     break;
                 }
             }
-            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
         }
 
         GUILayout.BeginHorizontal();
