@@ -202,8 +202,6 @@ public partial class UpdateCharPresentationState : BaseComponentSystem
 
     protected override void OnUpdate()
     {
-        Profiler.BeginSample("CharacterSystemShared.UpdatePresentationState");
-
         var entityArray = Group.ToEntityArray(Allocator.TempJob);
         var characterArray = Group.ToComponentArray<Character>();
         var charPredictedStateArray = Group.ToComponentDataArray<CharacterPredictedData>(Allocator.TempJob);
@@ -273,7 +271,6 @@ public partial class UpdateCharPresentationState : BaseComponentSystem
         charAnimStateArray.Dispose();
         userCommandArray.Dispose();
         entityArray.Dispose();
-        Profiler.EndSample();
     }
 }
 
@@ -363,15 +360,11 @@ public partial class ApplyPresentationState : BaseComponentSystem
         var deltaTime = m_world.frameDuration;
         var animStateCtrlArray = CharGroup.ToComponentArray<AnimStateController>();
 
-        Profiler.BeginSample("CharacterSystemShared.ApplyPresentationState");
-
         for (var i = 0; i < animStateCtrlArray.Length; i++)
         {
             var animStateCtrl = animStateCtrlArray[i];
             animStateCtrl.ApplyPresentationState(m_world.worldTime, deltaTime);
         }
-        
-        Profiler.EndSample();
     }
 
 }

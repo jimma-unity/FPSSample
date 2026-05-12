@@ -69,8 +69,6 @@ partial class HandleMovementQueries : BaseComponentSystem
 
     protected override void OnUpdate()
     {
-        Profiler.BeginSample("HandleMovementQueries");
-        
         var queryArray = Group.ToComponentArray<CharacterMoveQuery>();
 
         for (var i = 0; i < queryArray.Length; i++)
@@ -104,7 +102,5 @@ partial class HandleMovementQueries : BaseComponentSystem
             query.moveQueryResult = charController.transform.position;
             query.isGrounded = charController.isGrounded;
         }
-        
-        Profiler.EndSample();
     }
 }

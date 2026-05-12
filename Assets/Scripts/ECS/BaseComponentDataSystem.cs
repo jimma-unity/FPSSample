@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 public abstract partial class BaseComponentSystem : SystemBase
 {
@@ -20,14 +18,12 @@ public abstract partial class BaseComponentSystem : SystemBase
  {
  	EntityQuery Group;
  	protected ComponentType[] ExtraComponentRequirements;
-	string name;
 
  	public BaseComponentSystem(GameWorld world) : base(world) {}
 
     protected override void OnCreate()
  	{
  		base.OnCreate();
-		name = GetType().Name;
  		var list = new List<ComponentType>(6);
 		if(ExtraComponentRequirements != null)		
 			list.AddRange(ExtraComponentRequirements);
@@ -38,8 +34,6 @@ public abstract partial class BaseComponentSystem : SystemBase
  
  	protected override void OnUpdate()
  	{
-		Profiler.BeginSample(name);
-
  		var entityArray = Group.ToEntityArray(Allocator.TempJob);
  		var dataArray = Group.ToComponentArray<T1>();
  
@@ -49,8 +43,6 @@ public abstract partial class BaseComponentSystem : SystemBase
  		}
 	    
 	    entityArray.Dispose();
-		 
-		Profiler.EndSample();
  	}
  	
  	protected abstract void Update(Entity entity,T1 data);
@@ -63,14 +55,12 @@ public abstract partial class BaseComponentSystem<T1,T2> : BaseComponentSystem
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
-	string name; 
 	
 	public BaseComponentSystem(GameWorld world) : base(world) {}
 	
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		var list = new List<ComponentType>(6);
 		if(ExtraComponentRequirements != null)		
 			list.AddRange(ExtraComponentRequirements);
@@ -81,8 +71,6 @@ public abstract partial class BaseComponentSystem<T1,T2> : BaseComponentSystem
 
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var entityArray = Group.ToEntityArray(Allocator.TempJob);
 		var dataArray1 = Group.ToComponentArray<T1>();
 		var dataArray2 = Group.ToComponentArray<T2>();
@@ -93,7 +81,6 @@ public abstract partial class BaseComponentSystem<T1,T2> : BaseComponentSystem
 		}
 		
 		entityArray.Dispose();
-		Profiler.EndSample();
 	}
 	
 	protected abstract void Update(Entity entity,T1 data1,T2 data2);
@@ -107,14 +94,12 @@ public abstract partial class BaseComponentSystem<T1,T2,T3> : BaseComponentSyste
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
-	string name;
 	
 	public BaseComponentSystem(GameWorld world) : base(world) {}
 	
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		var list = new List<ComponentType>(6);
 		if(ExtraComponentRequirements != null)		
 			list.AddRange(ExtraComponentRequirements);
@@ -125,8 +110,6 @@ public abstract partial class BaseComponentSystem<T1,T2,T3> : BaseComponentSyste
 
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var entityArray = Group.ToEntityArray(Allocator.TempJob);
 		var dataArray1 = Group.ToComponentArray<T1>();
 		var dataArray2 = Group.ToComponentArray<T2>();
@@ -138,7 +121,6 @@ public abstract partial class BaseComponentSystem<T1,T2,T3> : BaseComponentSyste
 		}
 		
 		entityArray.Dispose();
-		Profiler.EndSample();
 	}
 	
 	protected abstract void Update(Entity entity,T1 data1,T2 data2,T3 data3);
@@ -149,14 +131,12 @@ public abstract partial class BaseComponentDataSystem<T1> : BaseComponentSystem
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
-	string name;
 	
 	public BaseComponentDataSystem(GameWorld world) : base(world) {}
 	
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		var list = new List<ComponentType>(6);
 		if(ExtraComponentRequirements != null)		
 			list.AddRange(ExtraComponentRequirements);
@@ -167,8 +147,6 @@ public abstract partial class BaseComponentDataSystem<T1> : BaseComponentSystem
 
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-		
 		var chunks = Group.ToArchetypeChunkArray(Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
@@ -186,7 +164,6 @@ public abstract partial class BaseComponentDataSystem<T1> : BaseComponentSystem
 		}
 		
 		chunks.Dispose();
-		Profiler.EndSample();
 	}
 	
 	protected abstract void Update(Entity entity,T1 data);
@@ -198,13 +175,11 @@ public abstract partial class BaseComponentDataSystem<T1,T2> : BaseComponentSyst
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
-	private string name;
 	
 	public BaseComponentDataSystem(GameWorld world) : base(world) {}
 	
 	protected override void OnCreate()
 	{
-		name = GetType().Name;
 		base.OnCreate();
 		var list = new List<ComponentType>(6);
 		if(ExtraComponentRequirements != null)		
@@ -216,8 +191,6 @@ public abstract partial class BaseComponentDataSystem<T1,T2> : BaseComponentSyst
 
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var chunks = Group.ToArchetypeChunkArray(Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
@@ -237,8 +210,6 @@ public abstract partial class BaseComponentDataSystem<T1,T2> : BaseComponentSyst
 		}
 
 		chunks.Dispose();
-
-		Profiler.EndSample();
 	}
 	
 	protected abstract void Update(Entity entity,T1 data1,T2 data2);
@@ -251,14 +222,12 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3> : BaseComponentS
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
-	string name;
 	
 	public BaseComponentDataSystem(GameWorld world) : base(world) {}
 	
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		var list = new List<ComponentType>(6);
 		if(ExtraComponentRequirements != null)		
 			list.AddRange(ExtraComponentRequirements);
@@ -269,8 +238,6 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3> : BaseComponentS
 
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var chunks = Group.ToArchetypeChunkArray(Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
@@ -292,8 +259,6 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3> : BaseComponentS
 		}
 
 		chunks.Dispose();
-
-		Profiler.EndSample();
 	}
 	
 	protected abstract void Update(Entity entity,T1 data1,T2 data2,T3 data3);
@@ -308,14 +273,12 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4> : BaseCompone
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
-	string name;
 	
 	public BaseComponentDataSystem(GameWorld world) : base(world) {}
 	
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		var list = new List<ComponentType>(6);
 		if(ExtraComponentRequirements != null)		
 			list.AddRange(ExtraComponentRequirements);
@@ -326,8 +289,6 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4> : BaseCompone
 
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var chunks = Group.ToArchetypeChunkArray(Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
@@ -351,8 +312,6 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4> : BaseCompone
 		}
 
 		chunks.Dispose();
-
-		Profiler.EndSample();
 	}
 	
 	protected abstract void Update(Entity entity,T1 data1,T2 data2,T3 data3,T4 data4);
@@ -367,14 +326,12 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4,T5> : BaseComp
 {
 	EntityQuery Group;
 	protected ComponentType[] ExtraComponentRequirements;
-	string name;
 	
 	public BaseComponentDataSystem(GameWorld world) : base(world) {}
 	
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		var list = new List<ComponentType>(6);
 		if(ExtraComponentRequirements != null)		
 			list.AddRange(ExtraComponentRequirements);
@@ -385,8 +342,6 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4,T5> : BaseComp
 
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var chunks = Group.ToArchetypeChunkArray(Allocator.TempJob);
 		var entityType = GetEntityTypeHandle();
 		var type1 = GetComponentTypeHandle<T1>(true);
@@ -412,8 +367,6 @@ public abstract partial class BaseComponentDataSystem<T1,T2,T3,T4,T5> : BaseComp
 		}
 
 		chunks.Dispose();
-
-		Profiler.EndSample();
 	}
 	
 	protected abstract void Update(Entity entity,T1 data1,T2 data2,T3 data3,T4 data4, T5 data5);
@@ -424,21 +377,17 @@ public abstract partial class InitializeComponentSystem<T> : BaseComponentSystem
 {
 	public struct SystemState : IComponentData {}
 	EntityQuery IncomingGroup;
-	string name;
 	
 	public InitializeComponentSystem(GameWorld world) : base(world) {}
 
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		IncomingGroup = GetEntityQuery(typeof(T),ComponentType.Exclude<SystemState>());
 	}
     
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var incomingEntityArray = IncomingGroup.ToEntityArray(Allocator.TempJob);
 		var ecb = new EntityCommandBuffer(Allocator.TempJob);
 		if (incomingEntityArray.Length > 0)
@@ -456,7 +405,6 @@ public abstract partial class InitializeComponentSystem<T> : BaseComponentSystem
 		ecb.Playback(EntityManager);
 		ecb.Dispose();
 		incomingEntityArray.Dispose();
-		Profiler.EndSample();
 	}
 
 	protected abstract void Initialize(Entity entity, T component);
@@ -468,21 +416,17 @@ public abstract partial class InitializeComponentDataSystem<T,K> : BaseComponent
 {
 	
 	EntityQuery IncomingGroup;
-	string name;
 	
 	public InitializeComponentDataSystem(GameWorld world) : base(world) {}
 
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		IncomingGroup = GetEntityQuery(typeof(T),ComponentType.Exclude<K>());
 	}
     
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var incomingEntityArray = IncomingGroup.ToEntityArray(Allocator.TempJob);
 		var ecb = new EntityCommandBuffer(Allocator.TempJob);
 		if (incomingEntityArray.Length > 0)
@@ -500,7 +444,6 @@ public abstract partial class InitializeComponentDataSystem<T,K> : BaseComponent
 		ecb.Playback(EntityManager);
 		ecb.Dispose();
 		incomingEntityArray.Dispose();
-		Profiler.EndSample();
 	}
 
 	protected abstract void Initialize(Entity entity, T component);
@@ -512,21 +455,17 @@ public abstract partial class DeinitializeComponentSystem<T> : BaseComponentSyst
 	where T : MonoBehaviour
 {
 	EntityQuery OutgoingGroup;
-	string name;
 
 	public DeinitializeComponentSystem(GameWorld world) : base(world) {}
 
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		OutgoingGroup = GetEntityQuery(typeof(T), typeof(DespawningEntity));
 	}
     
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var outgoingComponentArray = OutgoingGroup.ToComponentArray<T>();
 		var outgoingEntityArray = OutgoingGroup.ToEntityArray(Allocator.TempJob);
 		for (var i = 0; i < outgoingComponentArray.Length; i++)
@@ -534,7 +473,6 @@ public abstract partial class DeinitializeComponentSystem<T> : BaseComponentSyst
 			Deinitialize(outgoingEntityArray[i], outgoingComponentArray[i]);
 		}
 		outgoingEntityArray.Dispose();
-		Profiler.EndSample();
 	}
 
 	protected abstract void Deinitialize(Entity entity, T component);
@@ -545,21 +483,17 @@ public abstract partial class DeinitializeComponentDataSystem<T> : BaseComponent
 	where T : unmanaged, IComponentData
 {
 	EntityQuery OutgoingGroup;
-	string name;
 
 	public DeinitializeComponentDataSystem(GameWorld world) : base(world) {}
 
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		OutgoingGroup = GetEntityQuery(typeof(T), typeof(DespawningEntity));
 	}
     
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var outgoingComponentArray = OutgoingGroup.ToComponentDataArray<T>(Allocator.TempJob);
 		var outgoingEntityArray = OutgoingGroup.ToEntityArray(Allocator.TempJob);
 		for (var i = 0; i < outgoingComponentArray.Length; i++)
@@ -569,7 +503,6 @@ public abstract partial class DeinitializeComponentDataSystem<T> : BaseComponent
 
 		outgoingComponentArray.Dispose();
 		outgoingEntityArray.Dispose();
-		Profiler.EndSample();
 	}
 
 	protected abstract void Deinitialize(Entity entity, T component);
@@ -580,21 +513,17 @@ public abstract partial class InitializeComponentGroupSystem<T,S> : BaseComponen
 	where S : unmanaged, IComponentData
 {
 	EntityQuery IncomingGroup;
-	string name;
 
 	public InitializeComponentGroupSystem(GameWorld world) : base(world) {}
 
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		IncomingGroup = GetEntityQuery(typeof(T),ComponentType.Exclude<S>());
 	}
     
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		var incomingEntityArray = IncomingGroup.ToEntityArray(Allocator.TempJob);
 		var ecb = new EntityCommandBuffer(Allocator.TempJob);
 		if (incomingEntityArray.Length > 0)
@@ -609,7 +538,6 @@ public abstract partial class InitializeComponentGroupSystem<T,S> : BaseComponen
 		incomingEntityArray.Dispose();
 		ecb.Playback(EntityManager);
 		ecb.Dispose();
-		Profiler.EndSample();
 	}
 
 	protected abstract void Initialize(ref EntityQuery group);
@@ -621,25 +549,19 @@ public abstract partial class DeinitializeComponentGroupSystem<T> : BaseComponen
 	where T : MonoBehaviour
 {
 	EntityQuery OutgoingGroup;
-	string name;
 
 	public DeinitializeComponentGroupSystem(GameWorld world) : base(world) {}
 
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		name = GetType().Name;
 		OutgoingGroup = GetEntityQuery(typeof(T), typeof(DespawningEntity));
 	}
     
 	protected override void OnUpdate()
 	{
-		Profiler.BeginSample(name);
-
 		if (OutgoingGroup.IsEmpty == false)
 			Deinitialize(ref OutgoingGroup);
-		
-		Profiler.EndSample();
 	}
 
 	protected abstract void Deinitialize(ref EntityQuery group);

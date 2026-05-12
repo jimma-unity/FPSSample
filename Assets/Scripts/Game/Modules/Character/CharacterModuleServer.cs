@@ -170,7 +170,6 @@ public partial class HandleCharacterDespawnRequests : BaseComponentSystem
         var requestArray = DespawnGroup.ToComponentDataArray<CharacterDespawnRequest>(Allocator.TempJob);
         if (requestArray.Length > 0)
         {
-            Profiler.BeginSample("HandleCharacterDespawnRequests");
             var requestEntityArray = DespawnGroup.ToEntityArray(Allocator.TempJob);
             var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
@@ -195,7 +194,6 @@ public partial class HandleCharacterDespawnRequests : BaseComponentSystem
             ecb.Playback(EntityManager);
             ecb.Dispose();
             requestEntityArray.Dispose();
-            Profiler.EndSample();
         }
         requestArray.Dispose();
     }

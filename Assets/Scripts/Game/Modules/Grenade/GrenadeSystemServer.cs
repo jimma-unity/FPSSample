@@ -144,8 +144,6 @@ public partial class FinalizeGrenadeMovement : BaseComponentSystem
 
     protected override void OnUpdate()
     {
-        Profiler.BeginSample("FinalizeGrenadeMovement");
-        
         var time = m_world.worldTime;
         var queryReciever = World.GetExistingSystemManaged<RaySphereQueryReciever>();
 
@@ -236,7 +234,6 @@ public partial class FinalizeGrenadeMovement : BaseComponentSystem
         internalStateArray.Dispose();
         interpolatedStateArray.Dispose();
         grenadeEntityArray.Dispose();
-        Profiler.EndSample();
     }
     
 }
