@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assemblies;
 using Object = UnityEngine.Object;
 
 
@@ -277,7 +278,7 @@ public class MultiInspector : EditorWindow
         if (customEditors.Count > 0)
             return;
         
-        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        var assemblies = CurrentAssemblies.GetLoadedAssemblies();
         foreach (var assembly in assemblies)
         {
             var types = assembly.GetTypes();

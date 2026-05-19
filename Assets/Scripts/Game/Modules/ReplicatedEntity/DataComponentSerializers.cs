@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Entities;
+using UnityEngine.Assemblies;
 
 public interface IReplicatedComponentSerializerFactory
 {
@@ -349,7 +350,7 @@ public class DataComponentSerializers
         var predictedType = typeof(IPredictedDataBase);
         var interpolatedType = typeof(IInterpolatedDataBase);
 
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        foreach (var assembly in CurrentAssemblies.GetLoadedAssemblies())
         {
             foreach (var type in assembly.GetTypes())
             {

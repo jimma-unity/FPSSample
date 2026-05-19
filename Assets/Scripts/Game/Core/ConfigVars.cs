@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Assemblies;
 
 public class ConfigVarAttribute : Attribute
 {
@@ -123,7 +124,7 @@ public class ConfigVar
 
     static void InjectAttributeConfigVars()
     {
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        foreach (var assembly in CurrentAssemblies.GetLoadedAssemblies())
         {
             foreach (var _class in assembly.GetTypes())
             {
