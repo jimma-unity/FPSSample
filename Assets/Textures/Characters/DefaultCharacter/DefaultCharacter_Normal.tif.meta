@@ -159,7 +159,7 @@ TextureImporter:
     spriteID: 
     internalID: 0
     vertices: []
-    indices: 
+    indices: {_typeName: int, _data: }
     edges: []
     weights: []
     secondaryTextures: []
