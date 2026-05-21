@@ -1,317 +1,312 @@
 #if false
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering;
+#if !UNITY_6000_5_OR_NEWER
+using UnityEngine.Experimental.Rendering; // GraphicsStateCollection pre-6000.0.5
+#endif
 
+/// <summary>
+/// Shader variant stripper driven by ShaderVariantCollection (SVC) and
+/// GraphicsStateCollection (GSC).
+///
+/// The core insight is that HDRP pipeline globals (USE_FPTL_LIGHTLIST,
+/// WRITE_NORMAL_BUFFER, SHADOWS_SHADOWMASK, etc.) are declared with
+/// #pragma multi_compile (no _local suffix) and therefore show up as
+/// GLOBAL ShaderKeywords. Material feature keywords (_NORMALMAP, _MASKMAP,
+/// etc.) are declared with #pragma shader_feature_local and are LOCAL.
+/// ShaderKeyword.IsKeywordLocal() distinguishes them. By filtering the
+/// runtime variant's keywords to local-only before matching, both sides of
+/// the comparison are on equal footing with the material-recorded SVC without
+/// needing a hardcoded exclusion list.
+///
+/// GSC records LocalKeyword[] by design, so it is naturally local-only.
+///
+/// A variant is kept when its local keywords:
+///   1. Exactly match a collection entry, OR
+///   2. Are a subset of a collection entry (handles per-stage compilation
+///      where multi_compile_fragment keywords present in the SVC entry are
+///      absent from a vertex-stage runtime variant).
+///
+/// A shader/pass unknown to both collections is left untouched.
+/// </summary>
 class ShaderVariantStripper : IPreprocessShaders
 {
-  const string CollectionPath =
-      "Assets/ScriptableRenderPipeline/HDRP_Assets/TrackedShaders.shadervariants";
+    const string SvcPath =
+        "Assets/ScriptableRenderPipeline/HDRP_Assets/TrackedShaders.shadervariants";
 
-  static readonly string[] NeverStripPrefixes =
-  {
-      "Firstperson_Projection",
-      "Hidden/",
-      "HDRP/Water",
-      "HDRP/VFX",
-      "HDRP/Unlit",
-      "Planet",
-      "TextMeshPro",
-      "UI/"
-  };
+    static readonly string[] NeverStripPrefixes =
+    {
+        "Firstperson_Projection",
+        "Hidden/",
+        "HDRP/Water",
+        "HDRP/VFX",
+        "HDRP/Unlit",
+        "Planet",
+        "TextMeshPro",
+        "UI/",
+    };
 
-  // HDRP pipeline-injected keywords — excluded from the match key so that material-only
-  // collection entries match compilation variants that carry them. These vary by camera
-  // distance / light count (FPTL vs Clustered) or render pass (WRITE_NORMAL_BUFFER), which
-  // is why the same model can fail at one LOD but not another. HDRP's built-in stripper
-  // already handles stripping unused HDRP feature variants; we only match material features.
-  static readonly HashSet<string> HDRPGlobalKeywords = new(StringComparer.Ordinal)
-  {
-      "USE_FPTL_LIGHTLIST", "USE_CLUSTERED_LIGHTLIST",
-      "WRITE_NORMAL_BUFFER",
-      "PUNCTUAL_SHADOW_LOW", "PUNCTUAL_SHADOW_MEDIUM", "PUNCTUAL_SHADOW_HIGH",
-      "DIRECTIONAL_SHADOW_LOW", "DIRECTIONAL_SHADOW_MEDIUM", "DIRECTIONAL_SHADOW_HIGH",
-      "AREA_SHADOW_LOW", "AREA_SHADOW_MEDIUM", "AREA_SHADOW_HIGH",
-      "DECALS_OFF", "DECALS_3RT", "DECALS_4RT",
-      "PROBE_VOLUMES_L1", "PROBE_VOLUMES_L2",
-      "SCREEN_SPACE_SHADOWS_OFF",
-      "LIGHTMAP_ON", "DIRLIGHTMAP_COMBINED", "DYNAMICLIGHTMAP_ON",
-      "USE_LEGACY_LIGHTMAPS", "LIGHTPROBE_SH",
-      "PROCEDURAL_INSTANCING_ON",
-      "STEREO_INSTANCING_ON", "STEREO_MULTIVIEW_ON", "UNITY_SINGLE_PASS_STEREO",
-  };
+    static readonly PassType[] RecordedPassTypes =
+    {
+        PassType.Normal,
+        PassType.ShadowCaster,
+        PassType.MotionVectors,
+        PassType.ScriptableRenderPipeline,
+        PassType.ScriptableRenderPipelineDefaultUnlit,
+    };
 
-  static readonly PassType[] RecordedPassTypes =
-  {
-      PassType.Normal,
-      PassType.ShadowCaster,
-      PassType.MotionVectors,
-      PassType.ScriptableRenderPipeline,
-      PassType.ScriptableRenderPipelineDefaultUnlit,
-  };
+    static readonly string[] InstancedKeywords = { "INSTANCING_ON", "DOTS_INSTANCING_ON" };
 
-  static readonly string[] InstancedKeywords =
-  {
-      "INSTANCING_ON",
-      "DOTS_INSTANCING_ON",
-  };
+    // -------------------------------------------------------------------------
+    // Per-pass variant collection
 
-  static readonly Regex GuidRx =
-      new Regex(@"guid:\s*([0-9a-f]{32})", RegexOptions.Compiled);
+    class VariantSet
+    {
+        // Joined "kw1 kw2 kw3" strings for O(1) exact lookup.
+        public readonly HashSet<string> ExactKeys = new(StringComparer.Ordinal);
+        // Full keyword sets retained for subset matching.
+        public readonly List<HashSet<string>> Entries = new();
 
-  // Exact lookup: "shaderGUID|passType|matKw1 matKw2 ..." (HDRP globals stripped, sorted).
-  // Subset lookup: "shaderGUID|passType" -> list of keyword sets from the collection.
-  // A variant is kept if its keyword set is a subset of any collection entry for the same
-  // shader+passType — this handles sub-pass variants (e.g. depth prepass uses fewer keywords
-  // than the full forward pass) and SSR-enabled variants whose superset was recorded with
-  // _DISABLE_SSR_TRANSPARENT during the playthrough.
-  HashSet<string> _variantKeys;
-  Dictionary<string, List<HashSet<string>>> _variantSets;
-  readonly Dictionary<Shader, string> _guidCache = new();
+        public void Add(string[] sortedLocalKws)
+        {
+            if (ExactKeys.Add(string.Join(" ", sortedLocalKws)))
+                Entries.Add(new HashSet<string>(sortedLocalKws, StringComparer.Ordinal));
+        }
+    }
 
-  int _stripped, _kept;
+    // SVC: (shader, passType) → material-recorded variants.
+    Dictionary<(Shader, int), VariantSet> _svc;
 
-  public int callbackOrder => 0;
+    // GSC: (shader, subshaderIndex, passIndex) → runtime-recorded variants.
+    Dictionary<(Shader, uint, uint), VariantSet> _gsc;
 
-  static bool ShouldSkipShader(Shader shader)
-  {
-      foreach (var prefix in NeverStripPrefixes)
-          if (shader.name.StartsWith(prefix))
-              return true;
-      return false;
-  }
+    int _stripped, _kept;
 
-  // Returns the material-feature keywords: strips HDRP pipeline globals, empty names,
-  // and sorts. These are the only keywords we match on.
-  static string[] MaterialKeywords(IEnumerable<string> names) =>
-      names.Where(n => !string.IsNullOrEmpty(n) && !HDRPGlobalKeywords.Contains(n))
-           .OrderBy(n => n, StringComparer.Ordinal)
-           .ToArray();
+    // Run after HDRP's built-in stripper so it removes disabled-feature variants
+    // first, leaving a smaller set for our collection-based pass.
+    public int callbackOrder => int.MaxValue;
 
-  string GetGuid(Shader shader)
-  {
-      if (!_guidCache.TryGetValue(shader, out var guid))
-          _guidCache[shader] = guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(shader));
-      return guid;
-  }
+    // -------------------------------------------------------------------------
 
-  // Parses the .shadervariants YAML text directly — avoids SerializedObject's inability to
-  // navigate ShaderVariantCollection's native C++ struct layout reliably.
-  // The YAML has blocks like:
-  //   - first:
-  //       shader: {fileID: X, guid: GUID, type: 2}
-  //     second:
-  //       variants:
-  //       - keywords: KW1 KW2 KW3
-  //           KW4 KW5          <- wrapped continuation lines
-  //         passType: 13
-  static (HashSet<string> keys, Dictionary<string, List<HashSet<string>>> sets) BuildLookup(string assetPath)
-  {
-      var result = new HashSet<string>(StringComparer.Ordinal);
-      var sets   = new Dictionary<string, List<HashSet<string>>>(StringComparer.Ordinal);
+    static bool ShouldSkipShader(Shader shader)
+    {
+        foreach (var prefix in NeverStripPrefixes)
+            if (shader.name.StartsWith(prefix, StringComparison.Ordinal))
+                return true;
+        return false;
+    }
 
-      var projectRoot = Path.GetDirectoryName(Application.dataPath);
-      var fullPath    = Path.Combine(projectRoot, assetPath);
+    // Extracts the local keyword names from a compiled variant's keyword set,
+    // sorted for canonical comparison. Global keywords (pipeline-injected:
+    // USE_FPTL_LIGHTLIST, SHADOWS_SHADOWMASK, etc.) are excluded because they
+    // are absent from material-recorded SVC entries by construction.
+    static string[] LocalKeywords(ShaderKeyword[] allKws)
+    {
+        var result = new List<string>(allKws.Length);
+        foreach (var kw in allKws)
+            if (!string.IsNullOrEmpty(kw.name) && ShaderKeyword.IsKeywordLocal(kw))
+                result.Add(kw.name);
+        result.Sort(StringComparer.Ordinal);
+        return result.ToArray();
+    }
 
-      if (!File.Exists(fullPath))
-      {
-          Debug.LogError($"[ShaderVariantStripper] Collection not found at {fullPath}");
-          return (result, sets);
-      }
+    // Normalises a keyword string list (from SVC or material) for storage:
+    // removes empty entries and sorts. No global/local filtering here because
+    // material.shaderKeywords only ever contains local keywords.
+    static string[] SortedKeywords(IEnumerable<string> names) =>
+        names.Where(n => !string.IsNullOrEmpty(n))
+             .OrderBy(n => n, StringComparer.Ordinal)
+             .ToArray();
 
-      string currentGuid        = null;
-      bool   collectingKeywords = false;
-      var    pendingKws         = new StringBuilder();
-      int    shaderCount        = 0;
+    // -------------------------------------------------------------------------
+    // Collection loading
 
-      foreach (var rawLine in File.ReadLines(fullPath))
-      {
-          var trimmed = rawLine.TrimStart();
+    void BuildCollections()
+    {
+        _svc = new Dictionary<(Shader, int), VariantSet>();
+        _gsc = new Dictionary<(Shader, uint, uint), VariantSet>();
+        LoadSvc();
+        LoadGsc();
+    }
 
-          // Shader GUID — from "- first: {fileID: ..., guid: ..., type: ...}" lines.
-          // The type is 3 for package/project shaders, 0 for built-in Unity shaders.
-          if (trimmed.StartsWith("- first:") && trimmed.Contains("guid:"))
-          {
-              var m = GuidRx.Match(trimmed);
-              if (m.Success)
-              {
-                  currentGuid = m.Groups[1].Value;
-                  shaderCount++;
-                  collectingKeywords = false;
-                  pendingKws.Clear();
-              }
-              continue;
-          }
+    void LoadSvc()
+    {
+        var collection = AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>(SvcPath);
+        if (collection == null)
+        {
+            Debug.LogError($"[ShaderVariantStripper] SVC not found at {SvcPath}");
+            return;
+        }
 
-          // Start of a variant's keyword list.
-          if (trimmed.StartsWith("- keywords:"))
-          {
-              collectingKeywords = true;
-              pendingKws.Clear();
-              var rest = trimmed.Substring("- keywords:".Length).Trim();
-              if (rest.Length > 0)
-                  pendingKws.Append(rest);
-              continue;
-          }
+        var so          = new SerializedObject(collection);
+        var shadersProp = so.FindProperty("m_Shaders");
+        if (shadersProp == null || !shadersProp.isArray) return;
 
-          // passType closes the variant entry.
-          if (trimmed.StartsWith("passType:") && collectingKeywords && currentGuid != null)
-          {
-              collectingKeywords = false;
-              if (int.TryParse(trimmed.Substring("passType:".Length).Trim(), out int pt))
-              {
-                  var kws = MaterialKeywords(pendingKws.ToString()
-                      .Split(' ', StringSplitOptions.RemoveEmptyEntries));
-                  result.Add($"{currentGuid}|{pt}|{string.Join(" ", kws)}");
-                  var setKey = $"{currentGuid}|{pt}";
-                  if (!sets.TryGetValue(setKey, out var list))
-                      sets[setKey] = list = new List<HashSet<string>>();
-                  list.Add(new HashSet<string>(kws, StringComparer.Ordinal));
-              }
-              pendingKws.Clear();
-              continue;
-          }
+        for (int i = 0; i < shadersProp.arraySize; i++)
+        {
+            var elem   = shadersProp.GetArrayElementAtIndex(i);
+            var shader = elem.FindPropertyRelative("first").objectReferenceValue as Shader;
+            if (shader == null || ShouldSkipShader(shader)) continue;
 
-          // Wrapped keyword continuation lines: indented further than passType, no colon.
-          // Keyword names never contain ": " so the colon check is safe.
-          if (collectingKeywords)
-          {
-              if (trimmed.Length == 0 || trimmed.Contains(": ") || trimmed.StartsWith("- "))
-              {
-                  collectingKeywords = false;
-                  pendingKws.Clear();
-              }
-              else
-              {
-                  if (pendingKws.Length > 0) pendingKws.Append(' ');
-                  pendingKws.Append(trimmed);
-              }
-          }
-      }
+            var variantsProp = elem.FindPropertyRelative("second.variants");
+            if (variantsProp == null || !variantsProp.isArray) continue;
 
-      Debug.Log($"[ShaderVariantStripper] Lookup: {result.Count} material-keyword variants across {shaderCount} shaders.");
-      return (result, sets);
-  }
+            for (int j = 0; j < variantsProp.arraySize; j++)
+            {
+                var vp       = variantsProp.GetArrayElementAtIndex(j);
+                var kwStr    = vp.FindPropertyRelative("keywords").stringValue ?? "";
+                var passType = vp.FindPropertyRelative("passType").intValue;
 
-  public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data)
-  {
-      if (ShouldSkipShader(shader))
-          return;
+                var kws = SortedKeywords(kwStr.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                var key = (shader, passType);
+                if (!_svc.TryGetValue(key, out var set))
+                    _svc[key] = set = new VariantSet();
+                set.Add(kws);
+            }
+        }
 
-      if (_variantKeys == null)
-          (_variantKeys, _variantSets) = BuildLookup(CollectionPath);
+        int totalVariants = _svc.Values.Sum(v => v.Entries.Count);
+        int totalShaders  = _svc.Keys.Select(k => k.Item1).Distinct().Count();
+        Debug.Log($"[ShaderVariantStripper] SVC: {totalVariants} variants across {totalShaders} shaders.");
+    }
 
-      var shaderGuid = GetGuid(shader);
-      if (string.IsNullOrEmpty(shaderGuid))
-          return;
+    void LoadGsc()
+    {
+        var assetGuids = AssetDatabase.FindAssets("t:GraphicsStateCollection");
+        var buf        = new List<GraphicsStateCollection.ShaderVariant>();
+        int total      = 0;
 
-      for (int i = data.Count - 1; i >= 0; i--)
-      {
-          var allKws = data[i].shaderKeywordSet.GetShaderKeywords();
+        foreach (var assetGuid in assetGuids)
+        {
+            var gsc = AssetDatabase.LoadAssetAtPath<GraphicsStateCollection>(
+                          AssetDatabase.GUIDToAssetPath(assetGuid));
+            if (gsc == null) continue;
 
-          // Always keep the zero-keyword base variant.
-          if (allKws.Length == 0)
-              continue;
+            buf.Clear();
+            gsc.GetVariants(buf);
 
-          var kws = MaterialKeywords(Array.ConvertAll(allKws, kw => kw.name));
+            foreach (var v in buf)
+            {
+                if (v.shader == null || ShouldSkipShader(v.shader)) continue;
 
-          // No material keywords remain after filtering (e.g. WRITE_NORMAL_BUFFER-only
-          // depth prepass). Let HDRP's own stripper handle these.
-          if (kws.Length == 0)
-              continue;
+                // GSC records LocalKeyword[] — already local-only by definition.
+                var kws = SortedKeywords(v.keywords.Select(k => k.name));
+                var key = (v.shader, v.passId.SubshaderIndex, v.passId.PassIndex);
+                if (!_gsc.TryGetValue(key, out var set))
+                    _gsc[key] = set = new VariantSet();
+                set.Add(kws);
+                total++;
+            }
+        }
 
-          var key = $"{shaderGuid}|{(int)snippet.passType}|{string.Join(" ", kws)}";
-          if (_variantKeys.Contains(key))
-          {
-              _kept++;
-              continue;
-          }
+        Debug.Log($"[ShaderVariantStripper] GSC: {total} variants from {assetGuids.Length} collection(s).");
+    }
 
-          // Subset match: keep if the variant's keywords are a subset of any collection
-          // entry for this shader+passType. Handles sub-pass variants (depth prepass uses
-          // fewer keywords than forward pass) and SSR-enabled variants whose superset was
-          // recorded with _DISABLE_SSR_TRANSPARENT during the collection playthrough.
-          var setKey = $"{shaderGuid}|{(int)snippet.passType}";
-          if (_variantSets.TryGetValue(setKey, out var sets))
-          {
-              var kwSet = new HashSet<string>(kws, StringComparer.Ordinal);
-              foreach (var entry in sets)
-              {
-                  if (kwSet.IsSubsetOf(entry))
-                  {
-                      _kept++;
-                      goto nextVariant;
-                  }
-              }
-          }
+    // -------------------------------------------------------------------------
+    // IPreprocessShaders
 
-          data.RemoveAt(i);
-          _stripped++;
-          continue;
-          nextVariant:;
-      }
-  }
+    public void OnProcessShader(Shader shader, ShaderSnippetData snippet, IList<ShaderCompilerData> data)
+    {
+        if (ShouldSkipShader(shader)) return;
+        if (_svc == null) BuildCollections();
 
-  [MenuItem("FPS Sample/Shaders/Rebuild Variant Collection From Materials")]
-  static void RebuildCollection()
-  {
-      var collection = AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>(CollectionPath);
-      if (collection == null)
-      {
-          Debug.LogError($"[ShaderVariantStripper] Collection not found at {CollectionPath}");
-          return;
-      }
+        _svc.TryGetValue((shader, (int)snippet.passType), out var svcSet);
+        _gsc.TryGetValue((shader, snippet.pass.SubshaderIndex, snippet.pass.PassIndex), out var gscSet);
 
-      var guids = AssetDatabase.FindAssets("t:Material");
-      int added = 0;
+        // Unknown to both collections — leave entirely untouched so untracked
+        // shaders are never silently stripped.
+        if (svcSet == null && gscSet == null) return;
 
-      foreach (var guid in guids)
-      {
-          var mat = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
-          if (mat?.shader == null) continue;
-          if (ShouldSkipShader(mat.shader)) continue;
+        for (int i = data.Count - 1; i >= 0; i--)
+        {
+            var allKws = data[i].shaderKeywordSet.GetShaderKeywords();
 
-          foreach (var passType in RecordedPassTypes)
-          {
-              if (TryAdd(collection, mat.shader, passType, mat.shaderKeywords))
-                  added++;
+            // Always keep the zero-keyword base variant.
+            if (allKws.Length == 0) continue;
 
-              foreach (var instanceKw in InstancedKeywords)
-              {
-                  var keywords = mat.shaderKeywords.Append(instanceKw).ToArray();
-                  if (TryAdd(collection, mat.shader, passType, keywords))
-                      added++;
-              }
-          }
-      }
+            // Reduce to local keywords. If nothing remains, every keyword in this
+            // variant is a pipeline global — HDRP's own stripper handles those.
+            var kws = LocalKeywords(allKws);
+            if (kws.Length == 0) continue;
 
-      EditorUtility.SetDirty(collection);
-      AssetDatabase.SaveAssets();
-      Debug.Log($"[ShaderVariantStripper] Scanned {guids.Length} materials, " +
-                $"added {added} new variants. " +
-                $"Collection now has {collection.shaderCount} shaders / {collection.variantCount} variants.");
-  }
+            if (IsKept(svcSet, kws) || IsKept(gscSet, kws))
+            {
+                _kept++;
+                continue;
+            }
 
-  static bool TryAdd(ShaderVariantCollection collection, Shader shader,
-                     PassType passType, string[] keywords)
-  {
-      try
-      {
-          return collection.Add(
-              new ShaderVariantCollection.ShaderVariant(shader, passType, keywords));
-      }
-      catch (ArgumentException)
-      {
-          return false;
-      }
-  }
+            data.RemoveAt(i);
+            _stripped++;
+        }
+    }
+
+    static bool IsKept(VariantSet set, string[] kws)
+    {
+        if (set == null) return false;
+
+        // Exact match: O(1) hash lookup.
+        if (set.ExactKeys.Contains(string.Join(" ", kws)))
+            return true;
+
+        // Subset match: variant's local keywords ⊆ a collection entry.
+        // This handles per-stage compilation: a vertex-stage variant will not
+        // carry multi_compile_fragment keywords that appear in the SVC entry
+        // (which was recorded with all stages active on the material). The
+        // smaller runtime set is still a subset of the full entry.
+        var kwSet = new HashSet<string>(kws, StringComparer.Ordinal);
+        foreach (var entry in set.Entries)
+            if (kwSet.IsSubsetOf(entry))
+                return true;
+
+        return false;
+    }
+
+    // -------------------------------------------------------------------------
+    // SVC rebuild from project materials
+
+    [MenuItem("FPS Sample/Shaders/Rebuild Variant Collection From Materials")]
+    static void RebuildCollection()
+    {
+        var collection = AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>(SvcPath);
+        if (collection == null)
+        {
+            Debug.LogError($"[ShaderVariantStripper] Collection not found at {SvcPath}");
+            return;
+        }
+
+        int added = 0;
+        foreach (var guid in AssetDatabase.FindAssets("t:Material"))
+        {
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
+            if (mat?.shader == null || ShouldSkipShader(mat.shader)) continue;
+
+            foreach (var passType in RecordedPassTypes)
+            {
+                if (TryAddVariant(collection, mat.shader, passType, mat.shaderKeywords))
+                    added++;
+                foreach (var kw in InstancedKeywords)
+                    if (TryAddVariant(collection, mat.shader, passType, mat.shaderKeywords.Append(kw).ToArray()))
+                        added++;
+            }
+        }
+
+        EditorUtility.SetDirty(collection);
+        AssetDatabase.SaveAssets();
+        Debug.Log($"[ShaderVariantStripper] Scanned all materials, added {added} new variants. " +
+                  $"Collection now has {collection.shaderCount} shaders / {collection.variantCount} variants.");
+    }
+
+    static bool TryAddVariant(ShaderVariantCollection collection, Shader shader,
+                               PassType passType, string[] keywords)
+    {
+        try   { return collection.Add(new ShaderVariantCollection.ShaderVariant(shader, passType, keywords)); }
+        catch (ArgumentException) { return false; }
+    }
 }
 #endif
