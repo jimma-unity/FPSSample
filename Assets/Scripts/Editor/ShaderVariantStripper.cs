@@ -1,4 +1,3 @@
-#if false
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -309,4 +308,3 @@ class ShaderVariantStripper : IPreprocessShaders
         catch (ArgumentException) { return false; }
     }
 }
-#endif
