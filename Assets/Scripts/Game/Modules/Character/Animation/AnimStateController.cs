@@ -51,8 +51,7 @@ public class AnimStateController : MonoBehaviour
 
         // Set graph output
         var animationOutput = AnimationPlayableOutput.Create(m_PlayableGraph, "Animator", m_Animator);
-        animationOutput.SetSourcePlayable(outputPlayable);
-        animationOutput.SetSourceOutputPort (outputPort);
+        animationOutput.SetSourcePlayable(outputPlayable, outputPort);
     }
 
     public void Deinitialize()
